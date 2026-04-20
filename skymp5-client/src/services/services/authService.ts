@@ -454,28 +454,6 @@ export class AuthService extends ClientListener {
       id: 1,
       caption: "Authorization",
       elements: [
-        // {
-        //   type: "button",
-        //   tags: ["BUTTON_STYLE_GITHUB"],
-        //   hint: "get a colored nickname and mention in news",
-        //   click: () => window.skyrimPlatform.sendMessage(events.openGithub),
-        // },
-        // {
-        //   type: "button",
-        //   tags: ["BUTTON_STYLE_PATREON", "ELEMENT_SAME_LINE", "HINT_STYLE_RIGHT"],
-        //   hint: "get a colored nickname and other bonuses for patrons",
-        //   click: () => window.skyrimPlatform.sendMessage(events.openPatreon),
-        // },
-        // {
-        //   type: "icon",
-        //   text: "username",
-        //   tags: ["ICON_STYLE_SKYMP"],
-        // },
-        // {
-        //   type: "icon",
-        //   text: "",
-        //   tags: ["ICON_STYLE_DISCORD"],
-        // },
         {
           type: "text",
           text: (
@@ -485,17 +463,12 @@ export class AuthService extends ClientListener {
                 : `id: ${authData.masterApiId}`
             ) : "not authorized"
           ),
-          tags: [/*"ELEMENT_SAME_LINE", "ELEMENT_STYLE_MARGIN_EXTENDED"*/],
+          tags: [],
         },
-        // {
-        //   type: "icon",
-        //   text: "discord",
-        //   tags: ["ICON_STYLE_DISCORD"],
-        // },
         {
           type: "button",
           text: authData ? "change account" : "login with skymp",
-          tags: [/*"ELEMENT_SAME_LINE"*/],
+          tags: [],
           click: () => window.skyrimPlatform.sendMessage(events.openDiscordOauth),
           hint: "You can login or change your account",
         },
