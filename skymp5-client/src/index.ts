@@ -56,6 +56,7 @@ import { SweetCameraEnforcementService } from "./services/services/sweetCameraEn
 import { SweetTaffyNicknamesService } from "./services/services/sweetTaffyNicknamesService";
 import { ServerJsVerificationService } from "./services/services/serverJsVerificationService";
 import { SweetTaffyEvalService } from "./services/services/sweetTaffyEvalService";
+import { TestLoadedDialogService } from "./services/services/testLoadedDialogService";
 
 once("update", () => {
   Utility.setINIBool("bAlwaysActive:General", true);
@@ -116,7 +117,8 @@ const main = () => {
       new MagicSyncService(sp, controller),
       new ProfilingService(sp, controller),
       new SweetTaffyNicknamesService(sp, controller),
-      new ServerJsVerificationService(sp, controller)
+      new ServerJsVerificationService(sp, controller),
+      new TestLoadedDialogService(sp, controller)
     ];
     SpApiInteractor.setup(listeners);
   } catch (e) {
