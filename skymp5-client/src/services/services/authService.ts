@@ -199,7 +199,7 @@ export class AuthService extends ClientListener {
     const eventKey = e.arguments[0];
     switch (eventKey) {
       case events.openDiscordOauth:
-        browserState.comment = 'открываем браузер...';
+        browserState.comment = 'opening browser...';
         this.refreshWidgets();
         this.sp.win32.loadUrl(`${settingsService.getMasterUrl()}/api/users/login-discord?state=${this.discordAuthState}`);
 
@@ -208,7 +208,7 @@ export class AuthService extends ClientListener {
         break;
       case events.authAttempt:
         if (authData === null) {
-          browserState.comment = 'сначала войдите';
+          browserState.comment = 'first log in';
           this.refreshWidgets();
           break;
         }
@@ -310,7 +310,7 @@ export class AuthService extends ClientListener {
                   discordDiscriminator,
                   discordAvatar,
                 };
-                browserState.comment = 'привязан успешно';
+                browserState.comment = 'logged in successfully';
                 this.refreshWidgets();
               });
               break;
@@ -377,16 +377,16 @@ export class AuthService extends ClientListener {
     const widget = {
       type: "form",
       id: 2,
-      caption: "новинка",
+      caption: "new",
       elements: [
         {
           type: "text",
-          text: "ура! вышло обновление",
+          text: "hooray, an update is out",
           tags: []
         },
         {
           type: "text",
-          text: "спешите скачать на",
+          text: " hurry to download at",
           tags: []
         },
         {
@@ -396,10 +396,10 @@ export class AuthService extends ClientListener {
         },
         {
           type: "button",
-          text: "открыть skymp.net",
+          text: "open skymp.net",
           tags: ["ELEMENT_STYLE_MARGIN_EXTENDED"],
           click: () => window.skyrimPlatform.sendMessage(events.updateRequired),
-          hint: "Перейти на страницу скачивания обновления",
+          hint: "Go to the update download page",
         }
       ]
     }
@@ -430,7 +430,7 @@ export class AuthService extends ClientListener {
     if (browserState.loginFailedReason === 'вступите в discord сервер') {
       widget.elements.push({
         type: "button",
-        text: "вступить",
+        text: "join",
         tags: ["ELEMENT_STYLE_MARGIN_EXTENDED"],
         click: () => window.skyrimPlatform.sendMessage(events.joinDiscord),
         hint: null
@@ -439,7 +439,7 @@ export class AuthService extends ClientListener {
 
     widget.elements.push({
       type: "button",
-      text: "назад",
+      text: "back",
       tags: ["ELEMENT_STYLE_MARGIN_EXTENDED"],
       click: () => window.skyrimPlatform.sendMessage(events.backToLogin),
       hint: undefined
@@ -452,7 +452,7 @@ export class AuthService extends ClientListener {
     const loginWidget = {
       type: "form",
       id: 1,
-      caption: "Авторизация",
+      caption: "Authorization",
       elements: [
         // {
         //   type: "button",
@@ -483,7 +483,7 @@ export class AuthService extends ClientListener {
               authData.discordUsername
                 ? `${authData.discordUsername}`
                 : `id: ${authData.masterApiId}`
-            ) : "не авторизирован"
+            ) : "not authorized"
           ),
           tags: [/*"ELEMENT_SAME_LINE", "ELEMENT_STYLE_MARGIN_EXTENDED"*/],
         },
@@ -494,17 +494,17 @@ export class AuthService extends ClientListener {
         // },
         {
           type: "button",
-          text: authData ? "сменить аккаунт" : "войти через skymp",
+          text: authData ? "change account" : "login with skymp",
           tags: [/*"ELEMENT_SAME_LINE"*/],
           click: () => window.skyrimPlatform.sendMessage(events.openDiscordOauth),
-          hint: "Вы можете войти или поменять аккаунт",
+          hint: "You can login or change your account",
         },
         {
           type: "button",
-          text: "Играть",
+          text: "Play",
           tags: ["BUTTON_STYLE_FRAME", "ELEMENT_STYLE_MARGIN_EXTENDED"],
           click: () => window.skyrimPlatform.sendMessage(events.authAttempt),
-          hint: "Подключиться к игровому серверу",
+          hint: "Connect to the game server",
         },
         {
           type: "text",
