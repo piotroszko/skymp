@@ -47,6 +47,10 @@ public:
 
   static std::wstring GetPathToMyDocuments();
 
+  static std::wstring GetLocalSavePath();
+
+  static std::filesystem::path GetSavesDirectory();
+
 private:
   static std::wstring StringToWstring(const std::string& s);
 

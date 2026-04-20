@@ -153,47 +153,61 @@ std::unique_ptr<std::vector<std::string>> CreateLoadOrder(
 
 Napi::Value LoadGameApi::LoadGame(const Napi::CallbackInfo& info)
 {
-  NiPoint3 niPos = NapiHelper::ExtractNiPoint3(info[0], "pos");
-  NiPoint3 niAngle = NapiHelper::ExtractNiPoint3(info[1], "angle");
-  std::array<float, 3> pos = { niPos[0], niPos[1], niPos[2] };
-  std::array<float, 3> angle = { niAngle[0], niAngle[1], niAngle[2] };
+  try {
+    NiPoint3 niPos = NapiHelper::ExtractNiPoint3(info[0], "pos");
+    NiPoint3 niAngle = NapiHelper::ExtractNiPoint3(info[1], "angle");
+    std::array<float, 3> pos = { niPos[0], niPos[1], niPos[2] };
+    std::array<float, 3> angle = { niAngle[0], niAngle[1], niAngle[2] };
 
-  uint32_t cellOrWorld = NapiHelper::ExtractUInt32(info[2], "cellOrWorld");
+    uint32_t cellOrWorld = NapiHelper::ExtractUInt32(info[2], "cellOrWorld");
 
-  constexpr auto kPathInAssetsMale = "assets/template.ess";
+    logger::info("sp.loadGame called: cellOrWorld=0x{:x} pos=({:.1f},{:.1f},"
+                 "{:.1f}) angle=({:.1f},{:.1f},{:.1f}) hasNpcData={} "
+                 "hasLoadOrder={} hasTime={}",
+                 cellOrWorld, pos[0], pos[1], pos[2], angle[0], angle[1],
+                 angle[2], !info[3].IsUndefined() && !info[3].IsNull(),
+                 !info[4].IsUndefined() && !info[4].IsNull(),
+                 !info[5].IsUndefined() && !info[5].IsNull());
 
-  const char* pathInAsset = kPathInAssetsMale;
+    constexpr auto kPathInAssetsMale = "assets/template.ess";
 
-  auto save = LoadGame::PrepareSaveFile(pathInAsset);
-  if (!save) {
-    throw NullPointerException("save");
+    const char* pathInAsset = kPathInAssetsMale;
+
+    auto save = LoadGame::PrepareSaveFile(pathInAsset);
+    if (!save) {
+      throw NullPointerException("save");
+    }
+
+    std::unique_ptr<SaveFile_::ChangeFormNPC_> changeFormNpc =
+      (info[3].IsUndefined() || info[3].IsNull())
+      ? nullptr
+      : CreateChangeFormNpc(save,
+                            NapiHelper::ExtractObject(info[3], "npcData"));
+
+    std::unique_ptr<std::vector<std::string>> saveLoadOrder =
+      (info[4].IsUndefined() || info[4].IsNull())
+      ? nullptr
+      : CreateLoadOrder(save, NapiHelper::ExtractArray(info[4], "loadOrder"));
+
+    std::unique_ptr<LoadGame::Time> saveFileTime =
+      (info[5].IsUndefined() || info[5].IsNull())
+      ? nullptr
+      : CreateTime(save, NapiHelper::ExtractObject(info[5], "time"));
+
+    const auto& _baseSavefile = save;
+    const auto& _pos = pos;
+    const auto& _angle = angle;
+    const auto& _cellOrWorld = cellOrWorld;
+    const auto& _time = saveFileTime.get();
+    SaveFile_::Weather* _weather = nullptr;
+    SaveFile_::ChangeFormNPC_* _changeFormNPC = changeFormNpc.get();
+    std::vector<std::string>* _loadOrder = saveLoadOrder.get();
+    LoadGame::Run(_baseSavefile, _pos, _angle, _cellOrWorld, _time, _weather,
+                  _changeFormNPC, _loadOrder);
+
+    return info.Env().Undefined();
+  } catch (const std::exception& e) {
+    logger::error("sp.loadGame failed: {}", e.what());
+    throw;
   }
-
-  std::unique_ptr<SaveFile_::ChangeFormNPC_> changeFormNpc =
-    (info[3].IsUndefined() || info[3].IsNull())
-    ? nullptr
-    : CreateChangeFormNpc(save, NapiHelper::ExtractObject(info[3], "npcData"));
-
-  std::unique_ptr<std::vector<std::string>> saveLoadOrder =
-    (info[4].IsUndefined() || info[4].IsNull())
-    ? nullptr
-    : CreateLoadOrder(save, NapiHelper::ExtractArray(info[4], "loadOrder"));
-
-  std::unique_ptr<LoadGame::Time> saveFileTime =
-    (info[5].IsUndefined() || info[5].IsNull())
-    ? nullptr
-    : CreateTime(save, NapiHelper::ExtractObject(info[5], "time"));
-
-  const auto& _baseSavefile = save;
-  const auto& _pos = pos;
-  const auto& _angle = angle;
-  const auto& _cellOrWorld = cellOrWorld;
-  const auto& _time = saveFileTime.get();
-  SaveFile_::Weather* _weather = nullptr;
-  SaveFile_::ChangeFormNPC_* _changeFormNPC = changeFormNpc.get();
-  std::vector<std::string>* _loadOrder = saveLoadOrder.get();
-  LoadGame::Run(_baseSavefile, _pos, _angle, _cellOrWorld, _time, _weather,
-                _changeFormNPC, _loadOrder);
-
-  return info.Env().Undefined();
 }

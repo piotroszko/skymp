@@ -45,20 +45,23 @@ public:
       TESModPlatform::BlockMoveRefrToPosition(false);
 
       // Removes our temporary save files
+      std::filesystem::path path;
       try {
-        std::filesystem::path path = LoadGame::GetPathToMyDocuments() +
-          L"\\My Games\\Skyrim Special Edition\\Saves\\";
-
+        path = LoadGame::GetSavesDirectory();
         for (auto& file : std::filesystem::directory_iterator(path)) {
           if (file.path().filename().generic_string().find(g_saveFilePrefix) !=
-              std::string::npos)
+              std::string::npos) {
             try {
               std::filesystem::remove(file);
-            } catch (...) {
-              // I have no idea how to handle these exceptions properly
+            } catch (const std::exception& e) {
+              logger::warn("LoadGame cleanup: failed to remove {}: {}",
+                           file.path().string(), e.what());
             }
+          }
         }
-      } catch (...) {
+      } catch (const std::exception& e) {
+        logger::warn("LoadGame cleanup: failed to iterate {}: {}",
+                     path.string(), e.what());
       }
     }).detach();
     return RE::BSEventNotifyControl::kContinue;
@@ -82,6 +85,8 @@ std::shared_ptr<SaveFile_::SaveFile> LoadGame::PrepareSaveFile(
     for (auto entry : dir) {
       ss << entry.filename() << std::endl;
     }
+    logger::error("LoadGame::PrepareSaveFile failed to open '{}': {}",
+                  pathInAssets, e.what());
     throw std::runtime_error(ss.str());
   }
   return SaveFile_::Reader((uint8_t*)(file.begin()), file.size())
@@ -108,7 +113,14 @@ void LoadGame::Run(std::shared_ptr<SaveFile_::SaveFile> save,
   ModifyEssStructure(save, pos, angle, cellOrWorld);
 
   auto name = g_saveFilePrefix + GenerateGuid();
-  if (!SaveFile_::Writer(save).CreateSaveFile(GetSaveFullPath(name))) {
+  const auto fullPath = GetSaveFullPath(name);
+  logger::info("LoadGame::Run writing temp save to '{}'", fullPath.string());
+
+  if (!SaveFile_::Writer(save).CreateSaveFile(fullPath)) {
+    logger::error("LoadGame::Run: CreateSaveFile failed for '{}'. Check that "
+                  "the directory exists and is writable. sLocalSavePath in "
+                  "Skyrim.ini determines this path.",
+                  fullPath.string());
     throw std::runtime_error("CreateSaveFile failed");
   }
 
@@ -116,17 +128,62 @@ void LoadGame::Run(std::shared_ptr<SaveFile_::SaveFile> save,
   static LoadGameEventSink g_sink;
 
   if (auto saveLoadManager = RE::BGSSaveLoadManager::GetSingleton()) {
+    logger::info("LoadGame::Run calling BGSSaveLoadManager::Load('{}'). If the "
+                 "game does not transition, the file is likely not where "
+                 "Skyrim is looking (see sLocalSavePath).",
+                 name);
     return saveLoadManager->Load(name.data());
   } else {
+    logger::critical(
+      "LoadGame::Run: BGSSaveLoadManager singleton is null; load aborted");
     throw NullPointerException("saveLoadManager");
   }
+}
+
+std::wstring LoadGame::GetLocalSavePath()
+{
+  constexpr std::wstring_view kDefault = L"Saves\\";
+
+  auto collection = RE::INISettingCollection::GetSingleton();
+  if (!collection) {
+    logger::warn("GetLocalSavePath: INISettingCollection singleton is null, "
+                 "falling back to 'Saves\\'");
+    return std::wstring(kDefault);
+  }
+
+  auto setting = collection->GetSetting("sLocalSavePath:General");
+  if (!setting) {
+    logger::info("GetLocalSavePath: 'sLocalSavePath:General' not found, "
+                 "falling back to 'Saves\\'");
+    return std::wstring(kDefault);
+  }
+
+  const char* raw = setting->GetString();
+  if (!raw || !*raw) {
+    logger::info("GetLocalSavePath: 'sLocalSavePath:General' is empty, "
+                 "falling back to 'Saves\\'");
+    return std::wstring(kDefault);
+  }
+
+  std::wstring result = StringToWstring(raw);
+  std::replace(result.begin(), result.end(), L'/', L'\\');
+  if (result.empty() || result.back() != L'\\') {
+    result.push_back(L'\\');
+  }
+  return result;
+}
+
+fs::path LoadGame::GetSavesDirectory()
+{
+  return GetPathToMyDocuments() +
+    L"\\My Games\\Skyrim Special Edition\\" + GetLocalSavePath();
 }
 
 fs::path LoadGame::GetSaveFullPath(const std::string& name)
 {
   return GetPathToMyDocuments() +
-    L"\\My Games\\Skyrim Special Edition\\Saves\\" + StringToWstring(name) +
-    L".ess";
+    L"\\My Games\\Skyrim Special Edition\\" + GetLocalSavePath() +
+    StringToWstring(name) + L".ess";
 }
 
 std::wstring LoadGame::GetPathToMyDocuments()
