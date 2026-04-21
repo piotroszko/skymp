@@ -38,44 +38,44 @@ enum ButtonItemVariants {
 }
 
 const getBackgroundImage = (value: GetBackgroundImageInput) => {
-    switch(value.name) {
-        case BackgroundImageNames.BUTTON_MIDDLE: return (value.disabled) ? ButtonMiddleDisabledImage : ButtonMiddleImage; 
-        case BackgroundImageNames.FRAME_BUTTON_START: return (value.disabled) ? FrameButtonStartImage : FrameButtonStartImage; 
-        case BackgroundImageNames.FRAME_BUTTON_END: return (value.disabled) ? FrameButtonEndImage : FrameButtonEndImage; 
-        case BackgroundImageNames.SKYRIM_BUTTON_START: return (value.disabled) ? SkyrimButtonStartDisabledImage : SkyrimButtonStartImage; 
-        case BackgroundImageNames.SKYRIM_BUTTON_END: return (value.disabled) ? SkyrimButtonEndDisabledImage : SkyrimButtonEndImage; 
+    switch (value.name) {
+        case BackgroundImageNames.BUTTON_MIDDLE: return (value.disabled) ? ButtonMiddleDisabledImage : ButtonMiddleImage;
+        case BackgroundImageNames.FRAME_BUTTON_START: return (value.disabled) ? FrameButtonStartImage : FrameButtonStartImage;
+        case BackgroundImageNames.FRAME_BUTTON_END: return (value.disabled) ? FrameButtonEndImage : FrameButtonEndImage;
+        case BackgroundImageNames.SKYRIM_BUTTON_START: return (value.disabled) ? SkyrimButtonStartDisabledImage : SkyrimButtonStartImage;
+        case BackgroundImageNames.SKYRIM_BUTTON_END: return (value.disabled) ? SkyrimButtonEndDisabledImage : SkyrimButtonEndImage;
     }
 }
 
 const ButtonItem = ({
-  width = 64,
-  height = 64,
-  variant,
-  text,
-  name,
-  disabled
+    width = 64,
+    height = 64,
+    variant,
+    text,
+    name,
+    disabled
 }: ButtonItemProps) => {
-  const isDefault = variant === undefined || variant === ButtonItemVariants.DEFAULT;
-  const isMiddleLeft = variant === ButtonItemVariants.MIDDLE_LEFT;
-  const isMiddleRight = variant === ButtonItemVariants.MIDDLE_RIGHT;
-  const backgroundImage = getBackgroundImage({name, disabled});
-  return (
+    const isDefault = variant === undefined || variant === ButtonItemVariants.DEFAULT;
+    const isMiddleLeft = variant === ButtonItemVariants.MIDDLE_LEFT;
+    const isMiddleRight = variant === ButtonItemVariants.MIDDLE_RIGHT;
+    const backgroundImage = getBackgroundImage({ name, disabled });
+    return (
         <div
             style={{
                 backgroundImage: `url(${backgroundImage})`,
                 backgroundSize: `${width}px ${height}px`,
                 backgroundRepeat: 'repeat',
-                height:`${height}px`,
+                height: `${height}px`,
                 width: `${width}px`,
             }}
             className={name.toLowerCase().replace(/_/g, '-')}
         >
             {isDefault &&
                 (text)
-                    ?
-                    <span className={'button-middle--text'} style={{ maxHeight: `${height}px`, width: `${width}px` }}>{text}</span>
-                    :
-                    ''
+                ?
+                <span className={'button-middle--text'} style={{ maxHeight: `${height}px`, width: `${width}px` }}>{text}</span>
+                :
+                ''
             }
             {
                 !isDefault && (text) ? <span
@@ -86,47 +86,47 @@ const ButtonItem = ({
                 </span> : ''
             }
         </div>
-  );
+    );
 };
 
 export const FrameButton = ({
-  width = 384,
-  height = 64,
-  disabled = false,
-  variant,
-  onClick,
-  text,
-  ...other
+    width = 384,
+    height = 64,
+    disabled = false,
+    variant,
+    onClick,
+    text,
+    ...other
 }: FrameButtonProps) => {
-  const isDefault = variant === 'DEFAULT';
-  const isFrameLeft = variant === 'LEFT';
-  const isFrameRight = variant === 'RIGHT';
+    const isDefault = variant === 'DEFAULT';
+    const isFrameLeft = variant === 'LEFT';
+    const isFrameRight = variant === 'RIGHT';
 
-  return (
+    return (
         <>
             {isDefault && <button
                 {...other}
                 className={`skymp-button ${disabled ? 'disabled' : 'active'}`}
                 onClick={(e) => {
-                  if (!disabled) { onClick ? onClick(e) : console.log(e); }
+                    if (!disabled) { onClick ? onClick(e) : console.log(e); }
                 }}
                 style={{ height: `${height}px`, width: `${width}px` }}>
-                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_START} height={height} disabled={disabled}/>
+                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_START} height={height} disabled={disabled} />
                 <ButtonItem
                     name={BackgroundImageNames.BUTTON_MIDDLE}
                     width={width - 64 * 2}
                     height={height}
                     disabled={disabled}
                     text={text} />
-                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_END} height={height} disabled={disabled}/>
+                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_END} height={height} disabled={disabled} />
             </button>}
             {isFrameLeft && <button
                 className={`skymp-button ${disabled ? 'disabled' : 'active'}`}
                 onClick={(e) => {
-                  if (!disabled) { onClick ? onClick(e) : console.log(e); }
+                    if (!disabled) { onClick ? onClick(e) : console.log(e); }
                 }}
                 style={{ height: `${height}px`, width: `${width}px` }}>
-                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_START} height={height} disabled={disabled}/>
+                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_START} height={height} disabled={disabled} />
                 <ButtonItem
                     variant={ButtonItemVariants.MIDDLE_LEFT}
                     name={BackgroundImageNames.BUTTON_MIDDLE}
@@ -134,15 +134,15 @@ export const FrameButton = ({
                     height={height}
                     disabled={disabled}
                     text={text} />
-                <ButtonItem name={BackgroundImageNames.FRAME_BUTTON_END} height={height} disabled={disabled}/>
+                <ButtonItem name={BackgroundImageNames.FRAME_BUTTON_END} height={height} disabled={disabled} />
             </button>}
             {isFrameRight && <button
                 className={`skymp-button ${disabled ? 'disabled' : 'active'}`}
                 onClick={(e) => {
-                  if (!disabled) { onClick ? onClick(e) : console.log(e); }
+                    if (!disabled) { onClick ? onClick(e) : console.log(e); }
                 }}
                 style={{ height: `${height}px`, width: `${width}px` }}>
-                <ButtonItem name={BackgroundImageNames.FRAME_BUTTON_START} height={height} disabled={disabled}/>
+                <ButtonItem name={BackgroundImageNames.FRAME_BUTTON_START} height={height} disabled={disabled} />
                 <ButtonItem
                     variant={ButtonItemVariants.MIDDLE_RIGHT}
                     name={BackgroundImageNames.BUTTON_MIDDLE}
@@ -150,7 +150,7 @@ export const FrameButton = ({
                     height={height}
                     disabled={disabled}
                     text={text} />
-                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_END} height={height} disabled={disabled}/>
+                <ButtonItem name={BackgroundImageNames.SKYRIM_BUTTON_END} height={height} disabled={disabled} />
             </button>}
         </>
     );
