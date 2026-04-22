@@ -3,10 +3,6 @@ import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 import { FrameButton } from "@/components/FrameButton/FrameButton";
 import "./styles.scss";
 import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
-//import hoverSound from './assets/OnCoursor.wav';
-//import quitSound from './assets/Quit.wav';
-//import selectSound from './assets/ButtonDown.wav';
-//import learnSound from './assets/LearnSkill.wav';
 
 const TestMenu = ({ send }: { send: (message: string) => void }) => {
   const [currentHeader] = useState("способности");
@@ -171,7 +167,6 @@ const TestMenu = ({ send }: { send: (message: string) => void }) => {
                     variant="DEFAULT"
                     width={242}
                     height={56}
-                    // disabled={Object.keys(playerData.perks).length === 0}
                   ></FrameButton>
                 )}
               </div>
