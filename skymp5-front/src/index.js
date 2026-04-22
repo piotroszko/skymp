@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import App from './App';
 
@@ -19,13 +19,14 @@ if (!window.skyrimPlatform.widgets) {
   window.skyrimPlatform.widgets = new Widgets([]);
 }
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
   <React.StrictMode>
     <Provider store={store}>
       <App elem={window.skyrimPlatform.widgets.get()} />
     </Provider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );
 
 // Called from skymp5-functions-lib, chatProperty.ts
