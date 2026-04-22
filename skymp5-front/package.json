@@ -10,8 +10,8 @@
     "lint:fix": "yarn lint --fix",
     "fmt": "oxfmt src",
     "fmt:check": "oxfmt --check src",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "keywords": [],
   "author": "Leonid Pospelov <pospelovlm@yandex.ru>",
@@ -20,13 +20,11 @@
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.2",
     "@babel/preset-react": "^7.28.5",
-    "@storybook/addon-actions": "^6.5.16",
-    "@storybook/addon-essentials": "^6.5.16",
-    "@storybook/addon-links": "^6.5.16",
-    "@storybook/builder-webpack5": "^6.5.16",
-    "@storybook/manager-webpack5": "^6.5.16",
-    "@storybook/preset-scss": "^1.0.3",
-    "@storybook/react": "^6.5.16",
+    "@babel/preset-typescript": "^7.28.5",
+    "@storybook/addon-docs": "^10.3.5",
+    "@storybook/addon-links": "^10.3.5",
+    "@storybook/react-webpack5": "^10.3.5",
+    "storybook": "^10.3.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/react-resizable": "^3.0.8",
@@ -45,7 +43,7 @@
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.7",
     "ts-node": "^10.7.0",
-    "typescript": "^4.9.5",
+    "typescript": "^5.9.3",
     "webpack": "^5.106.2",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.15.2"
@@ -64,7 +62,8 @@
   "babel": {
     "presets": [
       "@babel/env",
-      "@babel/react"
+      "@babel/react",
+      "@babel/preset-typescript"
     ]
   },
   "resolutions": {
