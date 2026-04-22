@@ -4,11 +4,29 @@ interface SkyrimPlatform {
   sendMessage?: (message: string) => void;
 }
 
+interface Mp {
+  send: (type: string, data: unknown) => void;
+}
+
+interface Skymp {
+  send: (payload: { type: string; data: unknown }) => void;
+  on: (event: "error" | "message", cb: (action: unknown) => void) => void;
+}
+
+interface ReduxStorage {
+  dispatch: (action: unknown) => void;
+}
+
 interface Window {
   skyrimPlatform?: SkyrimPlatform;
   needToScroll?: boolean;
   scrollToLastMessage?: () => void;
   playSound?: (name: string) => void;
+  mp?: Mp;
+  skymp?: Skymp;
+  storage?: ReduxStorage;
+  isMoveWindow?: boolean;
+  moveWindow?: ((x: number, y: number) => void) | null;
 }
 
 declare module "*.png" {
