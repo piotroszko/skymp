@@ -1,13 +1,19 @@
-const defaultState = {};
+type CommandState = Record<string, unknown>;
+type CommandAction = { type: string; data?: any };
 
-export const commandReducer = (state = defaultState, action) => {
+const defaultState: CommandState = {};
+
+export const commandReducer = (
+  state: CommandState = defaultState,
+  action: CommandAction,
+): any => {
   switch (action.type) {
     case "COMMAND": {
       console.log(action.data.commandType, action.data.commandArgs);
       switch (action.data.commandType) {
         case "SHOW_ANIMLIST": {
           return setTimeout(() => {
-            window.storage.dispatch({
+            window.storage?.dispatch({
               type: "UPDATE_ANIMLIST_SHOW",
               data: {
                 show: true,
@@ -22,7 +28,7 @@ export const commandReducer = (state = defaultState, action) => {
               action.data.alter = [action.data.alter];
             }
             for (const msg of action.data.alter) {
-              window.storage.dispatch({
+              window.storage?.dispatch({
                 type: "ADD_CHAT_MSG",
                 data: msg,
               });
