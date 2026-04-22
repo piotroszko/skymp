@@ -32,7 +32,7 @@ $regular: 200ms;
   position: relative;
 
   &__content {
-    font-family: 'Bankir-Retro', sans-serif;
+    font-family: "Bankir-Retro", sans-serif;
     display: flex;
     flex-direction: column;
     z-index: 9999;
@@ -79,7 +79,10 @@ $regular: 200ms;
     border-radius: 32px;
     border: 6px $level-0 solid;
     color: $level-0;
-    transition: color $regular, border-color $regular, opacity $regular,
+    transition:
+      color $regular,
+      border-color $regular,
+      opacity $regular,
       transform $regular;
     opacity: 0.75;
 

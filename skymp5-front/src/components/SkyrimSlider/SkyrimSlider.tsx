@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import './SkyrimSlider.scss';
-import { SkyrimSliderProps } from '../../interfaces';
-import ReactSlider from 'react-slider';
+import "./SkyrimSlider.scss";
+import { SkyrimSliderProps } from "../../interfaces";
+import ReactSlider from "react-slider";
 
 export const SkyrimSlider = ({
   setValue,
@@ -10,7 +10,7 @@ export const SkyrimSlider = ({
   sliderValue,
   min,
   max,
-  marks
+  marks,
 }: SkyrimSliderProps) => {
   return (
     <div className="skyrimSlider">
@@ -25,20 +25,20 @@ export const SkyrimSlider = ({
         onChange={(value) => setValue(value)}
         renderTrack={(props, state) => {
           return (
-            <div {...props} className={'skyrimSlider_track'}>
-              <div className={'skyrimSlider_track_inner'} />
+            <div {...props} className={"skyrimSlider_track"}>
+              <div className={"skyrimSlider_track_inner"} />
             </div>
           );
         }}
         renderMark={(props) => {
           if ((props.key as number) % 2 === 0) {
             return (
-              <div {...props} className={'skyrimSlider_mark even'}>
-                <span className={'skyrimSlider_mark__number'}>{props.key as any}</span>
+              <div {...props} className={"skyrimSlider_mark even"}>
+                <span className={"skyrimSlider_mark__number"}>{props.key as any}</span>
               </div>
             );
           } else {
-            return <span {...props} className={'skyrimSlider_mark odd'} />;
+            return <span {...props} className={"skyrimSlider_mark odd"} />;
           }
         }}
       />

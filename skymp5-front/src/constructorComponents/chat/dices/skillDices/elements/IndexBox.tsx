@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-type ISkillDiceColors = 'yellow' | 'green' | 'purple' | 'blue' | 'red';
+type ISkillDiceColors = "yellow" | "green" | "purple" | "blue" | "red";
 
 interface IIndexBox {
   index: number;
@@ -8,13 +8,8 @@ interface IIndexBox {
   negativeColor?: ISkillDiceColors;
 }
 
-const IndexBox = ({
-  index,
-  positiveColor = 'green',
-  negativeColor = 'red'
-}: IIndexBox) => {
-  return index !== 0
-    ? (
+const IndexBox = ({ index, positiveColor = "green", negativeColor = "red" }: IIndexBox) => {
+  return index !== 0 ? (
     <div className="chat-dices__number-container">
       <svg
         className={`chat-dices__number-frame chat-dices__number-frame--${
@@ -36,14 +31,13 @@ const IndexBox = ({
         />
       </svg>
       <span className="chat-dices__number">
-        {index > 0 && '+'}
+        {index > 0 && "+"}
         {index}
       </span>
     </div>
-      )
-    : (
+  ) : (
     <div className="chat-dices__number-container" />
-      );
+  );
 };
 
 export default IndexBox;

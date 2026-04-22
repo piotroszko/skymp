@@ -8,23 +8,23 @@
   input {
     width: 100%;
     height: 100%;
-    font-family: 'Bankir-Retro', serif;
+    font-family: "Bankir-Retro", serif;
     font-style: normal;
     font-weight: normal;
     font-size: 20px;
     line-height: 32px;
-    color: #9D9E9EBF;
+    color: #9d9e9ebf;
     padding: 10px;
   }
 }
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
   input[type="password"] {
     font-family: icons;
     letter-spacing: 0.1em;
     font-size: 14px;
   }
   input::placeholder {
-    font-family: 'Bankir-Retro', serif;
+    font-family: "Bankir-Retro", serif;
     font-size: 20px;
     color: rgba(122, 122, 121, 0.75);
     line-height: 32px;

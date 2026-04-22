@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Draggable from 'react-draggable';
-import { ResizableBox } from 'react-resizable';
-import ChatCheckbox from './checkbox';
-import Dices from './dices';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Draggable from "react-draggable";
+import { ResizableBox } from "react-resizable";
+import ChatCheckbox from "./checkbox";
+import Dices from "./dices";
 
-import ChatCorner from '../../img/chat_corner.svg';
-import Settings from './settings';
-import SendButton from './sendButton';
-import ChatInput from './input';
-import { replaceIfMoreThan20 } from '../../utils/replaceIfMoreThan20';
+import ChatCorner from "../../img/chat_corner.svg";
+import Settings from "./settings";
+import SendButton from "./sendButton";
+import ChatInput from "./input";
+import { replaceIfMoreThan20 } from "../../utils/replaceIfMoreThan20";
 
-import './styles.scss';
+import "./styles.scss";
 const MAX_LENGTH = 2000; // Max message length
 const TIME_LIMIT = 1; // Seconds
 const SHOUT_LIMIT = 180; // Seconds
@@ -21,7 +21,7 @@ const MAX_HISTORY_LENGTH = 20;
 const SHOUTREGEXP = /№(.*?)№/gi;
 
 const Chat = (props) => {
-  const [input, updateInput] = useState('');
+  const [input, updateInput] = useState("");
   const [isInputFocus, changeInputFocus] = useState(false);
   const [hideNonRP, changeNonRPHide] = useState(false);
   const [disableDiceSounds, setDisableDiceSounds] = useState(false);
@@ -52,11 +52,12 @@ const Chat = (props) => {
 
   const currentMessageInHistory = useRef(-1);
 
-  const writtenMessage = useRef('');
+  const writtenMessage = useRef("");
 
   const handleScroll = () => {
     if (chatRef.current) {
-      window.needToScroll = (chatRef.current.scrollTop === chatRef.current.scrollHeight - chatRef.current.offsetHeight);
+      window.needToScroll =
+        chatRef.current.scrollTop === chatRef.current.scrollHeight - chatRef.current.offsetHeight;
     }
   };
 
@@ -72,37 +73,46 @@ const Chat = (props) => {
       messagesHistory.current = messagesHistory.current.slice(0, MAX_HISTORY_LENGTH);
     }
     currentMessageInHistory.current = -1;
-    writtenMessage.current = '';
+    writtenMessage.current = "";
   };
 
-  const sendMessage = useCallback((text) => {
-    const shout = text.match(SHOUTREGEXP);
-    const shoutLen = shout
-      ? shout.reduce((acc, text) => {
-        acc += text.length;
-        return acc;
-      }, 0)
-      : 0;
-    if (text !== '' && text.length <= MAX_LENGTH && isReset.current && shoutLen <= MAX_SHOUT_LENGTH && (shoutLen === 0 || shoutReset.current)) {
-      if (send !== undefined) {
-        const message = replaceIfMoreThan20(text.trim(), '\n', '', MAX_LINES);
-        send(message);
-        addMessageToHistory(message);
+  const sendMessage = useCallback(
+    (text) => {
+      const shout = text.match(SHOUTREGEXP);
+      const shoutLen = shout
+        ? shout.reduce((acc, text) => {
+            acc += text.length;
+            return acc;
+          }, 0)
+        : 0;
+      if (
+        text !== "" &&
+        text.length <= MAX_LENGTH &&
+        isReset.current &&
+        shoutLen <= MAX_SHOUT_LENGTH &&
+        (shoutLen === 0 || shoutReset.current)
+      ) {
+        if (send !== undefined) {
+          const message = replaceIfMoreThan20(text.trim(), "\n", "", MAX_LINES);
+          send(message);
+          addMessageToHistory(message);
+        }
+        isReset.current = false;
+        updateInput("");
+        inputRef.current.innerHTML = "";
+        inputRef.current.focus();
+        if (shout) {
+          shoutReset.current = false;
+          setTimeout(() => {
+            shoutReset.current = true;
+          }, 1000 * SHOUT_LIMIT);
+          setIncludeShout(false);
+          setShoutLength(0);
+        }
       }
-      isReset.current = false;
-      updateInput('');
-      inputRef.current.innerHTML = '';
-      inputRef.current.focus();
-      if (shout) {
-        shoutReset.current = false;
-        setTimeout(() => {
-          shoutReset.current = true;
-        }, 1000 * SHOUT_LIMIT);
-        setIncludeShout(false);
-        setShoutLength(0);
-      }
-    }
-  }, [send, updateInput, input, isReset.current, shoutReset.current, shoutLength, doesIncludeShout]);
+    },
+    [send, updateInput, input, isReset.current, shoutReset.current, shoutLength, doesIncludeShout],
+  );
 
   useEffect(() => {
     window.needToScroll = true;
@@ -116,11 +126,11 @@ const Chat = (props) => {
     const node = inputRef.current;
     const listener = (event) => {
       // Imitate message sending on Enter press
-      if (event.code === 'Enter' && !event.shiftKey && inputRef.current) {
+      if (event.code === "Enter" && !event.shiftKey && inputRef.current) {
         event.preventDefault();
         sendMessage(input);
       }
-      if (event.key === 'ArrowUp' && event.ctrlKey) {
+      if (event.key === "ArrowUp" && event.ctrlKey) {
         if (currentMessageInHistory.current === -1) {
           writtenMessage.current = input;
         }
@@ -131,7 +141,7 @@ const Chat = (props) => {
           setEndOfContenteditable(inputRef.current);
         }
       }
-      if (event.key === 'ArrowDown' && event.ctrlKey) {
+      if (event.key === "ArrowDown" && event.ctrlKey) {
         if (currentMessageInHistory.current >= 0) {
           if (currentMessageInHistory.current === 0) {
             updateInput(writtenMessage.current);
@@ -147,8 +157,8 @@ const Chat = (props) => {
         }
       }
     };
-    node?.addEventListener('keydown', listener);
-    return () => node?.removeEventListener('keydown', listener);
+    node?.addEventListener("keydown", listener);
+    return () => node?.removeEventListener("keydown", listener);
   }, [inputRef.current, input]);
 
   useEffect(() => {
@@ -167,12 +177,14 @@ const Chat = (props) => {
   const handleInput = (value) => {
     updateInput(value);
     const shout = value.match(SHOUTREGEXP);
-    if (shout && shout[0] !== '') {
+    if (shout && shout[0] !== "") {
       setIncludeShout(true);
-      setShoutLength(shout.reduce((acc, text) => {
-        acc += text.length;
-        return acc;
-      }, 0));
+      setShoutLength(
+        shout.reduce((acc, text) => {
+          acc += text.length;
+          return acc;
+        }, 0),
+      );
     } else {
       setIncludeShout(false);
       setShoutLength(0);
@@ -180,12 +192,20 @@ const Chat = (props) => {
   };
 
   const getMessageSpans = (message) => {
-    let isNonRp = message.category === 'plain';
+    let isNonRp = message.category === "plain";
     const result = message.text.map(({ text, color, opacity, type }, i) => {
       if (i >= 1) {
-        isNonRp = (type.includes('nonrp') && isNonRp);
+        isNonRp = type.includes("nonrp") && isNonRp;
       }
-      return <span key={`${text}_${i}`} style={{ color: `${color}`, opacity: opacity }} className={`${type.join(' ')}`}>{text}</span>;
+      return (
+        <span
+          key={`${text}_${i}`}
+          style={{ color: `${color}`, opacity: opacity }}
+          className={`${type.join(" ")}`}
+        >
+          {text}
+        </span>
+      );
     });
     return [result, isNonRp];
   };
@@ -195,63 +215,67 @@ const Chat = (props) => {
       const result = getMessageSpans(msg);
       return (
         <div
-          className={`msg ${result[1] ? 'nonrp' : ''}`}
+          className={`msg ${result[1] ? "nonrp" : ""}`}
           key={`msg-${index}`}
-          style={{ marginLeft: '10px', opacity: msg.opacity }}
+          style={{ marginLeft: "10px", opacity: msg.opacity }}
         >
-          {
-            result[0]
-          }
+          {result[0]}
         </div>
       );
     });
   };
   return (
-    <div className='fullPage'>
-      <Draggable handle='#handle' disabled={!moveChat} bounds={'.fullPage'}>
-        <div id='chat'>
+    <div className="fullPage">
+      <Draggable handle="#handle" disabled={!moveChat} bounds={".fullPage"}>
+        <div id="chat">
           <div className="chat-main">
             <ResizableBox
               height={320}
               maxConstraints={[800, 1100]}
               minConstraints={[320, 320]}
-              axis={'y'}
+              axis={"y"}
               handle={
-                 !isInputHidden &&
-                 <div className='chat-corner'>
-                   <img src={ChatCorner} />
-                 </div>
+                !isInputHidden && (
+                  <div className="chat-corner">
+                    <img src={ChatCorner} />
+                  </div>
+                )
               }
-              resizeHandles={['nw']}
-              className={`list ${hideNonRP ? 'hideNonRP' : ''}`}
-              id='handle'
+              resizeHandles={["nw"]}
+              className={`list ${hideNonRP ? "hideNonRP" : ""}`}
+              id="handle"
             >
-              <div className='chat-list' style={{ fontSize }} ref={chatRef} onScroll={(e) => handleScroll()}>
+              <div
+                className="chat-list"
+                style={{ fontSize }}
+                ref={chatRef}
+                onScroll={(e) => handleScroll()}
+              >
                 {getList()}
               </div>
             </ResizableBox>
             <div
               style={{
-                height: '100px',
-                display: !isInputHidden ? 'none' : 'block'
+                height: "100px",
+                display: !isInputHidden ? "none" : "block",
               }}
             />
             <div
-              className='input'
+              className="input"
               style={{
-                display: isInputHidden ? 'none' : 'block'
+                display: isInputHidden ? "none" : "block",
               }}
             >
-              <div className='chat-input'>
+              <div className="chat-input">
                 <ChatInput
                   id="chatInput"
-                  className={'show'}
+                  className={"show"}
                   type="text"
-                  placeholder={placeholder !== undefined ? placeholder : ''}
+                  placeholder={placeholder !== undefined ? placeholder : ""}
                   onChange={(value) => {
                     handleInput(value);
                     if (lastSendInputText + 1000 < Date.now()) {
-                      window.skyrimPlatform.sendMessage('onInput');
+                      window.skyrimPlatform.sendMessage("onInput");
                       setLastSendInputText(Date.now());
                     }
                   }}
@@ -261,58 +285,66 @@ const Chat = (props) => {
                   fontSize={fontSize}
                   maxLines={MAX_LINES}
                 />
-                {
-                  showSendButton && <SendButton onClick={() => sendMessage(input)} />
-                }
+                {showSendButton && <SendButton onClick={() => sendMessage(input)} />}
               </div>
-              <div className='chat-checkboxes'>
+              <div className="chat-checkboxes">
                 <ChatCheckbox
-                  id={'nonrp'}
-                  text={'non-rp'}
+                  id={"nonrp"}
+                  text={"non-rp"}
                   isChecked={hideNonRP}
                   onChange={(e) => {
                     inputRef.current.focus();
                     changeNonRPHide(e.target.checked);
-                  }} />
+                  }}
+                />
                 <ChatCheckbox
-                  id={'settings'}
-                  text={'settings'}
+                  id={"settings"}
+                  text={"settings"}
                   isChecked={isSettingsOpened}
                   onChange={(e) => {
                     inputRef.current.focus();
                     setSettingsOpened(e.target.checked);
-                  }} />
+                  }}
+                />
                 {/* Maybe we will need it later: <ChatCheckbox id={'diceColor'} text={'dice colors'} isChecked={!disableDiceColors} onChange={(e) => setDisableDiceColors(!e.target.checked)} /> */}
                 <ChatCheckbox
-                  id={'moveChat'}
-                  text={'move chat'}
+                  id={"moveChat"}
+                  text={"move chat"}
                   isChecked={moveChat}
                   onChange={(e) => {
                     inputRef.current.focus();
                     setMoveChat(e.target.checked);
-                  }} />
-                { doesIncludeShout &&
-                  <span className={`chat-message-limit shout-limit ${shoutLength > MAX_SHOUT_LENGTH ? 'limit' : ''} text`}>{shoutLength}/{MAX_SHOUT_LENGTH}</span>
-                }
-                <span className={`chat-message-limit ${input.length > MAX_LENGTH ? 'limit' : ''} text`}>{input.length}/{MAX_LENGTH}</span>
+                  }}
+                />
+                {doesIncludeShout && (
+                  <span
+                    className={`chat-message-limit shout-limit ${shoutLength > MAX_SHOUT_LENGTH ? "limit" : ""} text`}
+                  >
+                    {shoutLength}/{MAX_SHOUT_LENGTH}
+                  </span>
+                )}
+                <span
+                  className={`chat-message-limit ${input.length > MAX_LENGTH ? "limit" : ""} text`}
+                >
+                  {input.length}/{MAX_LENGTH}
+                </span>
               </div>
             </div>
           </div>
-          {
-            isInputHidden
-              ? <></>
-              : <Dices
-                  isOpened={isPouchOpened}
-                  setOpened={setPouchOpened}
-                  send={props.send}
-                  disableSound={disableDiceSounds}
-                  inputRef={inputRef}
-              />
-          }
+          {isInputHidden ? (
+            <></>
+          ) : (
+            <Dices
+              isOpened={isPouchOpened}
+              setOpened={setPouchOpened}
+              send={props.send}
+              disableSound={disableDiceSounds}
+              inputRef={inputRef}
+            />
+          )}
         </div>
       </Draggable>
-      {
-        (isSettingsOpened && !isInputHidden) &&
+      {isSettingsOpened && !isInputHidden && (
         <Settings
           fontSize={fontSize}
           setFontSize={setFontSize}
@@ -321,7 +353,7 @@ const Chat = (props) => {
           showSendButton={showSendButton}
           setShowSendButton={setSendButtonShow}
         />
-      }
+      )}
     </div>
   );
 };

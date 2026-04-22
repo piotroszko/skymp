@@ -1,29 +1,29 @@
-import React from 'react';
+import React from "react";
 
-import mailSVG from '../../img/mail.svg';
-import passwordSVG from '../../img/password.svg';
-import discordSVG from '../../img/discord.svg';
-import skympSVG from '../../img/skymp.svg';
+import mailSVG from "../../img/mail.svg";
+import passwordSVG from "../../img/password.svg";
+import discordSVG from "../../img/discord.svg";
+import skympSVG from "../../img/skymp.svg";
 
 const Icon = (props) => {
-  const text = props.text || '';
+  const text = props.text || "";
   const css = props.css;
   const width = props.width;
   const height = props.height;
 
-  let image = '';
+  let image = "";
 
   switch (css) {
-    case 'ICON_STYLE_MAIL':
+    case "ICON_STYLE_MAIL":
       image = <img src={mailSVG} />;
       break;
-    case 'ICON_STYLE_KEY':
+    case "ICON_STYLE_KEY":
       image = <img src={passwordSVG} />;
       break;
-    case 'ICON_STYLE_SKYMP':
+    case "ICON_STYLE_SKYMP":
       image = <img src={skympSVG} />;
       break;
-    case 'ICON_STYLE_DISCORD':
+    case "ICON_STYLE_DISCORD":
       image = <img src={discordSVG} />;
       break;
     default:
@@ -31,8 +31,8 @@ const Icon = (props) => {
   }
 
   return (
-    <div className={'login-form--content_main__label'}>
-      <span className={'login-form--content_main__label___text'}>{text}</span>
+    <div className={"login-form--content_main__label"}>
+      <span className={"login-form--content_main__label___text"}>{text}</span>
       {image}
     </div>
   );

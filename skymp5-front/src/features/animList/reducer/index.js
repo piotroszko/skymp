@@ -10,8 +10,8 @@ export const animListReducer = (state = defaultState, action) => {
         ...state,
         show: action.data.show,
         list: action.data.list != null ? action.data.list : [],
-      }
+      };
     }
   }
   return state;
-}
+};

@@ -1,8 +1,9 @@
 export const replaceIfMoreThan20 = (str, substring, newString, max) => {
-  const regex = new RegExp(substring, 'g'); // create a regular expression to match all occurrences of substring
+  const regex = new RegExp(substring, "g"); // create a regular expression to match all occurrences of substring
   const count = (str.match(regex) || []).length; // count the number of occurrences of substring in str
 
-  if (count > max) { // check if the count is more than max
+  if (count > max) {
+    // check if the count is more than max
     const replaceCount = count - max; // calculate the number of occurrences to replace
     let replacedCount = 0; // initialize the counter for replaced occurrences
 
