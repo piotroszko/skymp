@@ -1,5 +1,5 @@
 import React from "react";
-import { IWeapon } from "../../../../../../../interfaces/skillDices";
+import { IWeapon } from "@/interfaces/skillDices";
 import IndexBox from "./IndexBox";
 import { rollButtons, weapons } from "../skillDicesData";
 

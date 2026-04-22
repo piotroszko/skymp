@@ -1,7 +1,7 @@
 import React from "react";
 import "./styles.scss";
-import checkboxSVG from "../../../../../img/checkbox.svg";
-import checkboxCheckedSVG from "../../../../../img/checkbox_checked.svg";
+import checkboxSVG from "@/img/checkbox.svg";
+import checkboxCheckedSVG from "@/img/checkbox_checked.svg";
 
 const ChatCheckbox = (props: {
   text: string;

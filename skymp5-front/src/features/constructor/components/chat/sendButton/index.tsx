@@ -1,6 +1,6 @@
 import React from "react";
 import "./styles.scss";
-import MailIcon from "../../../../../img/send.svg";
+import MailIcon from "@/img/send.svg";
 
 const SendButton = (props: { onClick: () => void }) => {
   return (

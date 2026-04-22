@@ -1,9 +1,9 @@
 import React from "react";
 
-import mailSVG from "../../../../img/mail.svg";
-import passwordSVG from "../../../../img/password.svg";
-import discordSVG from "../../../../img/discord.svg";
-import skympSVG from "../../../../img/skymp.svg";
+import mailSVG from "@/img/mail.svg";
+import passwordSVG from "@/img/password.svg";
+import discordSVG from "@/img/discord.svg";
+import skympSVG from "@/img/skymp.svg";
 
 const Icon = (props) => {
   const text = props.text || "";

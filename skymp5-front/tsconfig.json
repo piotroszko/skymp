@@ -9,6 +9,10 @@
         "experimentalDecorators": true,
         "module": "esnext",
         "moduleResolution": "node",
+        "baseUrl": "./src",
+        "paths": {
+            "@/*": ["./*"]
+        },
         "importHelpers": true,
         "lib": [
           "es2018",
