@@ -1,20 +1,32 @@
 import React, { useEffect, useState } from "react";
-import SkyrimButton from "../../components/SkyrimButton/SkyrimButton";
-import SkyrimInput from "../../components/SkyrimInput";
+import { SkyrimButton } from "../../components/SkyrimButton/SkyrimButton";
+import { SkyrimInput } from "../../components/SkyrimInput/SkyrimInput";
+import { LoginLocale } from "./index";
 
-const RegisterForm = (props) => {
-  const [data, setData] = useState({
+interface RegisterFormProps {
+  locale: LoginLocale;
+  setRegister: (value: boolean) => void;
+}
+
+interface RegisterData {
+  email: string;
+  password: string;
+}
+
+const RegisterForm = (props: RegisterFormProps) => {
+  const [data, setData] = useState<RegisterData>({
     email: "",
     password: "",
   });
   const [isButtonBack, setButtonBack] = useState(true);
   const [isButtonDisabled, setButtonDisabled] = useState(true);
-  const handleInput = (e) => {
-    if (e.target.name === "password_verify") {
-      console.log(data.password, e.target.value);
-      setButtonDisabled(data.password !== e.target.value);
+  const handleInput = (e: React.FormEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    if (target.name === "password_verify") {
+      console.log(data.password, target.value);
+      setButtonDisabled(data.password !== target.value);
     } else {
-      setData({ ...data, [e.target.name]: e.target.value });
+      setData({ ...data, [target.name]: target.value });
       if (data.email.length > 5 && data.password.length > 3) {
         console.log(true);
         setButtonBack(false);
@@ -29,7 +41,7 @@ const RegisterForm = (props) => {
     console.log("submit", data);
   };
   useEffect(() => {
-    const listener = (e) => {
+    const listener = (e: KeyboardEvent) => {
       console.log(e.key, isButtonBack, e.key === "Enter");
       if (e.key === "Enter" && !isButtonBack) {
         handleSubmit();
@@ -48,6 +60,8 @@ const RegisterForm = (props) => {
           <img src={require("../../img/mail.svg").default} alt="" />
         </div>
         <SkyrimInput
+          labelText=""
+          initialValue=""
           onInput={handleInput}
           placeholder={props.locale.LOGIN.EMAIL_PLACEHOLDER}
           type={"text"}
@@ -62,6 +76,8 @@ const RegisterForm = (props) => {
           <img src={require("../../img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
+          labelText=""
+          initialValue=""
           onInput={handleInput}
           placeholder={props.locale.LOGIN.PASSWORD_PLACEHOLDER}
           type={"password"}
@@ -76,6 +92,8 @@ const RegisterForm = (props) => {
           <img src={require("../../img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
+          labelText=""
+          initialValue=""
           onInput={handleInput}
           placeholder={props.locale.LOGIN.PASSWORD_VERIFY_PLACEHOLDER}
           type={"password"}
@@ -84,6 +102,7 @@ const RegisterForm = (props) => {
       </div>
       <div className={"login-form--content_main__button"}>
         <SkyrimButton
+          name=""
           disabled={!isButtonBack && isButtonDisabled}
           onClick={() => {
             if (isButtonBack) {

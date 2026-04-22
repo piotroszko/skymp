@@ -2,8 +2,20 @@ import React from "react";
 import { connect } from "react-redux";
 
 import "./styles.scss";
+import { AnimListItem } from "./reducer";
 
-class AnimList extends React.Component {
+interface AnimListStateProps {
+  show: boolean;
+  list: AnimListItem[];
+}
+
+interface AnimListDispatchProps {
+  updateShow: (data: { show: boolean; list?: AnimListItem[] | null }) => void;
+}
+
+type AnimListProps = AnimListStateProps & AnimListDispatchProps;
+
+class AnimList extends React.Component<AnimListProps> {
   componentDidMount() {
     document.addEventListener("keydown", this.onKeyDown.bind(this));
   }
@@ -12,9 +24,8 @@ class AnimList extends React.Component {
     document.removeEventListener("keydown", this.onKeyDown.bind(this));
   }
 
-  onKeyDown(e) {
-    switch (e.keyCode) {
-    }
+  onKeyDown(_e: KeyboardEvent) {
+    // no-op
   }
 
   getAnimList() {
@@ -24,7 +35,7 @@ class AnimList extends React.Component {
         key={`anim-${index}`}
         onClick={() => {
           this.props.updateShow({ show: false });
-          window.mp.send("cef::chat:send", `/anim ${index}`);
+          window.mp?.send("cef::chat:send", `/anim ${index}`);
         }}
       >
         {anim.name}
@@ -33,11 +44,11 @@ class AnimList extends React.Component {
   }
 
   render() {
-    return this.props.show && <div id="animList">{this.getAnimList()}</div>;
+    return this.props.show ? <div id="animList">{this.getAnimList()}</div> : null;
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: { animListReducer: AnimListStateProps }): AnimListStateProps => {
   const defaultState = state.animListReducer;
   return {
     show: defaultState.show,
@@ -45,7 +56,9 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (
+  dispatch: (action: { type: string; data: unknown }) => void,
+): AnimListDispatchProps => ({
   updateShow: (data) =>
     dispatch({
       type: "UPDATE_ANIMLIST_SHOW",

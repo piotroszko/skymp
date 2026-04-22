@@ -1,11 +1,33 @@
-const defaultState = {
+interface ChatMessagePart {
+  text: string;
+  color: string;
+  opacity: number;
+  type: string[];
+}
+
+export interface ChatMessage {
+  category?: string;
+  opacity?: number;
+  text: ChatMessagePart[];
+}
+
+interface ChatState {
+  show: boolean;
+  list: Array<ChatMessage | ChatMessage[]>;
+  showInput: string;
+  input: string;
+}
+
+type ChatAction = { type: string; data?: any };
+
+const defaultState: ChatState = {
   show: true,
   list: [],
   showInput: "auto",
   input: "",
 };
 
-export const chatReducer = (state = defaultState, action) => {
+export const chatReducer = (state: ChatState = defaultState, action: ChatAction): ChatState => {
   switch (action.type) {
     case "UPDATE_CHAT_SHOW": {
       return {

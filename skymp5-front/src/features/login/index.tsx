@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 
 import "./styles.scss";
-import Frame from "../../components/SkyrimFrame";
+import { SkyrimFrame } from "../../components/SkyrimFrame/SkyrimFrame";
 
 import * as ru from "../../locales/ru.json";
 import * as en from "../../locales/en.json";
-import SkyrimHint from "../../components/SkyrimHint";
+import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 
+export type LoginLocale = typeof en;
+
 const LoginPage = () => {
-  const locale = navigator.language !== "ru-RU" ? en : ru;
+  const locale: LoginLocale = navigator.language !== "ru-RU" ? en : ru;
   const [isGithubHintOpened, setGithubHintOpened] = useState(false);
   const [isPatreonHintOpened, setPatreonHintOpened] = useState(false);
   const [isRegister, setRegister] = useState(false);
@@ -25,6 +27,7 @@ const LoginPage = () => {
             <a
               href={"https://github.com/skyrim-multiplayer/skymp"}
               target={"_blank"}
+              rel="noreferrer"
               className={"login-form--content_social__link"}
               onMouseOver={() => {
                 setGithubHintOpened(true);
@@ -32,6 +35,7 @@ const LoginPage = () => {
               onMouseOut={() => setGithubHintOpened(false)}
             >
               <SkyrimHint
+                active=""
                 text={locale.LOGIN.GITHUB_HINT}
                 isOpened={isGithubHintOpened}
                 left={true}
@@ -41,13 +45,19 @@ const LoginPage = () => {
             <a
               href={"https://github.com/skyrim-multiplayer/skymp"}
               target={"_blank"}
+              rel="noreferrer"
               className={"login-form--content_social__link"}
               onMouseOver={() => {
                 setPatreonHintOpened(true);
               }}
               onMouseOut={() => setPatreonHintOpened(false)}
             >
-              <SkyrimHint text={locale.LOGIN.PATREON_HINT} isOpened={isPatreonHintOpened} />
+              <SkyrimHint
+                active=""
+                text={locale.LOGIN.PATREON_HINT}
+                isOpened={isPatreonHintOpened}
+                left={false}
+              />
               <img src={require("../../img/patreon.svg").default} alt={"Become a Patron"} />
             </a>
           </div>
@@ -57,7 +67,7 @@ const LoginPage = () => {
             <LoginForm locale={locale} setRegister={setRegister} />
           )}
         </div>
-        <Frame />
+        <SkyrimFrame name="" />
       </div>
     </div>
   );

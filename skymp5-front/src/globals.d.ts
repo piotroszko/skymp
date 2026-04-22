@@ -17,6 +17,19 @@ interface ReduxStorage {
   dispatch: (action: unknown) => void;
 }
 
+interface ChatMessagePartGlobal {
+  text: string;
+  color: string;
+  opacity: number;
+  type: string[];
+}
+
+interface ChatMessageGlobal {
+  category?: string;
+  opacity?: number;
+  text: ChatMessagePartGlobal[];
+}
+
 interface Window {
   skyrimPlatform?: SkyrimPlatform;
   needToScroll?: boolean;
@@ -27,6 +40,7 @@ interface Window {
   storage?: ReduxStorage;
   isMoveWindow?: boolean;
   moveWindow?: ((x: number, y: number) => void) | null;
+  chatMessages?: ChatMessageGlobal[];
 }
 
 declare module "*.png" {

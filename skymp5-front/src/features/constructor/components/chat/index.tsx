@@ -11,6 +11,7 @@ import ChatInput from "./input";
 import { replaceIfMoreThan20 } from "@/utils/replaceIfMoreThan20";
 
 import "./styles.scss";
+
 const MAX_LENGTH = 2000; // Max message length
 const TIME_LIMIT = 1; // Seconds
 const SHOUT_LIMIT = 180; // Seconds
@@ -20,7 +21,27 @@ const MAX_HISTORY_LENGTH = 20;
 
 const SHOUTREGEXP = /№(.*?)№/gi;
 
-const Chat = (props) => {
+interface ChatProps {
+  send?: (message: string) => void;
+  placeholder?: string;
+  isInputHidden?: boolean;
+  messages?: unknown;
+}
+
+interface MessagePart {
+  text: string;
+  color: string;
+  opacity: number;
+  type: string[];
+}
+
+interface Message {
+  category?: string;
+  opacity?: number;
+  text: MessagePart[];
+}
+
+const Chat = (props: ChatProps) => {
   const [input, updateInput] = useState("");
   const [, changeInputFocus] = useState(false);
   const [hideNonRP, changeNonRPHide] = useState(false);
@@ -39,15 +60,15 @@ const Chat = (props) => {
 
   const [shoutLength, setShoutLength] = useState(0);
 
-  const inputRef = useRef();
+  const inputRef = useRef<HTMLSpanElement>(null);
 
-  const chatRef = useRef();
+  const chatRef = useRef<HTMLDivElement>(null);
 
   const isReset = useRef(true);
 
   const shoutReset = useRef(true);
 
-  const messagesHistory = useRef([]);
+  const messagesHistory = useRef<string[]>([]);
 
   const currentMessageInHistory = useRef(-1);
 
@@ -60,15 +81,16 @@ const Chat = (props) => {
     }
   };
 
-  const setEndOfContenteditable = (elem) => {
+  const setEndOfContenteditable = (elem: HTMLElement) => {
     const sel = window.getSelection();
+    if (!sel) return;
     sel.selectAllChildren(elem);
     sel.collapseToEnd();
   };
 
-  const addMessageToHistory = (message) => {
+  const addMessageToHistory = (message: string) => {
     messagesHistory.current = [message, ...messagesHistory.current];
-    if (messagesHistory.length > MAX_HISTORY_LENGTH) {
+    if (messagesHistory.current.length > MAX_HISTORY_LENGTH) {
       messagesHistory.current = messagesHistory.current.slice(0, MAX_HISTORY_LENGTH);
     }
     currentMessageInHistory.current = -1;
@@ -76,7 +98,7 @@ const Chat = (props) => {
   };
 
   const sendMessage = useCallback(
-    (text) => {
+    (text: string) => {
       const shout = text.match(SHOUTREGEXP);
       const shoutLen = shout
         ? shout.reduce((acc, s) => {
@@ -98,8 +120,10 @@ const Chat = (props) => {
         }
         isReset.current = false;
         updateInput("");
-        inputRef.current.innerHTML = "";
-        inputRef.current.focus();
+        if (inputRef.current) {
+          inputRef.current.innerHTML = "";
+          inputRef.current.focus();
+        }
         if (shout) {
           shoutReset.current = false;
           setTimeout(() => {
@@ -123,7 +147,7 @@ const Chat = (props) => {
 
   useEffect(() => {
     const node = inputRef.current;
-    const listener = (event) => {
+    const listener = (event: KeyboardEvent) => {
       // Imitate message sending on Enter press
       if (event.code === "Enter" && !event.shiftKey && inputRef.current) {
         event.preventDefault();
@@ -136,22 +160,28 @@ const Chat = (props) => {
         if (currentMessageInHistory.current + 1 < messagesHistory.current.length) {
           currentMessageInHistory.current = currentMessageInHistory.current + 1;
           updateInput(messagesHistory.current[currentMessageInHistory.current]);
-          inputRef.current.innerHTML = messagesHistory.current[currentMessageInHistory.current];
-          setEndOfContenteditable(inputRef.current);
+          if (inputRef.current) {
+            inputRef.current.innerHTML = messagesHistory.current[currentMessageInHistory.current];
+            setEndOfContenteditable(inputRef.current);
+          }
         }
       }
       if (event.key === "ArrowDown" && event.ctrlKey) {
         if (currentMessageInHistory.current >= 0) {
           if (currentMessageInHistory.current === 0) {
             updateInput(writtenMessage.current);
-            inputRef.current.innerHTML = writtenMessage.current;
-            setEndOfContenteditable(inputRef.current);
+            if (inputRef.current) {
+              inputRef.current.innerHTML = writtenMessage.current;
+              setEndOfContenteditable(inputRef.current);
+            }
             currentMessageInHistory.current = -1;
           } else {
             currentMessageInHistory.current = currentMessageInHistory.current - 1;
             updateInput(messagesHistory.current[currentMessageInHistory.current]);
-            inputRef.current.innerHTML = messagesHistory.current[currentMessageInHistory.current];
-            setEndOfContenteditable(inputRef.current);
+            if (inputRef.current) {
+              inputRef.current.innerHTML = messagesHistory.current[currentMessageInHistory.current];
+              setEndOfContenteditable(inputRef.current);
+            }
           }
         }
       }
@@ -161,19 +191,19 @@ const Chat = (props) => {
   }, [input, sendMessage]);
 
   useEffect(() => {
-    if (inputRef !== undefined && inputRef.current !== undefined && !isInputHidden) {
+    if (inputRef.current && !isInputHidden) {
       inputRef.current.focus();
     }
   }, [isInputHidden]);
 
   useEffect(() => {
-    if (window.needToScroll) window.scrollToLastMessage();
-    if (inputRef !== undefined && inputRef.current !== undefined) {
+    if (window.needToScroll) window.scrollToLastMessage?.();
+    if (inputRef.current) {
       inputRef.current.focus();
     }
   }, [props.messages]);
 
-  const handleInput = (value) => {
+  const handleInput = (value: string) => {
     updateInput(value);
     const shout = value.match(SHOUTREGEXP);
     if (shout && shout[0] !== "") {
@@ -190,7 +220,7 @@ const Chat = (props) => {
     }
   };
 
-  const getMessageSpans = (message) => {
+  const getMessageSpans = (message: Message): [React.ReactNode[], boolean] => {
     let isNonRp = message.category === "plain";
     const result = message.text.map(({ text, color, opacity, type }, i) => {
       if (i >= 1) {
@@ -210,8 +240,9 @@ const Chat = (props) => {
   };
 
   const getList = () => {
-    return window.chatMessages.map((msg, index) => {
-      const result = getMessageSpans(msg);
+    const messages = window.chatMessages ?? [];
+    return messages.map((msg, index) => {
+      const result = getMessageSpans(msg as Message);
       return (
         <div
           className={`msg ${result[1] ? "nonrp" : ""}`}
@@ -229,20 +260,20 @@ const Chat = (props) => {
         <div id="chat">
           <div className="chat-main">
             <ResizableBox
+              {...({ id: "handle" } as Record<string, string>)}
               height={320}
               maxConstraints={[800, 1100]}
               minConstraints={[320, 320]}
               axis={"y"}
               handle={
-                !isInputHidden && (
+                !isInputHidden ? (
                   <div className="chat-corner">
                     <img src={ChatCorner} />
                   </div>
-                )
+                ) : undefined
               }
               resizeHandles={["nw"]}
               className={`list ${hideNonRP ? "hideNonRP" : ""}`}
-              id="handle"
             >
               <div
                 className="chat-list"
@@ -267,14 +298,11 @@ const Chat = (props) => {
             >
               <div className="chat-input">
                 <ChatInput
-                  id="chatInput"
-                  className={"show"}
-                  type="text"
                   placeholder={placeholder !== undefined ? placeholder : ""}
                   onChange={(value) => {
                     handleInput(value);
                     if (lastSendInputText + 1000 < Date.now()) {
-                      window.skyrimPlatform.sendMessage("onInput");
+                      window.skyrimPlatform?.sendMessage?.("onInput");
                       setLastSendInputText(Date.now());
                     }
                   }}
@@ -292,7 +320,7 @@ const Chat = (props) => {
                   text={"non-rp"}
                   isChecked={hideNonRP}
                   onChange={(e) => {
-                    inputRef.current.focus();
+                    inputRef.current?.focus();
                     changeNonRPHide(e.target.checked);
                   }}
                 />
@@ -301,17 +329,16 @@ const Chat = (props) => {
                   text={"settings"}
                   isChecked={isSettingsOpened}
                   onChange={(e) => {
-                    inputRef.current.focus();
+                    inputRef.current?.focus();
                     setSettingsOpened(e.target.checked);
                   }}
                 />
-                {/* Maybe we will need it later: <ChatCheckbox id={'diceColor'} text={'dice colors'} isChecked={!disableDiceColors} onChange={(e) => setDisableDiceColors(!e.target.checked)} /> */}
                 <ChatCheckbox
                   id={"moveChat"}
                   text={"move chat"}
                   isChecked={moveChat}
                   onChange={(e) => {
-                    inputRef.current.focus();
+                    inputRef.current?.focus();
                     setMoveChat(e.target.checked);
                   }}
                 />
@@ -336,9 +363,9 @@ const Chat = (props) => {
             <Dices
               isOpened={isPouchOpened}
               setOpened={setPouchOpened}
-              send={props.send}
+              send={send ?? (() => { })}
               disableSound={disableDiceSounds}
-              inputRef={inputRef}
+              inputRef={inputRef as unknown as React.MutableRefObject<HTMLInputElement>}
             />
           )}
         </div>

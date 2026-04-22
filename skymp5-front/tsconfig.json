@@ -3,6 +3,7 @@
         "outDir": "./dist",
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
         "target": "ES6",
         "jsx": "react",
         "sourceMap": true,
