@@ -11,8 +11,8 @@ interface ChatInputProps {
 }
 
 const ChatInput = React.forwardRef<HTMLSpanElement, ChatInputProps>(function ChatInput(props, ref) {
-  const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
-    const target = event.target as HTMLDivElement;
+  const handleInput = (event: React.FormEvent<HTMLSpanElement>) => {
+    const target = event.target as HTMLSpanElement;
     // Fix placeholder when new line was used
     if (target.innerHTML === "<br>") {
       target.innerHTML = "";
@@ -20,9 +20,9 @@ const ChatInput = React.forwardRef<HTMLSpanElement, ChatInputProps>(function Cha
     props.onChange(target.innerText);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
     if (event.key === "Enter") {
-      const target = event.target as HTMLDivElement;
+      const target = event.target as HTMLSpanElement;
       const lines = target.innerHTML.split("<br>").length;
       // Prevent new lines from being created if the number of lines exceeds props.maxLines
       if (lines >= props.maxLines) {
