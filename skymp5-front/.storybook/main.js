@@ -31,12 +31,22 @@ module.exports = {
       ],
     });
     config.resolve.extensions.push(".ts", ".tsx");
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      "@": path.resolve(__dirname, "../src"),
+    };
 
     config.module.rules.push({
       test: /\.scss$/,
       use: ["style-loader", "css-loader", "sass-loader"],
       include: path.resolve(__dirname, "../"),
     });
+
+    config.module.rules.push({
+      test: /\.(png|jpg|gif|mp3|wav)$/,
+      use: "file-loader",
+    });
+
     return config;
   },
 };

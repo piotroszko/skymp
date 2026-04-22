@@ -121,3 +121,5 @@ config.js
 .idea
 */.DS_Store
 .DS_Store
+
+storybook-static
