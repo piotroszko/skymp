@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { SkyrimButton } from "../../components/SkyrimButton/SkyrimButton";
-import { SkyrimInput } from "../../components/SkyrimInput/SkyrimInput";
+import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
+import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 import { LoginLocale } from "./index";
 
 interface RegisterFormProps {
@@ -57,7 +57,7 @@ const RegisterForm = (props: RegisterFormProps) => {
           <span className={"login-form--content_main__label___text"}>
             {props.locale.LOGIN.EMAIL}
           </span>
-          <img src={require("../../img/mail.svg").default} alt="" />
+          <img src={require("@/assets/img/mail.svg").default} alt="" />
         </div>
         <SkyrimInput
           labelText=""
@@ -73,7 +73,7 @@ const RegisterForm = (props: RegisterFormProps) => {
           <span className={"login-form--content_main__label___text"}>
             {props.locale.LOGIN.PASSWORD}
           </span>
-          <img src={require("../../img/password.svg").default} alt="" />
+          <img src={require("@/assets/img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
           labelText=""
@@ -89,7 +89,7 @@ const RegisterForm = (props: RegisterFormProps) => {
           <span className={"login-form--content_main__label___text"}>
             {props.locale.LOGIN.PASSWORD_VERIFY}
           </span>
-          <img src={require("../../img/password.svg").default} alt="" />
+          <img src={require("@/assets/img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
           labelText=""

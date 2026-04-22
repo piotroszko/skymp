@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 import "./styles.scss";
-import { SkyrimFrame } from "../../components/SkyrimFrame/SkyrimFrame";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 
-import * as ru from "../../locales/ru.json";
-import * as en from "../../locales/en.json";
-import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
+import * as ru from "@/assets/locales/ru.json";
+import * as en from "@/assets/locales/en.json";
+import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 
@@ -40,7 +40,7 @@ const LoginPage = () => {
                 isOpened={isGithubHintOpened}
                 left={true}
               />
-              <img src={require("../../img/github.svg").default} alt={"Fork me on Github"} />
+              <img src={require("@/assets/img/github.svg").default} alt={"Fork me on Github"} />
             </a>
             <a
               href={"https://github.com/skyrim-multiplayer/skymp"}
@@ -58,7 +58,7 @@ const LoginPage = () => {
                 isOpened={isPatreonHintOpened}
                 left={false}
               />
-              <img src={require("../../img/patreon.svg").default} alt={"Become a Patron"} />
+              <img src={require("@/assets/img/patreon.svg").default} alt={"Become a Patron"} />
             </a>
           </div>
           {isRegister ? (

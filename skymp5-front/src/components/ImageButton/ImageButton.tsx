@@ -1,6 +1,6 @@
 import React from "react";
-import { ImageButtonProps } from "../../interfaces";
-import "../../features/login/styles.scss";
+import { ImageButtonProps } from "@/interfaces";
+import "@/features/login/styles.scss";
 import "./ImageButton.scss";
 
 export const ImageButton = ({

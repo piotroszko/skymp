@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { SkyrimFrame } from "../../components/SkyrimFrame/SkyrimFrame";
-import { FrameButton } from "../../components/FrameButton/FrameButton";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
+import { FrameButton } from "@/components/FrameButton/FrameButton";
 import content, { levels } from "./content";
 import "./styles.scss";
-import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
+import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 import hoverSound from "./assets/OnCoursor.wav";
 import quitSound from "./assets/Quit.wav";
 import selectSound from "./assets/ButtonDown.wav";
 import learnSound from "./assets/LearnSkill.wav";
-import { IPlayerData } from "../../interfaces/skillMenu";
+import { IPlayerData } from "@/interfaces/skillMenu";
 
 const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
   const [currentHeader, setcurrentHeader] = useState("способности");

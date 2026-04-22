@@ -3,8 +3,8 @@ import React from "react";
 import { FrameButton } from "@/components/FrameButton/FrameButton";
 import { ImageButton } from "@/components/ImageButton/ImageButton";
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
-import patreonImage from "@/img/patreon.svg";
-import githubImage from "@/img/github.svg";
+import patreonImage from "@/assets/img/patreon.svg";
+import githubImage from "@/assets/img/github.svg";
 
 interface ButtonProps {
   css?: string;

@@ -8,7 +8,7 @@ import SkyrimButtonEndDisabledImage from "./img/skyrim_button_end_disabled.svg";
 import FrameButtonEndImage from "./img/frame_button_end.svg";
 import FrameButtonStartImage from "./img/frame_button_start.svg";
 
-import { DefaultButtonComponentProps, FrameButtonProps } from "../../interfaces";
+import { DefaultButtonComponentProps, FrameButtonProps } from "@/interfaces";
 import "./FrameButton.scss";
 
 interface ButtonItemProps extends DefaultButtonComponentProps {

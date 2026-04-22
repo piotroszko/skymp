@@ -1,5 +1,5 @@
 import React from "react";
-import { SkyrimHintProps } from "../../interfaces/buttons";
+import { SkyrimHintProps } from "@/interfaces/buttons";
 import "./SkyrimHint.scss";
 
 export const SkyrimHint = ({ isOpened = false, text = "", active, left }: SkyrimHintProps) => {
@@ -7,7 +7,7 @@ export const SkyrimHint = ({ isOpened = false, text = "", active, left }: Skyrim
     <div
       className={`skymp-hint ${active ? "active" : "disabled"} ${left ? "left" : ""}`}
       style={{
-        backgroundImage: `url(${require("../../img/hint.svg").default})`,
+        backgroundImage: `url(${require("@/assets/img/hint.svg").default})`,
         display: isOpened ? "flex" : "none",
       }}
     >

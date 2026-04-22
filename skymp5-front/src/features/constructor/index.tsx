@@ -3,9 +3,9 @@ import React, { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState }
 import "../login/styles.scss";
 import "./styles.scss";
 
-import { SkyrimFrame } from "../../components/SkyrimFrame/SkyrimFrame";
-import { SkyrimInput } from "../../components/SkyrimInput/SkyrimInput";
-import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
+import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
+import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 import Button from "./components/button";
 import Icon from "./components/icon";
 import CheckBox from "./components/checkbox";

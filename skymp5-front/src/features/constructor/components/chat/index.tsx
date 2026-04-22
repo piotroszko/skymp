@@ -4,7 +4,7 @@ import { ResizableBox } from "react-resizable";
 import ChatCheckbox from "./checkbox";
 import Dices from "./dices";
 
-import ChatCorner from "@/img/chat_corner.svg";
+import ChatCorner from "@/assets/img/chat_corner.svg";
 import Settings from "./settings";
 import SendButton from "./sendButton";
 import ChatInput from "./input";

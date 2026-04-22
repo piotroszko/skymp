@@ -47,17 +47,17 @@ const Dices = (props: {
   const playSound = (type: "pouch" | "coin" | "dice") => {
     if (type === "dice") {
       const rand = Math.floor(Math.random() * 3) + 1;
-      const audio = new Audio(require(`@/sound/dice${rand}.mp3`).default);
+      const audio = new Audio(require(`@/assets/sound/dice${rand}.mp3`).default);
       audio.play();
     }
     if (type === "pouch") {
       const audio = new Audio(
-        require(`@/sound/pouch_${props.isOpened ? "close" : "open"}.mp3`).default,
+        require(`@/assets/sound/pouch_${props.isOpened ? "close" : "open"}.mp3`).default,
       );
       audio.play();
     }
     if (type === "coin") {
-      const audio = new Audio(require("@/sound/coin.mp3").default);
+      const audio = new Audio(require("@/assets/sound/coin.mp3").default);
       audio.play();
     }
   };

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { SkyrimFrame } from "../../components/SkyrimFrame/SkyrimFrame";
-import { FrameButton } from "../../components/FrameButton/FrameButton";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
+import { FrameButton } from "@/components/FrameButton/FrameButton";
 import "./styles.scss";
-import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
+import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 //import hoverSound from './assets/OnCoursor.wav';
 //import quitSound from './assets/Quit.wav';
 //import selectSound from './assets/ButtonDown.wav';

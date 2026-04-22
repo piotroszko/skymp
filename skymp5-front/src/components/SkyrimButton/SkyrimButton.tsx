@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./SkyrimButton.scss";
-import { SkyrimButtonProps } from "../../interfaces";
+import { SkyrimButtonProps } from "@/interfaces";
 
 export const SkyrimButton = ({
   width = 320,

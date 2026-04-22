@@ -41,7 +41,7 @@ window.scrollToLastMessage = () => {
 };
 
 window.playSound = (name: string) => {
-  new Audio(require("./sound/" + name).default).play();
+  new Audio(require("./assets/sound/" + name).default).play();
 };
 
 if (platform.sendMessage) {

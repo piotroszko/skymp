@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./SkyrimSlider.scss";
-import { SkyrimSliderProps } from "../../interfaces";
+import { SkyrimSliderProps } from "@/interfaces";
 import ReactSlider from "react-slider";
 
 export const SkyrimSlider = ({

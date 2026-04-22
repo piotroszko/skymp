@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { SkyrimButton } from "../../components/SkyrimButton/SkyrimButton";
-import { SkyrimInput } from "../../components/SkyrimInput/SkyrimInput";
-import { toggleClass } from "../../utils/toggleClass";
-import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
+import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
+import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
+import { toggleClass } from "@/utils/toggleClass";
+import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 import { LoginLocale } from "./index";
 
 interface LoginFormProps {
@@ -61,7 +61,7 @@ const LoginForm = (props: LoginFormProps) => {
           <span className={"login-form--content_main__label___text"}>
             {props.locale.LOGIN.EMAIL}
           </span>
-          <img src={require("../../img/mail.svg").default} alt="" />
+          <img src={require("@/assets/img/mail.svg").default} alt="" />
         </div>
         <SkyrimInput
           labelText=""
@@ -77,7 +77,7 @@ const LoginForm = (props: LoginFormProps) => {
           <span className={"login-form--content_main__label___text"}>
             {props.locale.LOGIN.PASSWORD}
           </span>
-          <img src={require("../../img/password.svg").default} alt="" />
+          <img src={require("@/assets/img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
           labelText=""

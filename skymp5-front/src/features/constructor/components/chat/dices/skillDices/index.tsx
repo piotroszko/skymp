@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useEffect } from "react";
-import heart5 from "@/img/dices/heart5.svg";
-import heart4 from "@/img/dices/heart4.svg";
-import heart3 from "@/img/dices/heart3.svg";
-import heart2 from "@/img/dices/heart2.svg";
-import heart1 from "@/img/dices/heart1.svg";
-import heart0 from "@/img/dices/heart0.svg";
-import heartHover from "@/img/dices/heartHover.svg";
+import heart5 from "@/assets/img/dices/heart5.svg";
+import heart4 from "@/assets/img/dices/heart4.svg";
+import heart3 from "@/assets/img/dices/heart3.svg";
+import heart2 from "@/assets/img/dices/heart2.svg";
+import heart1 from "@/assets/img/dices/heart1.svg";
+import heart0 from "@/assets/img/dices/heart0.svg";
+import heartHover from "@/assets/img/dices/heartHover.svg";
 import IndexBox from "./elements/IndexBox";
 import {
   IDefence,
@@ -179,7 +179,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
       heal: "HP_plus",
       "self-attack": "HP_minus",
     };
-    const audio = new Audio(require(`@/sound/${mapper[action]}.mp3`).default);
+    const audio = new Audio(require(`@/assets/sound/${mapper[action]}.mp3`).default);
     audio.play();
   };
 
