@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import "../login/styles.scss";
 import "./styles.scss";
@@ -13,199 +13,53 @@ import Text from "../../constructorComponents/text";
 import Chat from "../../constructorComponents/chat";
 import SkillsMenu from "../skillsMenu";
 import TestMenu from "../testMenu";
-
-type ElementTag =
-  | "BUTTON_STYLE_GITHUB"
-  | "BUTTON_STYLE_PATREON"
-  | "BUTTON_STYLE_FRAME"
-  | "BUTTON_STYLE_FRAME_LEFT"
-  | "BUTTON_STYLE_FRAME_RIGHT"
-  | "ICON_STYLE_MAIL"
-  | "ICON_STYLE_KEY"
-  | "ICON_STYLE_DISCORD"
-  | "ICON_STYLE_SKYMP"
-  | "ELEMENT_STYLE_MARGIN_EXTENDED"
-  | "HINT_STYLE_LEFT"
-  | "HINT_STYLE_RIGHT"
-  | "ELEMENT_SAME_LINE";
-
-type ElementType = "button" | "text" | "inputText" | "inputPass" | "checkBox" | "icon";
-
-interface ConstructorElement {
-  type: ElementType;
-  text?: string;
-  tags?: ElementTag[];
-  hint?: string;
-  isDisabled?: boolean;
-  initialValue?: string | boolean;
-  placeholder?: string;
-  width?: number;
-  height?: number;
-  click?: () => void;
-  onInput?: (value: string) => void;
-  setChecked?: (value: boolean) => void;
-}
-
-interface FormWidget {
-  type: "form";
-  caption?: string;
-  elements: ConstructorElement[];
-}
-
-interface ChatWidget {
-  type: "chat";
-  messages: unknown;
-  send: (message: string) => void;
-  placeholder?: string;
-  isInputHidden?: boolean;
-}
-
-type Widget = FormWidget | ChatWidget;
-
-interface ConstructorProps {
-  elem: Widget;
-  width?: number;
-  height?: number;
-  dynamicSize?: boolean;
-}
-
-const styles = [
-  "BUTTON_STYLE_GITHUB",
-  "BUTTON_STYLE_PATREON",
-  "BUTTON_STYLE_FRAME",
-  "BUTTON_STYLE_FRAME_LEFT",
-  "BUTTON_STYLE_FRAME_RIGHT",
-  "ICON_STYLE_MAIL",
-  "ICON_STYLE_KEY",
-  "ICON_STYLE_DISCORD",
-  "ICON_STYLE_SKYMP",
-];
+import { ConstructorProps, HintEntry, LineItem } from "./types";
+import { computeFormLayout } from "./utils";
 
 const Constructor = (props: ConstructorProps) => {
   const contentMainRef = useRef<HTMLDivElement>(null);
   const [fwidth, setFwidth] = useState(props.width || 512);
   const [fheight, setFheight] = useState(props.height || 704);
 
+  const formLayout = useMemo(
+    () =>
+      props.elem.type === "form"
+        ? computeFormLayout(props.elem.elements)
+        : { bodyLines: [] as LineItem[][], hintsArr: [] as HintEntry[] },
+    [props.elem],
+  );
+
+  const [hints, setHints] = useState<HintEntry[]>(formLayout.hintsArr);
+
   useEffect(() => {
-    if (props.dynamicSize) {
-      switch (props.elem.type) {
-        case "form":
-          {
-            const isContentInitialized =
-              contentMainRef &&
-              contentMainRef.current &&
-              contentMainRef.current.clientHeight &&
-              contentMainRef.current.clientWidth;
-            if (isContentInitialized) {
-              setFwidth(
-                contentMainRef.current.clientWidth + 60 < 257
-                  ? 257
-                  : contentMainRef.current.clientWidth + 60,
-              );
-              setFheight(contentMainRef.current.clientHeight + 96);
-            }
-          }
-          break;
-        default:
-          break;
-      }
-    }
-  }, [props.elem]);
+    if (!props.dynamicSize) return;
+    if (props.elem.type !== "form") return;
+    const node = contentMainRef.current;
+    if (!node || !node.clientHeight || !node.clientWidth) return;
+    setFwidth(node.clientWidth + 60 < 257 ? 257 : node.clientWidth + 60);
+    setFheight(node.clientHeight + 96);
+  }, [props.elem, props.dynamicSize]);
 
   const rend = props.elem;
   switch (rend.type) {
     case "form": {
-      const result: { header: string | undefined; body: any[] } = {
-        header: rend.caption,
-        body: [],
-      };
-      const hintsArr: any[] = [];
-      const bodyLines: any[][] = [];
-      const allElems = rend.elements;
-      for (let i = 0; i < allElems.length; i++) {
-        let newline = true;
-        let css: string | undefined;
-        let hintIsLeft = true;
-        let style: any = {};
-        if (allElems[i].tags !== undefined) {
-          if (allElems[i].tags.length !== 0) {
-            for (let j = 0; j < allElems[i].tags.length; j++) {
-              if (i === allElems.length - 1) {
-                style = {
-                  marginBottom: "35px",
-                };
-              }
-              if (allElems[i].tags[j] === "ELEMENT_STYLE_MARGIN_EXTENDED") {
-                style = {
-                  marginTop: "30px",
-                };
-                if (i === allElems.length - 1) {
-                  style = {
-                    marginTop: "48px",
-                    marginBottom: "48px",
-                  };
-                }
-              } else if (allElems[i].tags[j] === "HINT_STYLE_LEFT") {
-                hintIsLeft = true;
-              } else if (allElems[i].tags[j] === "HINT_STYLE_RIGHT") {
-                hintIsLeft = false;
-              } else if (styles.includes(allElems[i].tags[j])) {
-                css = allElems[i].tags[j];
-              } else if (allElems[i].tags[j] === "ELEMENT_SAME_LINE") {
-                newline = false;
-              }
-            }
-            if (
-              i > 1 &&
-              allElems[i - 1].type.match(/(icon|checkBox)/) &&
-              allElems[i - 1].text &&
-              allElems[i].type.match(/(input|button)/)
-            ) {
-              if (Object.keys(style).length !== 0) {
-                for (const k in style) {
-                  style[k] = `${parseInt(style[k]) - 14}px`;
-                }
-              } else {
-                style = {
-                  marginTop: "4px",
-                };
-              }
-              console.log(style, allElems[i]);
-            }
-          }
-        }
-        if (allElems[i].hint !== undefined) {
-          hintsArr.push({ id: i, text: allElems[i].hint, isOpened: false, direction: hintIsLeft });
-        }
-        const obj = {
-          index: i,
-          css: css,
-          style: style,
-          element: allElems[i],
-        };
-        if (newline) bodyLines.push([obj]);
-        else bodyLines[bodyLines.length - 1].push(obj);
-      }
-      const [hints, setHints] = useState(hintsArr);
+      const { bodyLines } = formLayout;
       const setHintState = (index: number, state: boolean) => {
-        const newArr = [...hints];
-        hints.forEach((hint: any, ind: number) => {
-          if (hint.id === index) {
-            newArr[ind].isOpened = state;
-          }
-        });
-        setHints(newArr);
+        setHints((prev) =>
+          prev.map((hint) => (hint.id === index ? { ...hint, isOpened: state } : hint)),
+        );
       };
       let hintIndex = 0;
+      const body: ReactNode[] = [];
       bodyLines.forEach((line, lineIndex) => {
-        const arr: any[] = [];
-        let style: any;
+        const arr: ReactNode[] = [];
+        let containerStyle: CSSProperties | undefined;
         line.forEach((obj, elementIndex) => {
-          let curElem;
+          let curElem: ReactNode;
           const hasHint = obj.element.hint !== undefined;
-          const key = lineIndex + "-" + elementIndex + "-" + obj.element.type;
+          const key = `${lineIndex}-${elementIndex}-${obj.element.type}`;
           if (obj.style) {
-            style = obj.style;
+            containerStyle = obj.style;
           }
           switch (obj.element.type) {
             case "button":
@@ -228,10 +82,12 @@ const Constructor = (props: ConstructorProps) => {
                 <SkyrimInput
                   labelText=""
                   disabled={obj.element.isDisabled}
-                  initialValue={obj.element.initialValue}
-                  placeholder={obj.element.placeholder}
-                  type={"text"}
-                  name={obj.index}
+                  initialValue={
+                    typeof obj.element.initialValue === "string" ? obj.element.initialValue : ""
+                  }
+                  placeholder={obj.element.placeholder ?? ""}
+                  type="text"
+                  name={String(obj.index)}
                   width={obj.element.width}
                   height={obj.element.height}
                   onInput={obj.element.onInput}
@@ -243,10 +99,12 @@ const Constructor = (props: ConstructorProps) => {
                 <SkyrimInput
                   labelText=""
                   disabled={obj.element.isDisabled}
-                  initialValue={obj.element.initialValue}
-                  placeholder={obj.element.placeholder}
-                  type={"password"}
-                  name={obj.index}
+                  initialValue={
+                    typeof obj.element.initialValue === "string" ? obj.element.initialValue : ""
+                  }
+                  placeholder={obj.element.placeholder ?? ""}
+                  type="password"
+                  name={String(obj.index)}
                   width={obj.element.width}
                   height={obj.element.height}
                   onInput={obj.element.onInput}
@@ -256,10 +114,12 @@ const Constructor = (props: ConstructorProps) => {
             case "checkBox":
               curElem = (
                 <CheckBox
-                  disabled={obj.element.isDisabled}
-                  initialValue={obj.element.initialValue}
-                  text={obj.element.text}
-                  setChecked={obj.element.setChecked}
+                  disabled={obj.element.isDisabled ?? false}
+                  initialValue={
+                    typeof obj.element.initialValue === "boolean" ? obj.element.initialValue : false
+                  }
+                  text={obj.element.text ?? ""}
+                  setChecked={obj.element.setChecked ?? (() => { })}
                 />
               );
               break;
@@ -276,14 +136,15 @@ const Constructor = (props: ConstructorProps) => {
               break;
           }
           if (curElem !== undefined) {
+            const hint = hints[hintIndex];
             arr.push(
-              hasHint ? (
+              hasHint && hint ? (
                 <div key={key}>
                   <SkyrimHint
                     active=""
-                    text={hints[hintIndex].text}
-                    isOpened={hints[hintIndex].isOpened}
-                    left={hints[hintIndex].direction}
+                    text={hint.text}
+                    isOpened={hint.isOpened}
+                    left={hint.direction}
                   />
                   <div
                     onMouseOver={() => setHintState(obj.index, true)}
@@ -293,30 +154,30 @@ const Constructor = (props: ConstructorProps) => {
                   </div>
                 </div>
               ) : (
-                <div>{curElem}</div>
+                <div key={key}>{curElem}</div>
               ),
             );
             if (hasHint) hintIndex++;
           }
         });
-        result.body.push(
-          <div style={style || {}} key={lineIndex + "container"} className={"container"}>
+        body.push(
+          <div style={containerStyle ?? {}} key={`${lineIndex}container`} className="container">
             {arr}
           </div>,
         );
       });
 
       return (
-        <div className={"login"}>
-          <div className={"login-form"} style={{ width: `${fwidth}px`, height: `${fheight}px` }}>
-            <div className={"login-form--content"}>
-              {result.header !== undefined ? (
-                <div className={"login-form--content_header"}>{result.header}</div>
+        <div className="login">
+          <div className="login-form" style={{ width: `${fwidth}px`, height: `${fheight}px` }}>
+            <div className="login-form--content">
+              {rend.caption !== undefined ? (
+                <div className="login-form--content_header">{rend.caption}</div>
               ) : (
                 ""
               )}
-              <div className={"login-form--content_main"} ref={contentMainRef}>
-                {result.body}
+              <div className="login-form--content_main" ref={contentMainRef}>
+                {body}
               </div>
             </div>
             <SkyrimFrame name="" width={fwidth} height={fheight} />
@@ -338,7 +199,7 @@ const Constructor = (props: ConstructorProps) => {
         </>
       );
     default:
-      break;
+      return null;
   }
 };
 
