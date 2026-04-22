@@ -4,11 +4,11 @@ import { ResizableBox } from "react-resizable";
 import ChatCheckbox from "./checkbox";
 import Dices from "./dices";
 
-import ChatCorner from "../../img/chat_corner.svg";
+import ChatCorner from "../../../../img/chat_corner.svg";
 import Settings from "./settings";
 import SendButton from "./sendButton";
 import ChatInput from "./input";
-import { replaceIfMoreThan20 } from "../../utils/replaceIfMoreThan20";
+import { replaceIfMoreThan20 } from "../../../../utils/replaceIfMoreThan20";
 
 import "./styles.scss";
 const MAX_LENGTH = 2000; // Max message length

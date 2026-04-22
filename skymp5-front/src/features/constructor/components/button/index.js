@@ -1,8 +1,8 @@
 import React from "react";
 
-import { FrameButton } from "../../components/FrameButton/FrameButton";
-import { ImageButton } from "../../components/ImageButton/ImageButton";
-import { SkyrimButton } from "../../components/SkyrimButton/SkyrimButton";
+import { FrameButton } from "../../../../components/FrameButton/FrameButton";
+import { ImageButton } from "../../../../components/ImageButton/ImageButton";
+import { SkyrimButton } from "../../../../components/SkyrimButton/SkyrimButton";
 
 const Button = (props) => {
   const css = props.css;

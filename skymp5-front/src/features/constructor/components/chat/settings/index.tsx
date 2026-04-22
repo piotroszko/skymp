@@ -1,6 +1,6 @@
 import React from "react";
-import { SkyrimFrame } from "../../../components/SkyrimFrame/SkyrimFrame";
-import { SkyrimSlider } from "../../../components/SkyrimSlider/SkyrimSlider";
+import { SkyrimFrame } from "../../../../../components/SkyrimFrame/SkyrimFrame";
+import { SkyrimSlider } from "../../../../../components/SkyrimSlider/SkyrimSlider";
 import CheckBox from "../../checkbox/index";
 import "./styles.scss";
 

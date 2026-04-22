@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useEffect } from "react";
-import heart5 from "../../../../img/dices/heart5.svg";
-import heart4 from "../../../../img/dices/heart4.svg";
-import heart3 from "../../../../img/dices/heart3.svg";
-import heart2 from "../../../../img/dices/heart2.svg";
-import heart1 from "../../../../img/dices/heart1.svg";
-import heart0 from "../../../../img/dices/heart0.svg";
-import heartHover from "../../../../img/dices/heartHover.svg";
+import heart5 from "../../../../../../img/dices/heart5.svg";
+import heart4 from "../../../../../../img/dices/heart4.svg";
+import heart3 from "../../../../../../img/dices/heart3.svg";
+import heart2 from "../../../../../../img/dices/heart2.svg";
+import heart1 from "../../../../../../img/dices/heart1.svg";
+import heart0 from "../../../../../../img/dices/heart0.svg";
+import heartHover from "../../../../../../img/dices/heartHover.svg";
 import IndexBox from "./elements/IndexBox";
 import {
   IDefence,
@@ -15,7 +15,7 @@ import {
   ISkillDices,
   ISkillDicesData,
   IWeapon,
-} from "../../../../interfaces/skillDices";
+} from "../../../../../../interfaces/skillDices";
 import WeaponsRows from "./elements/WeaponsRows";
 import { defence, magic, weapons, rollButtons } from "./skillDicesData";
 

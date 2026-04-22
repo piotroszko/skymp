@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import Chat from "./constructorComponents/chat";
+import Chat from "./features/constructor/components/chat";
 import AnimList from "./features/animList";
 import Constructor from "./features/constructor";
 import SkillsMenu from "./features/skillsMenu";
