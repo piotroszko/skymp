@@ -120,7 +120,11 @@ export const FrameButton = ({
           className={`skymp-button ${disabled ? "disabled" : "active"}`}
           onClick={(e) => {
             if (!disabled) {
-              onClick ? onClick(e) : console.log(e);
+              if (onClick) {
+                onClick(e);
+              } else {
+                console.log(e);
+              }
             }
           }}
           style={{ height: `${height}px`, width: `${width}px` }}
@@ -149,7 +153,11 @@ export const FrameButton = ({
           className={`skymp-button ${disabled ? "disabled" : "active"}`}
           onClick={(e) => {
             if (!disabled) {
-              onClick ? onClick(e) : console.log(e);
+              if (onClick) {
+                onClick(e);
+              } else {
+                console.log(e);
+              }
             }
           }}
           style={{ height: `${height}px`, width: `${width}px` }}
@@ -179,7 +187,11 @@ export const FrameButton = ({
           className={`skymp-button ${disabled ? "disabled" : "active"}`}
           onClick={(e) => {
             if (!disabled) {
-              onClick ? onClick(e) : console.log(e);
+              if (onClick) {
+                onClick(e);
+              } else {
+                console.log(e);
+              }
             }
           }}
           style={{ height: `${height}px`, width: `${width}px` }}

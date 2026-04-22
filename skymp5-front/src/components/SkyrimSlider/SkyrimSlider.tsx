@@ -23,7 +23,7 @@ export const SkyrimSlider = ({
         value={sliderValue}
         marks={marks}
         onChange={(value) => setValue(value)}
-        renderTrack={(props, state) => {
+        renderTrack={(props, _state) => {
           return (
             <div {...props} className={"skyrimSlider_track"}>
               <div className={"skyrimSlider_track_inner"} />

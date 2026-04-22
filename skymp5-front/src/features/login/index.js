@@ -9,7 +9,7 @@ import SkyrimHint from "../../components/SkyrimHint";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 
-const LoginPage = (props) => {
+const LoginPage = () => {
   const locale = navigator.language !== "ru-RU" ? en : ru;
   const [isGithubHintOpened, setGithubHintOpened] = useState(false);
   const [isPatreonHintOpened, setPatreonHintOpened] = useState(false);

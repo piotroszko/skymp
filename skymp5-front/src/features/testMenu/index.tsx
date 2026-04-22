@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { SkyrimFrame } from "../../components/SkyrimFrame/SkyrimFrame";
 import { FrameButton } from "../../components/FrameButton/FrameButton";
-import content, { levels } from "./content";
 import "./styles.scss";
 import { SkyrimHint } from "../../components/SkyrimHint/SkyrimHint";
 //import hoverSound from './assets/OnCoursor.wav';
 //import quitSound from './assets/Quit.wav';
 //import selectSound from './assets/ButtonDown.wav';
 //import learnSound from './assets/LearnSkill.wav';
-import { IPlayerData } from "../../interfaces/skillMenu";
 
 const TestMenu = ({ send }: { send: (message: string) => void }) => {
-  const [currentHeader, setcurrentHeader] = useState("способности");
-  const [currentLevel, setcurrentLevel] = useState(" ");
-  const [currentDescription, setcurrentDescription] = useState(" ");
-  const [selectedPerk, setselectedPerk] = useState(null);
+  const [currentHeader] = useState("способности");
+  const [currentLevel] = useState(" ");
+  const [currentDescription] = useState(" ");
   const [scale, setscale] = useState(1);
   const [pExp, setpExp] = useState(0);
   const [expHint, setexpHint] = useState(false);

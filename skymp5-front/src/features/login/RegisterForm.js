@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SkyrimButton from "../../components/SkyrimButton/SkyrimButton";
 import SkyrimInput from "../../components/SkyrimInput";
-import { toggleClass } from "../../utils/toggleClass";
-import SkyrimHint from "../../components/SkyrimHint";
 
 const RegisterForm = (props) => {
   const [data, setData] = useState({
@@ -10,8 +8,6 @@ const RegisterForm = (props) => {
     password: "",
   });
   const [isButtonBack, setButtonBack] = useState(true);
-  const [isRegisterHintOpened, setRegisterHintOpened] = useState(false);
-  const [isPasswordHintOpened, setPasswordHintOpened] = useState(false);
   const [isButtonDisabled, setButtonDisabled] = useState(true);
   const handleInput = (e) => {
     if (e.target.name === "password_verify") {
@@ -89,7 +85,7 @@ const RegisterForm = (props) => {
       <div className={"login-form--content_main__button"}>
         <SkyrimButton
           disabled={!isButtonBack && isButtonDisabled}
-          onClick={(e) => {
+          onClick={() => {
             if (isButtonBack) {
               props.setRegister(false);
             } else {

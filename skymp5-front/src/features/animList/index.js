@@ -4,10 +4,6 @@ import { connect } from "react-redux";
 import "./styles.scss";
 
 class AnimList extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   componentDidMount() {
     document.addEventListener("keydown", this.onKeyDown.bind(this));
   }

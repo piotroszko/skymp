@@ -129,7 +129,11 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
       return;
     }
     setattackMastery(0);
-  }, [weaponSelected, playerSkillData, weaponEquipped, weapons]);
+  }, [
+	weaponSelected,
+	playerSkillData,
+	weaponEquipped
+]);
 
   useEffect(() => {
     if (isWolf) {
@@ -141,15 +145,15 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
   }, [attackWeaponIndex, attackMastery, isWolf, isVampus, attackBuff]);
 
   const init = (event) => {
-    const { skills, weapons, armor } = (event as CustomEvent).detail as ISkillDicesData;
+    const { skills, weapons: equippedWeapons, armor } = (event as CustomEvent).detail as ISkillDicesData;
     setplayerSkillData(skills);
     const differentWeapon =
-      weapons.length === 2 &&
-      weapons[0] !== weapons[1] &&
-      !["shieldlight", "shieldheavy", "magicstaff"].includes(weapons[0]);
-    const weaponName = weapons.length === 1 || differentWeapon ? weapons[0] : weapons[1];
+      equippedWeapons.length === 2 &&
+      equippedWeapons[0] !== equippedWeapons[1] &&
+      !["shieldlight", "shieldheavy", "magicstaff"].includes(equippedWeapons[0]);
+    const weaponName = equippedWeapons.length === 1 || differentWeapon ? equippedWeapons[0] : equippedWeapons[1];
     setweaponSelected(differentWeapon ? "different" : weaponName);
-    setweaponEquipped(weapons);
+    setweaponEquipped(equippedWeapons);
     if (armor) {
       setdefenceSelected(armor);
     }
@@ -184,14 +188,14 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
     type?: string,
     value?: number,
     buff?: number,
-    hitPoints?: number,
+    hp?: number,
   ) => {
     playSound(action);
     if (action === "weapon" && isWolf) {
       send(`${COMMAND_NAME} ${action} claw ${value} ${buff}`);
       return;
     }
-    send(`${COMMAND_NAME} ${action} ${type} ${value} ${buff} ${hitPoints}`);
+    send(`${COMMAND_NAME} ${action} ${type} ${value} ${buff} ${hp}`);
   };
 
   const handleHeal = () => {

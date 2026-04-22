@@ -4,8 +4,8 @@ import "../../features/login/styles.scss";
 import "./ImageButton.scss";
 
 export const ImageButton = ({
-  width = 320,
-  height = 48,
+  width: _width = 320,
+  height: _height = 48,
   disabled,
   onClick,
   src,

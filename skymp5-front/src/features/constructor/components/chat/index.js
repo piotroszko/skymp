@@ -22,10 +22,9 @@ const SHOUTREGEXP = /№(.*?)№/gi;
 
 const Chat = (props) => {
   const [input, updateInput] = useState("");
-  const [isInputFocus, changeInputFocus] = useState(false);
+  const [, changeInputFocus] = useState(false);
   const [hideNonRP, changeNonRPHide] = useState(false);
   const [disableDiceSounds, setDisableDiceSounds] = useState(false);
-  const [disableDiceColors, setDisableDiceColors] = useState(false);
   const [isPouchOpened, setPouchOpened] = useState(0);
   const [moveChat, setMoveChat] = useState(false);
   const [showSendButton, setSendButtonShow] = useState(false);
@@ -80,10 +79,10 @@ const Chat = (props) => {
     (text) => {
       const shout = text.match(SHOUTREGEXP);
       const shoutLen = shout
-        ? shout.reduce((acc, text) => {
-            acc += text.length;
-            return acc;
-          }, 0)
+        ? shout.reduce((acc, s) => {
+          acc += s.length;
+          return acc;
+        }, 0)
         : 0;
       if (
         text !== "" &&
@@ -111,7 +110,7 @@ const Chat = (props) => {
         }
       }
     },
-    [send, updateInput, input, isReset.current, shoutReset.current, shoutLength, doesIncludeShout],
+    [send],
   );
 
   useEffect(() => {
@@ -159,7 +158,7 @@ const Chat = (props) => {
     };
     node?.addEventListener("keydown", listener);
     return () => node?.removeEventListener("keydown", listener);
-  }, [inputRef.current, input]);
+  }, [input, sendMessage]);
 
   useEffect(() => {
     if (inputRef !== undefined && inputRef.current !== undefined && !isInputHidden) {
@@ -249,7 +248,7 @@ const Chat = (props) => {
                 className="chat-list"
                 style={{ fontSize }}
                 ref={chatRef}
-                onScroll={(e) => handleScroll()}
+                onScroll={() => handleScroll()}
               >
                 {getList()}
               </div>
@@ -279,8 +278,8 @@ const Chat = (props) => {
                       setLastSendInputText(Date.now());
                     }
                   }}
-                  onFocus={(e) => changeInputFocus(true)}
-                  onBlur={(e) => changeInputFocus(false)}
+                  onFocus={() => changeInputFocus(true)}
+                  onBlur={() => changeInputFocus(false)}
                   ref={inputRef}
                   fontSize={fontSize}
                   maxLines={MAX_LINES}

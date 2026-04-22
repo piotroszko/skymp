@@ -15,7 +15,7 @@ const LoginForm = (props) => {
   const [isRemember, setRemember] = useState(true);
   const [isRegisterHintOpened, setRegisterHintOpened] = useState(false);
   const [isRememberHintOpened, setRememberHintOpened] = useState(false);
-  const [isPasswordShowed, setPasswordShowed] = useState(false);
+  const [isPasswordShowed] = useState(false);
   const handleInput = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
     if (data.email.length > 5 && data.password.length > 3) {
@@ -123,7 +123,7 @@ const LoginForm = (props) => {
       <div className={"login-form--content_main__button"}>
         <SkyrimButton
           disabled={isButtonDisabled}
-          onClick={(e) => {
+          onClick={() => {
             handleLogin(data);
           }}
           text={props.locale.LOGIN.LOGIN_BUTTON_TEXT}
