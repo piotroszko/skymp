@@ -1,4 +1,3 @@
-import { ComponentProps, FormEvent } from "react";
 import { DefaultUIElementProps } from ".";
 
 export interface SkyrimHintProps {

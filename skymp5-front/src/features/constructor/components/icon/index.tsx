@@ -1,17 +1,20 @@
-import React from "react";
+import React, { ReactNode } from "react";
 
 import mailSVG from "@/img/mail.svg";
 import passwordSVG from "@/img/password.svg";
 import discordSVG from "@/img/discord.svg";
 import skympSVG from "@/img/skymp.svg";
 
-const Icon = (props) => {
-  const text = props.text || "";
-  const css = props.css;
-  const width = props.width;
-  const height = props.height;
+interface IconProps {
+  css?: string;
+  text?: string;
+  width?: number;
+  height?: number;
+  disabled?: boolean;
+}
 
-  let image = "";
+const Icon = ({ css, text = "" }: IconProps) => {
+  let image: ReactNode = "";
 
   switch (css) {
     case "ICON_STYLE_MAIL":

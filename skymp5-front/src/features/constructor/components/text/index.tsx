@@ -2,8 +2,11 @@ import React from "react";
 
 import "./styles.scss";
 
-const Text = (props) => {
-  const text = props.text || "";
+interface TextProps {
+  text?: string;
+}
+
+const Text = ({ text = "" }: TextProps) => {
   return (
     <div className={"skyrimText"}>
       <span>{text}</span>
