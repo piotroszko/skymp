@@ -102,8 +102,8 @@ void DX11RenderHandler::Render(
     if (m_pCursorTexture && m_cursorX >= 0 && m_cursorY >= 0) {
       m_pSpriteBatch->Draw(
         m_pCursorTexture.Get(),
-        DirectX::SimpleMath::Vector2(m_cursorX - 24, m_cursorY - 25), nullptr,
-        DirectX::Colors::White, 0.f, DirectX::SimpleMath::Vector2(0, 0),
+        DirectX::SimpleMath::Vector2(m_cursorX, m_cursorY), nullptr,
+        DirectX::Colors::White, 0.f, DirectX::SimpleMath::Vector2(24.f, 25.f),
         m_width / 1920.f);
     }
   }

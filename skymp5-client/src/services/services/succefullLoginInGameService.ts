@@ -16,7 +16,7 @@ export class SuccefullLoginInGameService extends ClientListener {
     }
 
     private onGameLoad() {
-        this.sp.Utility.wait(5).then(() => this.showDialog());
+        this.sp.Utility.wait(15).then(() => this.showDialog());
     }
 
     private showDialog() {
