@@ -8,7 +8,7 @@ const distPath = path.isAbsolute(config.outputPath)
   : path.resolve(__dirname, config.outputPath);
 
 module.exports = {
-  entry: path.resolve(__dirname, "src/index.js"),
+  entry: path.resolve(__dirname, "src/index.tsx"),
   output: {
     path: distPath,
     filename: "build.js",
