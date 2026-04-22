@@ -179,7 +179,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
       heal: "HP_plus",
       "self-attack": "HP_minus",
     };
-    const audio = new Audio(require(`../../../../sound/${mapper[action]}.mp3`).default);
+    const audio = new Audio(require(`@/sound/${mapper[action]}.mp3`).default);
     audio.play();
   };
 
