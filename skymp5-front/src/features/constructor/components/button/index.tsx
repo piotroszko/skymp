@@ -3,18 +3,31 @@ import React from "react";
 import { FrameButton } from "@/components/FrameButton/FrameButton";
 import { ImageButton } from "@/components/ImageButton/ImageButton";
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
+import patreonImage from "@/img/patreon.svg";
+import githubImage from "@/img/github.svg";
 
-const Button = (props) => {
-  const css = props.css;
-  const text = props.text || "";
-  const onClick = props.onClick;
-  const width = props.width;
-  const height = props.height;
-  const disabled = props.disabled || false;
+interface ButtonProps {
+  css?: string;
+  text?: string;
+  onClick?: () => void;
+  width?: number;
+  height?: number;
+  disabled?: boolean;
+}
+
+const Button = ({
+  css,
+  text = "",
+  onClick,
+  width,
+  height,
+  disabled = false,
+}: ButtonProps) => {
   switch (css) {
     case "BUTTON_STYLE_FRAME":
       return (
         <FrameButton
+          name=""
           disabled={disabled}
           variant="DEFAULT"
           text={text}
@@ -26,6 +39,7 @@ const Button = (props) => {
     case "BUTTON_STYLE_FRAME_LEFT":
       return (
         <FrameButton
+          name=""
           disabled={disabled}
           variant="LEFT"
           text={text}
@@ -37,6 +51,7 @@ const Button = (props) => {
     case "BUTTON_STYLE_FRAME_RIGHT":
       return (
         <FrameButton
+          name=""
           disabled={disabled}
           variant="RIGHT"
           text={text}
@@ -48,8 +63,9 @@ const Button = (props) => {
     case "BUTTON_STYLE_PATREON":
       return (
         <ImageButton
+          name=""
           disabled={disabled}
-          src={require("../../img/patreon.svg").default}
+          src={patreonImage}
           onClick={onClick}
           width={width}
           height={height}
@@ -58,8 +74,9 @@ const Button = (props) => {
     case "BUTTON_STYLE_GITHUB":
       return (
         <ImageButton
+          name=""
           disabled={disabled}
-          src={require("../../img/github.svg").default}
+          src={githubImage}
           onClick={onClick}
           width={width}
           height={height}
@@ -68,6 +85,7 @@ const Button = (props) => {
     default:
       return (
         <SkyrimButton
+          name=""
           disabled={disabled}
           text={text}
           onClick={onClick}
