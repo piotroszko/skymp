@@ -1,18 +1,67 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-import './features/login/styles.scss';
-import './constructor.scss';
+import '../login/styles.scss';
+import './styles.scss';
 
-import { SkyrimFrame } from './components/SkyrimFrame/SkyrimFrame';
-import { SkyrimInput } from './components/SkyrimInput/SkyrimInput';
-import { SkyrimHint } from './components/SkyrimHint/SkyrimHint';
-import Button from './constructorComponents/button';
-import Icon from './constructorComponents/icon';
-import CheckBox from './constructorComponents/checkbox';
-import Text from './constructorComponents/text';
-import Chat from './constructorComponents/chat';
-import SkillsMenu from './features/skillsMenu';
-import TestMenu from './features/testMenu';
+import { SkyrimFrame } from '../../components/SkyrimFrame/SkyrimFrame';
+import { SkyrimInput } from '../../components/SkyrimInput/SkyrimInput';
+import { SkyrimHint } from '../../components/SkyrimHint/SkyrimHint';
+import Button from '../../constructorComponents/button';
+import Icon from '../../constructorComponents/icon';
+import CheckBox from '../../constructorComponents/checkbox';
+import Text from '../../constructorComponents/text';
+import Chat from '../../constructorComponents/chat';
+import SkillsMenu from '../skillsMenu';
+import TestMenu from '../testMenu';
+
+type ElementTag =
+  | 'BUTTON_STYLE_GITHUB' | 'BUTTON_STYLE_PATREON'
+  | 'BUTTON_STYLE_FRAME' | 'BUTTON_STYLE_FRAME_LEFT' | 'BUTTON_STYLE_FRAME_RIGHT'
+  | 'ICON_STYLE_MAIL' | 'ICON_STYLE_KEY' | 'ICON_STYLE_DISCORD' | 'ICON_STYLE_SKYMP'
+  | 'ELEMENT_STYLE_MARGIN_EXTENDED'
+  | 'HINT_STYLE_LEFT' | 'HINT_STYLE_RIGHT'
+  | 'ELEMENT_SAME_LINE';
+
+type ElementType =
+  | 'button' | 'text' | 'inputText' | 'inputPass' | 'checkBox' | 'icon';
+
+interface ConstructorElement {
+  type: ElementType;
+  text?: string;
+  tags?: ElementTag[];
+  hint?: string;
+  isDisabled?: boolean;
+  initialValue?: string | boolean;
+  placeholder?: string;
+  width?: number;
+  height?: number;
+  click?: () => void;
+  onInput?: (value: string) => void;
+  setChecked?: (value: boolean) => void;
+}
+
+interface FormWidget {
+  type: 'form';
+  caption?: string;
+  elements: ConstructorElement[];
+}
+
+interface ChatWidget {
+  type: 'chat';
+  messages: unknown;
+  send: (message: string) => void;
+  placeholder?: string;
+  isInputHidden?: boolean;
+}
+
+type Widget = FormWidget | ChatWidget;
+
+interface ConstructorProps {
+  elem: Widget;
+  width?: number;
+  height?: number;
+  dynamicSize?: boolean;
+}
 
 const styles = [
   'BUTTON_STYLE_GITHUB',
@@ -23,19 +72,24 @@ const styles = [
   'ICON_STYLE_MAIL',
   'ICON_STYLE_KEY',
   'ICON_STYLE_DISCORD',
-  'ICON_STYLE_SKYMP',
+  'ICON_STYLE_SKYMP'
 ];
 
-const Constructor = props => {
-  const content_mainRef = useRef();
+const Constructor = (props: ConstructorProps) => {
+  const contentMainRef = useRef<HTMLDivElement>(null);
+  const [fwidth, setFwidth] = useState(props.width || 512);
+  const [fheight, setFheight] = useState(props.height || 704);
+
   useEffect(() => {
     if (props.dynamicSize) {
       switch (props.elem.type) {
         case 'form':
-          const isContentInitialized = content_mainRef && content_mainRef.current && content_mainRef.current.clientHeight && content_mainRef.current.clientWidth;
-          if (isContentInitialized) {
-            setFwidth(content_mainRef.current.clientWidth + 60 < 257 ? 257 : content_mainRef.current.clientWidth + 60);
-            setFheight(content_mainRef.current.clientHeight + 96);
+          {
+            const isContentInitialized = contentMainRef && contentMainRef.current && contentMainRef.current.clientHeight && contentMainRef.current.clientWidth;
+            if (isContentInitialized) {
+              setFwidth(contentMainRef.current.clientWidth + 60 < 257 ? 257 : contentMainRef.current.clientWidth + 60);
+              setFheight(contentMainRef.current.clientHeight + 96);
+            }
           }
           break;
         default:
@@ -43,24 +97,22 @@ const Constructor = props => {
       }
     }
   }, [props.elem]);
-  const [fwidth, setFwidth] = useState(props.width || 512);
-  const [fheight, setFheight] = useState(props.height || 704);
 
   const rend = props.elem;
   switch (rend.type) {
     case 'form':
-      const result = {
+      const result: { header: string | undefined; body: any[] } = {
         header: rend.caption,
         body: []
       };
-      const hintsArr = [];
-      const bodyLines = [];
+      const hintsArr: any[] = [];
+      const bodyLines: any[][] = [];
       const allElems = rend.elements;
       for (let i = 0; i < allElems.length; i++) {
         let newline = true;
-        let css;
+        let css: string | undefined;
         let hintIsLeft = true;
-        let style = {};
+        let style: any = {};
         if (allElems[i].tags !== undefined) {
           if (allElems[i].tags.length !== 0) {
             for (let j = 0; j < allElems[i].tags.length; j++) {
@@ -116,10 +168,17 @@ const Constructor = props => {
         else bodyLines[bodyLines.length - 1].push(obj);
       }
       const [hints, setHints] = useState(hintsArr);
+      const setHintState = (index: number, state: boolean) => {
+        const newArr = [...hints];
+        hints.forEach((hint: any, ind: number) => {
+          if (hint.id === index) { newArr[ind].isOpened = state; }
+        });
+        setHints(newArr);
+      };
       let hintIndex = 0;
       bodyLines.forEach((line, lineIndex) => {
-        const arr = [];
-        let style;
+        const arr: any[] = [];
+        let style: any;
         line.forEach((obj, elementIndex) => {
           let curElem;
           const hasHint = obj.element.hint !== undefined;
@@ -135,10 +194,10 @@ const Constructor = props => {
               curElem = <Text text={obj.element.text} />;
               break;
             case 'inputText':
-              curElem = <SkyrimInput disabled={obj.element.isDisabled} initialValue={obj.element.initialValue} text={obj.element.text} placeholder={obj.element.placeholder} type={'text'} name={obj.index} width={obj.element.width} height={obj.element.height} onInput={obj.element.onInput} />;
+              curElem = <SkyrimInput labelText="" disabled={obj.element.isDisabled} initialValue={obj.element.initialValue} placeholder={obj.element.placeholder} type={'text'} name={obj.index} width={obj.element.width} height={obj.element.height} onInput={obj.element.onInput} />;
               break;
             case 'inputPass':
-              curElem = <SkyrimInput disabled={obj.element.isDisabled} initialValue={obj.element.initialValue} text={obj.element.text} placeholder={obj.element.placeholder} type={'password'} name={obj.index} width={obj.element.width} height={obj.element.height} onInput={obj.element.onInput} />;
+              curElem = <SkyrimInput labelText="" disabled={obj.element.isDisabled} initialValue={obj.element.initialValue} placeholder={obj.element.placeholder} type={'password'} name={obj.index} width={obj.element.width} height={obj.element.height} onInput={obj.element.onInput} />;
               break;
             case 'checkBox':
               curElem = <CheckBox disabled={obj.element.isDisabled} initialValue={obj.element.initialValue} text={obj.element.text} setChecked={obj.element.setChecked} />;
@@ -152,6 +211,7 @@ const Constructor = props => {
               (hasHint)
                 ? (<div key={key}>
                   <SkyrimHint
+                    active=""
                     text={hints[hintIndex].text}
                     isOpened={hints[hintIndex].isOpened}
                     left={hints[hintIndex].direction}
@@ -163,26 +223,18 @@ const Constructor = props => {
                     {curElem}
                   </div>
                 </div>
-                  )
+                )
                 : (
-                    <div>
-                        {curElem}
-                    </div>
-                  )
+                  <div>
+                    {curElem}
+                  </div>
+                )
             );
             if (hasHint) hintIndex++;
           }
         });
         result.body.push(<div style={style || {}} key={lineIndex + 'container'} className={'container'}>{arr}</div>);
       });
-
-      const setHintState = (index, state) => {
-        const newArr = [...hints];
-        hints.forEach((hint, ind) => {
-          if (hint.id === index) { newArr[ind].isOpened = state; }
-        });
-        setHints(newArr);
-      };
 
       return (
         <div className={'login'} >
@@ -193,23 +245,23 @@ const Constructor = props => {
                   <div className={'login-form--content_header'}>
                     {result.header}
                   </div>
-                  )
+                )
                 : ''
               }
-              <div className={'login-form--content_main'} ref={content_mainRef}>
+              <div className={'login-form--content_main'} ref={contentMainRef}>
                 {result.body}
               </div>
             </div>
-            <SkyrimFrame width={fwidth} height={fheight} />
+            <SkyrimFrame name="" width={fwidth} height={fheight} />
           </div>
         </div>
       );
     case 'chat':
       return (
         <>
-        <SkillsMenu send={rend.send}/>
-        <Chat messages={rend.messages} send={rend.send} placeholder={rend.placeholder} isInputHidden={rend.isInputHidden} />
-        <TestMenu send={rend.send}/>
+          <SkillsMenu send={rend.send} />
+          <Chat messages={rend.messages} send={rend.send} placeholder={rend.placeholder} isInputHidden={rend.isInputHidden} />
+          <TestMenu send={rend.send} />
         </>
       );
     default:

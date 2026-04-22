@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import Chat from './constructorComponents/chat';
 import AnimList from './features/animList';
-import Constructor from './constructor';
+import Constructor from './features/constructor';
 import SkillsMenu from './features/skillsMenu';
 import TestMenu from './features/testMenu';
 
