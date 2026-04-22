@@ -1,16 +1,16 @@
 import React, { useState } from "react";
+
 import "./styles.scss";
 
-const CheckBox = (props: {
+interface CheckBoxProps {
   text: string;
   setChecked: (newValue: boolean) => void;
   initialValue: boolean;
   disabled: boolean;
-}) => {
-  const text = props.text;
-  const [value, setValue] = useState(props.initialValue);
-  const setChecked = props.setChecked;
-  const disabled = props.disabled;
+}
+
+const CheckBox = ({ text, setChecked, initialValue, disabled }: CheckBoxProps) => {
+  const [value, setValue] = useState(initialValue);
   return (
     <div className={"checkbox_container login-form--content_main__container"}>
       <span className={"checkbox_text"}>{text}</span>
