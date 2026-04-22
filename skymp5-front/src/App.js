@@ -37,7 +37,7 @@ class App extends React.Component {
       window.skymp.on("message", (action) => {
         window.storage.dispatch(action);
       });
-    } catch {}
+    } catch { }
 
     window.isMoveWindow = false;
     window.addEventListener("mousemove", this.onMoveWindow);
@@ -60,7 +60,7 @@ class App extends React.Component {
     window.skyrimPlatform.widgets.removeListener(this.handleWidgetUpdate.bind(this));
   }
 
-  onWindowFocus(e) {
+  onWindowFocus() {
     const focus = document.hasFocus();
     this.props.updateBrowserFocus(focus);
   }

@@ -47,8 +47,7 @@ export const login = {
       tags: ["ELEMENT_SAME_LINE", "HINT_STYLE_RIGHT"],
       hint: "click “register now” to create a new account",
       click: () => {
-        // @ts-ignore
-        window.skyrimPlatform.widgets.set([register]);
+        window.skyrimPlatform?.widgets?.set([register]);
       },
     },
     {
