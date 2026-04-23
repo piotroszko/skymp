@@ -16,7 +16,7 @@ const Settings = (props: {
     <div className="chat-settings">
       <div className="content">
         <SkyrimSlider
-          text={"размер шрифта"}
+          text={"font size"}
           name={"fontSize"}
           min={14}
           max={22}
@@ -25,13 +25,13 @@ const Settings = (props: {
           marks={[14, 15, 16, 17, 18, 19, 20, 21, 22]}
         />
         <CheckBox
-          text={"звуки дайсов"}
+          text={"dice sounds"}
           initialValue={!props.isSoundsDisabled}
           setChecked={(value) => props.setDisableSounds(!value)}
           disabled={false}
         />
         <CheckBox
-          text={"кнопка отправки"}
+          text={"send button"}
           initialValue={props.showSendButton}
           setChecked={props.setShowSendButton}
           disabled={false}

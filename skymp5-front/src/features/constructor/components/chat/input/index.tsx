@@ -35,7 +35,7 @@ const ChatInput = React.forwardRef<HTMLSpanElement, ChatInputProps>(function Cha
       <span
         className={"chat-input--text show"}
         contentEditable={true}
-        //placeholder={'Ваше сообщение...'}
+        //placeholder={'Your message...'}
         onInput={handleInput}
         ref={ref}
         id={"chatInput"}

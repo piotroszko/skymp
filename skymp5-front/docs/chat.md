@@ -1,24 +1,24 @@
 # Backend to Frontend
 
 ## UPDATE_CHAT_SHOW
-### Скрыть/показать чат
+### Hide/show chat
 **data:** true/false
 
 ## ADD_CHAT_MSG
-### Добавить сообщение в чат
-**data:** "Генерал тулий: #{ff0000}hello"
-> Текст после #{rrggbb} примет заданный цвет
+### Add message to chat
+**data:** "General Tullius: #{ff0000}hello"
+> Text after #{rrggbb} will take the specified color
 
 ## UPDATE_CHAT_SHOWINPUT
-### Изменить режим отображения поля ввода
+### Change input field display mode
 **data:** 'true'/'false'/'auto'
-> **'true'** - всегда показывать
-> **'false'** - всегда скрывать
-> **'auto'** - открывать при нажатии **f6**
+> **'true'** - always show
+> **'false'** - always hide
+> **'auto'** - open when pressing **f6**
 
 
 #  Frontend to Backend
 
 ## 'cef::chat:send'
-### Игрок отправил какое то сообщение
+### Player sent some message
 **data:** 'Some text'

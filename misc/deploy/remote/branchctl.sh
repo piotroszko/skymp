@@ -7,12 +7,12 @@ action="${1:?}"
 branch="${2:?}"
 
 if [[ "$branch" == "sweetpie" ]]; then
-    ~/announce.sh "$branch" sys Сервер будет перезапущен через 1 минуту. || true
+    ~/announce.sh "$branch" sys The server will be restarted in 1 minute. || true
     sleep 30
-    ~/announce.sh "$branch" sys Сервер будет перезапущен через 30 секунд. || true
+    ~/announce.sh "$branch" sys The server will be restarted in 30 seconds. || true
     sleep 30
 fi
-~/announce.sh "$branch" sys Сервер перезапускается. Пожалуйста, перезайдите примерно через полторы минуты. || true
+~/announce.sh "$branch" sys The server is restarting. Please reconnect in about a minute and a half. || true
 if [[ "$branch" == "sweetpie" ]]; then
     ~/logretainer/retain.sh || true
 fi

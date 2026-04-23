@@ -1,4 +1,4 @@
-# Сpp Code Guidelines
+# C++ Code Guidelines
 
 ## Language
 

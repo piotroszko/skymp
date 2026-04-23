@@ -11,7 +11,7 @@ import learnSound from "./assets/LearnSkill.wav";
 import { IPlayerData } from "@/interfaces/skillMenu";
 
 const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
-  const [currentHeader, setcurrentHeader] = useState("способности");
+  const [currentHeader, setcurrentHeader] = useState("abilities");
   const [currentLevel, setcurrentLevel] = useState(" ");
   const [currentDescription, setcurrentDescription] = useState(" ");
   const [selectedPerk, setselectedPerk] = useState(null);
@@ -113,11 +113,11 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
     const audio = document.getElementById("selectSound").cloneNode(true) as HTMLAudioElement;
     audio.play();
     if (perk.levelsPrice[playerLevel] > pExp) {
-      setcurrentDescription(`не хватает ${selectedPerk.levelsPrice[playerLevel] - pExp} опыта`);
+      setcurrentDescription(`${selectedPerk.levelsPrice[playerLevel] - pExp} experience short`);
       return;
     }
     if (perk.levelsPrice[playerLevel] > pMem) {
-      setcurrentDescription("не хватает памяти");
+      setcurrentDescription("not enough memory");
       return;
     }
     setselectedPerk(perk);
@@ -162,9 +162,9 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
 
   const confirmHanlder = () => {
     setconfirmDiscard(true);
-    setcurrentLevel("хотите сбросить прогресс?");
+    setcurrentLevel("do you want to reset your progress?");
     setcurrentDescription(
-      "нажимая “да” вы полностью сбросите все выученные профессии и получите обратно половину потраченного опыта. Также вы потеряете все изученные заклинания.",
+      "by clicking \u201cyes\u201d you will fully reset all learned professions and get back half of the spent experience. You will also lose all learned spells.",
     );
   };
 
@@ -183,11 +183,11 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
             >
               <SkyrimHint
                 active="true"
-                text={"память нужна для изучения новых способностей"}
+                text={"memory is needed to learn new abilities"}
                 isOpened={memHint}
                 left={true}
               />
-              <span>память:</span>
+              <span>memory:</span>
               <span className="perks__exp-container__line__price">
                 {pMem}
                 <span className="perks__exp" style={{ opacity: 0 }} />
@@ -245,12 +245,12 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                     onMouseLeave={() => setexpHint(false)}
                   >
                     <SkyrimHint
-                      text={"за опыт можно улучшить способности"}
+                      text={"abilities can be upgraded with experience"}
                       isOpened={expHint}
                       active="true"
                       left={true}
                     />
-                    <span>опыт:</span>
+                    <span>experience:</span>
                     <span className="perks__exp-container__line__price">
                       {pExp}
                       <span className="perks__exp" />
@@ -258,7 +258,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                   </div>
                 </div>
                 <FrameButton
-                  text="изучить"
+                  text="learn"
                   name="learnBtn"
                   variant="DEFAULT"
                   width={242}
@@ -273,7 +273,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                 {confirmDiscard ? (
                   <div className="perks__footer__buttons__confirm">
                     <FrameButton
-                      text="да"
+                      text="yes"
                       name="yesBtn"
                       variant="DEFAULT"
                       width={178}
@@ -281,7 +281,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                       onMouseDown={() => discardHandler()}
                     ></FrameButton>
                     <FrameButton
-                      text="нет"
+                      text="no"
                       name="noBtn"
                       variant="DEFAULT"
                       width={178}
@@ -291,7 +291,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                   </div>
                 ) : (
                   <FrameButton
-                    text="сбросить"
+                    text="reset"
                     name="discardBtn"
                     variant="DEFAULT"
                     width={242}
@@ -304,7 +304,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
               <div className="perks__footer__exit-button">
                 <FrameButton
                   name="extBtn"
-                  text="выйти"
+                  text="exit"
                   variant="DEFAULT"
                   width={242}
                   height={56}

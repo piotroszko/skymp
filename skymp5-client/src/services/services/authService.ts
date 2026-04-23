@@ -122,7 +122,7 @@ export class AuthService extends ClientListener {
         this.authAttemptProgressIndicator = false;
         this.controller.lookupListener(NetworkingService).close();
         logTrace(this, 'loginFailedNotLoggedViaDiscord received');
-        browserState.loginFailedReason = 'войдите через discord';
+        browserState.loginFailedReason = 'log in via discord';
         browserState.comment = '';
         this.setListenBrowserMessage(true, 'loginFailedNotLoggedViaDiscord received');
         this.loggingStartMoment = 0;
@@ -132,7 +132,7 @@ export class AuthService extends ClientListener {
         this.authAttemptProgressIndicator = false;
         this.controller.lookupListener(NetworkingService).close();
         logTrace(this, 'loginFailedNotInTheDiscordServer received');
-        browserState.loginFailedReason = 'вступите в discord сервер';
+        browserState.loginFailedReason = 'join the discord server';
         browserState.comment = '';
         this.setListenBrowserMessage(true, 'loginFailedNotInTheDiscordServer received');
         this.loggingStartMoment = 0;
@@ -142,7 +142,7 @@ export class AuthService extends ClientListener {
         this.authAttemptProgressIndicator = false;
         this.controller.lookupListener(NetworkingService).close();
         logTrace(this, 'loginFailedBanned received');
-        browserState.loginFailedReason = 'вы забанены';
+        browserState.loginFailedReason = 'you are banned';
         browserState.comment = '';
         this.setListenBrowserMessage(true, 'loginFailedBanned received');
         this.loggingStartMoment = 0;
@@ -152,7 +152,7 @@ export class AuthService extends ClientListener {
         this.authAttemptProgressIndicator = false;
         this.controller.lookupListener(NetworkingService).close();
         logTrace(this, 'loginFailedIpMismatch received');
-        browserState.loginFailedReason = 'что это было?';
+        browserState.loginFailedReason = 'what was that?';
         browserState.comment = '';
         this.setListenBrowserMessage(true, 'loginFailedIpMismatch received');
         this.loggingStartMoment = 0;
@@ -421,13 +421,13 @@ export class AuthService extends ClientListener {
     const widget = {
       type: "form",
       id: 1,
-      caption: "упс",
+      caption: "oops",
       elements: new Array<any>()
     }
 
     textElements.forEach((element) => widget.elements.push(element));
 
-    if (browserState.loginFailedReason === 'вступите в discord сервер') {
+    if (browserState.loginFailedReason === 'join the discord server') {
       widget.elements.push({
         type: "button",
         text: "join",
@@ -570,7 +570,7 @@ export class AuthService extends ClientListener {
         this.authAttemptProgressIndicator = false;
         this.controller.lookupListener(NetworkingService).close();
         browserState.comment = "";
-        browserState.loginFailedReason = 'технические шоколадки\nпопробуйте еще раз\nпожалуйста\nили напишите нам в discord';
+        browserState.loginFailedReason = 'technical difficulties\nplease try again\nor contact us on discord';
         this.sp.browser.executeJavaScript(new FunctionInfo(this.loginFailedWidgetSetter).getText({ events, browserState, authData: authData }));
 
         authData = null;
@@ -589,7 +589,7 @@ export class AuthService extends ClientListener {
 
       const dot = slowCounter % 3 === 0 ? '.' : slowCounter % 3 === 1 ? '..' : '...';
 
-      browserState.comment = "подключение" + dot;
+      browserState.comment = "connecting" + dot;
       this.refreshWidgets();
     }
   }
