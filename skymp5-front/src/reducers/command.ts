@@ -3,10 +3,7 @@ type CommandAction = { type: string; data?: any };
 
 const defaultState: CommandState = {};
 
-export const commandReducer = (
-  state: CommandState = defaultState,
-  action: CommandAction,
-): any => {
+export const commandReducer = (state: CommandState = defaultState, action: CommandAction): any => {
   switch (action.type) {
     case "COMMAND": {
       console.log(action.data.commandType, action.data.commandArgs);

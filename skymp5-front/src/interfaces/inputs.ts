@@ -1,4 +1,5 @@
 import React from "react";
+
 import { DefaultUIElementProps } from ".";
 
 export interface SkyrimInputProps extends React.ComponentProps<"input">, DefaultUIElementProps {

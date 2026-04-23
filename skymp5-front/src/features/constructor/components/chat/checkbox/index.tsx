@@ -1,4 +1,5 @@
 import React from "react";
+
 import "./styles.scss";
 import checkboxSVG from "@/assets/img/checkbox.svg";
 import checkboxCheckedSVG from "@/assets/img/checkbox_checked.svg";

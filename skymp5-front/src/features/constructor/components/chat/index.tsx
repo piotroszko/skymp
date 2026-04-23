@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Draggable from "react-draggable";
 import { ResizableBox } from "react-resizable";
-import ChatCheckbox from "./checkbox";
-import Dices from "./dices";
 
 import ChatCorner from "@/assets/img/chat_corner.svg";
-import Settings from "./settings";
-import SendButton from "./sendButton";
-import ChatInput from "./input";
 import { replaceIfMoreThan20 } from "@/utils/replaceIfMoreThan20";
 
+import ChatCheckbox from "./checkbox";
+import Dices from "./dices";
+import ChatInput from "./input";
+import SendButton from "./sendButton";
+import Settings from "./settings";
 import "./styles.scss";
 
 const MAX_LENGTH = 2000; // Max message length
@@ -102,9 +102,9 @@ const Chat = (props: ChatProps) => {
       const shout = text.match(SHOUTREGEXP);
       const shoutLen = shout
         ? shout.reduce((acc, s) => {
-          acc += s.length;
-          return acc;
-        }, 0)
+            acc += s.length;
+            return acc;
+          }, 0)
         : 0;
       if (
         text !== "" &&
@@ -363,7 +363,7 @@ const Chat = (props: ChatProps) => {
             <Dices
               isOpened={isPouchOpened}
               setOpened={setPouchOpened}
-              send={send ?? (() => { })}
+              send={send ?? (() => {})}
               disableSound={disableDiceSounds}
               inputRef={inputRef as unknown as React.MutableRefObject<HTMLInputElement>}
             />

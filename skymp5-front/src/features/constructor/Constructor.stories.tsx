@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-webpack5";
-import Constructor from ".";
+
 import type { ChatWidget, FormWidget } from "./types";
+
+import Constructor from ".";
 
 const meta: Meta<typeof Constructor> = {
   title: "features/Constructor",

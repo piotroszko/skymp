@@ -1,5 +1,7 @@
 import React from "react";
+
 import { SkyrimHintProps } from "@/interfaces/buttons";
+
 import "./SkyrimHint.scss";
 
 export const SkyrimHint = ({ isOpened = false, text = "", active, left }: SkyrimHintProps) => {

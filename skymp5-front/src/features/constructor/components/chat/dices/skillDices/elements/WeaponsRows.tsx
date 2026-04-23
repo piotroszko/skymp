@@ -1,7 +1,9 @@
 import React from "react";
+
 import { IWeapon } from "@/interfaces/skillDices";
-import IndexBox from "./IndexBox";
+
 import { rollButtons, weapons } from "../skillDicesData";
+import IndexBox from "./IndexBox";
 
 interface IWeaponsRows {
   index: number;

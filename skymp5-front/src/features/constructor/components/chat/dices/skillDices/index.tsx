@@ -1,12 +1,12 @@
 import React, { useMemo, useState, useEffect } from "react";
-import heart5 from "@/assets/img/dices/heart5.svg";
-import heart4 from "@/assets/img/dices/heart4.svg";
-import heart3 from "@/assets/img/dices/heart3.svg";
-import heart2 from "@/assets/img/dices/heart2.svg";
-import heart1 from "@/assets/img/dices/heart1.svg";
+
 import heart0 from "@/assets/img/dices/heart0.svg";
+import heart1 from "@/assets/img/dices/heart1.svg";
+import heart2 from "@/assets/img/dices/heart2.svg";
+import heart3 from "@/assets/img/dices/heart3.svg";
+import heart4 from "@/assets/img/dices/heart4.svg";
+import heart5 from "@/assets/img/dices/heart5.svg";
 import heartHover from "@/assets/img/dices/heartHover.svg";
-import IndexBox from "./elements/IndexBox";
 import {
   IDefence,
   IMagic,
@@ -16,6 +16,8 @@ import {
   ISkillDicesData,
   IWeapon,
 } from "@/interfaces/skillDices";
+
+import IndexBox from "./elements/IndexBox";
 import WeaponsRows from "./elements/WeaponsRows";
 import { defence, magic, weapons, rollButtons } from "./skillDicesData";
 
@@ -129,11 +131,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
       return;
     }
     setattackMastery(0);
-  }, [
-	weaponSelected,
-	playerSkillData,
-	weaponEquipped
-]);
+  }, [weaponSelected, playerSkillData, weaponEquipped]);
 
   useEffect(() => {
     if (isWolf) {
@@ -145,13 +143,18 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
   }, [attackWeaponIndex, attackMastery, isWolf, isVampus, attackBuff]);
 
   const init = (event) => {
-    const { skills, weapons: equippedWeapons, armor } = (event as CustomEvent).detail as ISkillDicesData;
+    const {
+      skills,
+      weapons: equippedWeapons,
+      armor,
+    } = (event as CustomEvent).detail as ISkillDicesData;
     setplayerSkillData(skills);
     const differentWeapon =
       equippedWeapons.length === 2 &&
       equippedWeapons[0] !== equippedWeapons[1] &&
       !["shieldlight", "shieldheavy", "magicstaff"].includes(equippedWeapons[0]);
-    const weaponName = equippedWeapons.length === 1 || differentWeapon ? equippedWeapons[0] : equippedWeapons[1];
+    const weaponName =
+      equippedWeapons.length === 1 || differentWeapon ? equippedWeapons[0] : equippedWeapons[1];
     setweaponSelected(differentWeapon ? "different" : weaponName);
     setweaponEquipped(equippedWeapons);
     if (armor) {

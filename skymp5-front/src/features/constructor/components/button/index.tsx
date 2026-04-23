@@ -1,10 +1,10 @@
 import React from "react";
 
+import githubImage from "@/assets/img/github.svg";
+import patreonImage from "@/assets/img/patreon.svg";
 import { FrameButton } from "@/components/FrameButton/FrameButton";
 import { ImageButton } from "@/components/ImageButton/ImageButton";
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
-import patreonImage from "@/assets/img/patreon.svg";
-import githubImage from "@/assets/img/github.svg";
 
 interface ButtonProps {
   css?: string;
@@ -15,14 +15,7 @@ interface ButtonProps {
   disabled?: boolean;
 }
 
-const Button = ({
-  css,
-  text = "",
-  onClick,
-  width,
-  height,
-  disabled = false,
-}: ButtonProps) => {
+const Button = ({ css, text = "", onClick, width, height, disabled = false }: ButtonProps) => {
   switch (css) {
     case "BUTTON_STYLE_FRAME":
       return (

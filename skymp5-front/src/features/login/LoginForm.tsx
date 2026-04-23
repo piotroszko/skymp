@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
+import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 import { toggleClass } from "@/utils/toggleClass";
-import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
+
 import { LoginLocale } from "./index";
 
 interface LoginFormProps {

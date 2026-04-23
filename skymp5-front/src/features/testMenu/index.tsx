@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
+
 import { FrameButton } from "@/components/FrameButton/FrameButton";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
+
 import "./styles.scss";
 import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 

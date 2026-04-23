@@ -1,4 +1,5 @@
 import React from "react";
+
 import "./styles.scss";
 import MailIcon from "@/assets/img/send.svg";
 

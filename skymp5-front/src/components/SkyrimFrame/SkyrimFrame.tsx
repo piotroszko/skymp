@@ -1,5 +1,7 @@
 import React from "react";
+
 import { SkyrimFrameProps } from "@/interfaces/frame";
+
 import "./SkyrimFrame.scss";
 
 interface FrameItemProps {

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-import Chat from "./features/constructor/components/chat";
 import AnimList from "./features/animList";
 import Constructor from "./features/constructor";
+import Chat from "./features/constructor/components/chat";
+import { Widget } from "./features/constructor/types";
 import SkillsMenu from "./features/skillsMenu";
 import TestMenu from "./features/testMenu";
-import { Widget } from "./features/constructor/types";
 
 interface AppProps {
   elem?: Widget[];
@@ -77,7 +77,7 @@ function App({ elem, height, width }: AppProps) {
   }, [onWindowFocus, onMoveWindow, onMouseUp, handleWidgetUpdate]);
 
   if (isLoggined) {
-    const noopSend = (_message: string) => { };
+    const noopSend = (_message: string) => {};
     return (
       <div className={`App ${!("skyrimPlatform" in window) ? "bg" : ""}`}>
         <AnimList />

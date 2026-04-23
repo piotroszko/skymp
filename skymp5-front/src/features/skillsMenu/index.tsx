@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
+
 import { FrameButton } from "@/components/FrameButton/FrameButton";
-import content, { levels } from "./content";
-import "./styles.scss";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
-import hoverSound from "./assets/OnCoursor.wav";
-import quitSound from "./assets/Quit.wav";
+
+import "./styles.scss";
+import { IPlayerData } from "@/interfaces/skillMenu";
+
 import selectSound from "./assets/ButtonDown.wav";
 import learnSound from "./assets/LearnSkill.wav";
-import { IPlayerData } from "@/interfaces/skillMenu";
+import hoverSound from "./assets/OnCoursor.wav";
+import quitSound from "./assets/Quit.wav";
+import content, { levels } from "./content";
 
 type Perk = {
   name: string;

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-webpack5";
+
 import { FrameButton } from "./FrameButton";
 
 const meta: Meta<typeof FrameButton> = {

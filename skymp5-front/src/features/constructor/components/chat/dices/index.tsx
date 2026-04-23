@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
+
 import "./styles.scss";
-import D100 from "./icons/D100";
 import Coin from "./icons/Coin";
 import D6 from "./icons/D6";
 import D12 from "./icons/D12";
 import D20 from "./icons/D20";
+import D100 from "./icons/D100";
 import Pouch from "./icons/Pouch";
 import SkillDices from "./skillDices";
 

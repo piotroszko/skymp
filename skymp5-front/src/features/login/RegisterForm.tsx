@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
+
 import { LoginLocale } from "./index";
 
 interface RegisterFormProps {

@@ -1,7 +1,9 @@
 import React from "react";
+
 import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 import { SkyrimSlider } from "@/components/SkyrimSlider/SkyrimSlider";
 import CheckBox from "@/features/constructor/components/checkbox/index";
+
 import "./styles.scss";
 
 const Settings = (props: {

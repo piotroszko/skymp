@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
 
+import discordSVG from "@/assets/img/discord.svg";
 import mailSVG from "@/assets/img/mail.svg";
 import passwordSVG from "@/assets/img/password.svg";
-import discordSVG from "@/assets/img/discord.svg";
 import skympSVG from "@/assets/img/skymp.svg";
 
 interface IconProps {

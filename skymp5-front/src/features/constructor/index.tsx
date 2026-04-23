@@ -2,17 +2,17 @@ import React, { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState }
 
 import "../login/styles.scss";
 import "./styles.scss";
-
 import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
-import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
-import Button from "./components/button";
-import Icon from "./components/icon";
-import CheckBox from "./components/checkbox";
-import Text from "./components/text";
-import Chat from "./components/chat";
+import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
+
 import SkillsMenu from "../skillsMenu";
 import TestMenu from "../testMenu";
+import Button from "./components/button";
+import Chat from "./components/chat";
+import CheckBox from "./components/checkbox";
+import Icon from "./components/icon";
+import Text from "./components/text";
 import { ConstructorProps, HintEntry, LineItem } from "./types";
 import { computeFormLayout } from "./utils";
 
@@ -119,7 +119,7 @@ const Constructor = (props: ConstructorProps) => {
                     typeof obj.element.initialValue === "boolean" ? obj.element.initialValue : false
                   }
                   text={obj.element.text ?? ""}
-                  setChecked={obj.element.setChecked ?? (() => { })}
+                  setChecked={obj.element.setChecked ?? (() => {})}
                 />
               );
               break;

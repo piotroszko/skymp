@@ -26,9 +26,8 @@ class Widgets<T extends IdentifiableWidget = IdentifiableWidget> {
 
   add(widget: T): void {
     const idx = this.widgets.findIndex((el) => el.id === widget.id);
-    const next = idx >= 0
-      ? this.widgets.map((el, i) => (i === idx ? widget : el))
-      : [...this.widgets, widget];
+    const next =
+      idx >= 0 ? this.widgets.map((el, i) => (i === idx ? widget : el)) : [...this.widgets, widget];
     this.set(next);
   }
 

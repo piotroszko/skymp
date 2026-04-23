@@ -1,5 +1,7 @@
 import React from "react";
+
 import { SkyrimInputProps } from "@/interfaces";
+
 import "./SkyrimInput.scss";
 
 export const SkyrimInput = ({

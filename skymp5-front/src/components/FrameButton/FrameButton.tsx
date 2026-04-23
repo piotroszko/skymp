@@ -1,14 +1,15 @@
 import React from "react";
-import ButtonMiddleImage from "./img/button_middle.svg";
-import ButtonMiddleDisabledImage from "./img/button_middle_disabled.svg";
-import SkyrimButtonStartImage from "./img/skyrim_button_start.svg";
-import SkyrimButtonStartDisabledImage from "./img/skyrim_button_start_disabled.svg";
-import SkyrimButtonEndImage from "./img/skyrim_button_end.svg";
-import SkyrimButtonEndDisabledImage from "./img/skyrim_button_end_disabled.svg";
-import FrameButtonEndImage from "./img/frame_button_end.svg";
-import FrameButtonStartImage from "./img/frame_button_start.svg";
 
 import { DefaultButtonComponentProps, FrameButtonProps } from "@/interfaces";
+
+import ButtonMiddleImage from "./img/button_middle.svg";
+import ButtonMiddleDisabledImage from "./img/button_middle_disabled.svg";
+import FrameButtonEndImage from "./img/frame_button_end.svg";
+import FrameButtonStartImage from "./img/frame_button_start.svg";
+import SkyrimButtonEndImage from "./img/skyrim_button_end.svg";
+import SkyrimButtonEndDisabledImage from "./img/skyrim_button_end_disabled.svg";
+import SkyrimButtonStartImage from "./img/skyrim_button_start.svg";
+import SkyrimButtonStartDisabledImage from "./img/skyrim_button_start_disabled.svg";
 import "./FrameButton.scss";
 
 interface ButtonItemProps extends DefaultButtonComponentProps {

@@ -39,8 +39,7 @@ const content = [
     {
       name: "saltmaker",
       levelsPrice: [50, 80, 110, 140],
-      description:
-        "tradesman: digs clay and salt, produces glass and clay goods",
+      description: "tradesman: digs clay and salt, produces glass and clay goods",
       levelsDescription: [
         "when an employer asks what you can do, you usually say: “i can dig clay.” when he asks what else, you think and reply: “well, i can not dig...”",
         "you're a true wizard. with a shovel and some colorful language you can make clay pots, sand glass, and salt from seawater",
@@ -184,8 +183,7 @@ const content = [
     },
     {
       name: "carpenter",
-      description:
-        "carpenter: makes various wooden goods — bows, shields, and crossbows",
+      description: "carpenter: makes various wooden goods — bows, shields, and crossbows",
       levelsPrice: [50, 80, 110, 140],
       levelsDescription: [
         "the neighbor taught his little son to make stools — how are you any worse? you can make a passable axe haft or a shovel shaft",
@@ -265,8 +263,7 @@ const content = [
     },
     {
       name: "scimitar",
-      description:
-        "forerunner: specializes in weapons rare to Skyrim — sabers and scimitars",
+      description: "forerunner: specializes in weapons rare to Skyrim — sabers and scimitars",
       levelsPrice: [50, 80, 110, 280],
       levelsDescription: [
         "they have curved swords... curved... swords...",
@@ -279,8 +276,7 @@ const content = [
     },
     {
       name: "katana",
-      description:
-        "spy: specializes in weapons rare to Skyrim — katana, tanto, and wakizashi",
+      description: "spy: specializes in weapons rare to Skyrim — katana, tanto, and wakizashi",
       levelsPrice: [50, 80, 110, 280],
       levelsDescription: [
         "your mentor advised you to stay away from the wild nords — so what are you doing in skyrim?",
@@ -412,8 +408,7 @@ const content = [
     },
     {
       name: "pike",
-      description:
-        "spearman: wields one-handed spears, two-handed pikes, and exotic tridents",
+      description: "spearman: wields one-handed spears, two-handed pikes, and exotic tridents",
       levelsPrice: [50, 80, 110, 140],
       levelsDescription: [
         "not the flashiest weapon, but very effective — for those who like to approach from afar",
@@ -426,8 +421,7 @@ const content = [
     },
     {
       name: "halberd",
-      description:
-        "guardsman: specializes in halberds and can also master exotic glaives",
+      description: "guardsman: specializes in halberds and can also master exotic glaives",
       levelsPrice: [50, 80, 110, 140],
       levelsDescription: [
         "i have a spear, i have a battleaxe... mmm... halberd",
@@ -477,8 +471,7 @@ const content = [
     },
     {
       name: "alchemy",
-      description:
-        "alchemist: brews potions, mixes dyes, and applies healing bandages",
+      description: "alchemist: brews potions, mixes dyes, and applies healing bandages",
       levelsPrice: [50, 80, 110, 140],
       levelsDescription: [
         "your alchemy knowledge ends with standing at the alchemy bench and clacking a pestle against an empty mortar with a wise look",

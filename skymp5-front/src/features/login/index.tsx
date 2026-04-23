@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 import "./styles.scss";
-import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
-
-import * as ru from "@/assets/locales/ru.json";
 import * as en from "@/assets/locales/en.json";
+import * as ru from "@/assets/locales/ru.json";
+import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
+
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 
