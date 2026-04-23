@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { FrameButton } from "@/components/FrameButton/FrameButton";
 import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
@@ -18,30 +18,36 @@ const TestMenu = ({ send }: { send: (message: string) => void }) => {
   const [playerData, setplayerData] = useState<number | null>(null);
   const [confirmDiscard, setconfirmDiscard] = useState(false);
 
-  const fetchData = (event) => {
-    send("FFFFFFFF");
-    const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
-    if (el) {
-      el.style.display = "none";
-    }
-    const newPlayerData = JSON.parse((event as CustomEvent).detail) as number;
-    setplayerData(newPlayerData);
-  };
+  const fetchData = useCallback(
+    (event: Event) => {
+      send("FFFFFFFF");
+      const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
+      if (el) {
+        el.style.display = "none";
+      }
+      const newPlayerData = JSON.parse((event as CustomEvent).detail) as number;
+      setplayerData(newPlayerData);
+    },
+    [send],
+  );
 
-  const quitHandler = () => {
+  const quitHandler = useCallback(() => {
     const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
     if (el) {
       el.style.display = "flex";
     }
-    setplayerData(undefined);
+    setplayerData(null);
     send("/skill quit");
-  };
+  }, [send]);
 
-  const keyListener = (event) => {
-    if (event.key === "Escape") {
-      quitHandler();
-    }
-  };
+  const keyListener = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        quitHandler();
+      }
+    },
+    [quitHandler],
+  );
 
   const init = () => {
     setconfirmDiscard(false);
@@ -68,7 +74,7 @@ const TestMenu = ({ send }: { send: (message: string) => void }) => {
     //   })
     // );
     return () => {
-      setplayerData(undefined);
+      setplayerData(null);
       window.removeEventListener("updateTestMenu", fetchData);
       window.removeEventListener("updateTestMenu", init);
       const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
@@ -76,7 +82,7 @@ const TestMenu = ({ send }: { send: (message: string) => void }) => {
         el.style.display = "flex";
       }
     };
-  }, []);
+  }, [fetchData, keyListener]);
 
   useEffect(() => {
     if (!playerData) return;

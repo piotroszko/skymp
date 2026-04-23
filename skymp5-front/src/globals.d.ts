@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 interface SkyrimPlatform {
-  widgets?: import("./utils/Widgets").Widgets;
+  widgets?: import("./utils/Widgets").Widgets<import("./features/constructor/types").Widget>;
   sendMessage?: (message: string) => void;
 }
 

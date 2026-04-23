@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 
 import App from "./App";
+import { Widget } from "./features/constructor/types";
 import { store } from "./redux/store";
 import { Widgets } from "./utils/Widgets";
 import "./main.scss";
@@ -14,7 +15,7 @@ if (!window.skyrimPlatform) {
 
 const platform = window.skyrimPlatform;
 if (!platform.widgets) {
-  platform.widgets = new Widgets([]);
+  platform.widgets = new Widgets<Widget>([]);
 }
 
 const container = document.getElementById("root");

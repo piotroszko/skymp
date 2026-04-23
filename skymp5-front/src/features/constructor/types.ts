@@ -33,12 +33,14 @@ export interface ConstructorElement {
 }
 
 export interface FormWidget {
+  id: number | string;
   type: "form";
   caption?: string;
   elements: ConstructorElement[];
 }
 
 export interface ChatWidget {
+  id: number | string;
   type: "chat";
   messages: unknown;
   send: (message: string) => void;

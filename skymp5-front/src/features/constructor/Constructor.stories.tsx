@@ -13,6 +13,7 @@ export default meta;
 type Story = StoryObj<typeof Constructor>;
 
 const formWidget: FormWidget = {
+  id: 1,
   type: "form",
   caption: "Sign in",
   elements: [
@@ -69,6 +70,7 @@ export const FormDynamicSize: Story = {
 };
 
 const chatWidget: ChatWidget = {
+  id: 2,
   type: "chat",
   messages: [],
   send: () => undefined,

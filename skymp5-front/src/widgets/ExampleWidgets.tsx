@@ -1,4 +1,6 @@
-export const login = {
+import { FormWidget } from "@/features/constructor/types";
+
+export const login: FormWidget = {
   type: "form",
   id: 1,
   caption: "authorization",
@@ -59,9 +61,9 @@ export const login = {
   ],
 };
 
-const register = {
+const register: FormWidget = {
   type: "form",
-  id: 1,
+  id: 2,
   caption: "Register",
   elements: [
     {
@@ -104,9 +106,6 @@ const register = {
       tags: ["BUTTON_STYLE_FRAME", "ELEMENT_STYLE_MARGIN_EXTENDED"],
       isDisabled: true,
       text: "create account",
-      style: {
-        marginTop: "10px",
-      },
     },
   ],
 };
