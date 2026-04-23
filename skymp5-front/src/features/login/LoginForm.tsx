@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
@@ -41,12 +41,15 @@ const LoginForm = (props: LoginFormProps) => {
       setButtonDisabled(true);
     }
   };
-  const handleLogin = (credentials: LoginData) => {
-    if (isRemember) {
-      localStorage.setItem("email", credentials.email);
-      localStorage.setItem("password", credentials.password);
-    }
-  };
+  const handleLogin = useCallback(
+    (credentials: LoginData) => {
+      if (isRemember) {
+        localStorage.setItem("email", credentials.email);
+        localStorage.setItem("password", credentials.password);
+      }
+    },
+    [isRemember],
+  );
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
       if (e.key === "Enter" && !isButtonDisabled) {
@@ -55,7 +58,7 @@ const LoginForm = (props: LoginFormProps) => {
     };
     document.addEventListener("keypress", listener);
     return () => document.removeEventListener("keypress", listener);
-  }, [data, isButtonDisabled]);
+  }, [data, isButtonDisabled, handleLogin]);
   return (
     <div className={"login-form--content_main"}>
       <div className={"login-form--content_main__email"}>

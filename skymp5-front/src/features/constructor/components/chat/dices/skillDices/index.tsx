@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import heart0 from "@/assets/img/dices/heart0.svg";
 import heart1 from "@/assets/img/dices/heart1.svg";
@@ -62,7 +62,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
     } else {
       setdefenceMastery(0);
     }
-  }, [defenceSelected]);
+  }, [defenceSelected, playerSkillData]);
 
   useEffect(() => {
     if (isWolf) {
@@ -86,13 +86,13 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
     } else {
       setmagicMastery(vampusBuff);
     }
-  }, [magicSelected, isVampus]);
+  }, [magicSelected, isVampus, playerSkillData]);
 
   useEffect(() => {
     const magicStaffBuff = weaponEquipped[0] === "magicstaff" ? 1 : 0;
     const mageRobeBuff = defenceSelected === "robe" ? 1 : 0;
     setmagicIndex(magicMastery + magicStaffBuff + mageRobeBuff + magicBuff);
-  }, [magicMastery, weaponSelected, defenceSelected, magicBuff]);
+  }, [magicMastery, weaponEquipped, defenceSelected, magicBuff]);
 
   useEffect(() => {
     setattackWeaponIndex(weapons[weaponSelected].index);
@@ -142,7 +142,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
     setattackIndex(attackWeaponIndex + attackMastery + vampusBuff + attackBuff);
   }, [attackWeaponIndex, attackMastery, isWolf, isVampus, attackBuff]);
 
-  const init = (event) => {
+  const init = useCallback((event: Event) => {
     const {
       skills,
       weapons: equippedWeapons,
@@ -160,7 +160,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
     if (armor) {
       setdefenceSelected(armor);
     }
-  };
+  }, []);
 
   useEffect(() => {
     send(`${COMMAND_NAME} init`);
@@ -168,7 +168,7 @@ const SkillDices = ({ onClose, send, disableSound }: ISkillDices) => {
     return () => {
       window.removeEventListener("updateSkillMenu", init);
     };
-  }, []);
+  }, [send, init]);
 
   const playSound = (action: IRollAction | "heal" | "self-attack" | "wolf" | "vampus") => {
     if (disableSound) return;

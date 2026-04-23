@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
@@ -39,9 +39,9 @@ const RegisterForm = (props: RegisterFormProps) => {
 
     console.log(data);
   };
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     console.log("submit", data);
-  };
+  }, [data]);
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
       console.log(e.key, isButtonBack, e.key === "Enter");
@@ -51,7 +51,7 @@ const RegisterForm = (props: RegisterFormProps) => {
     };
     document.addEventListener("keypress", listener);
     return () => document.removeEventListener("keypress", listener);
-  }, [data, isButtonBack]);
+  }, [isButtonBack, handleSubmit]);
   return (
     <div className={"login-form--content_main"}>
       <div className={"login-form--content_main__email"}>
