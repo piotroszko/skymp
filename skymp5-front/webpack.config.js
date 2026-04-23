@@ -29,7 +29,7 @@ module.exports = {
         exclude: /node_modules/,
         use: ['babel-loader'],
       },
-      { test: /\.tsx?$/, loader: 'ts-loader' },
+      { test: /\.tsx?$/, use: ['babel-loader', 'ts-loader'] },
       {
         test: /\.m?js$/,
         exclude: /(node_modules|bower_components|bridge)/,
