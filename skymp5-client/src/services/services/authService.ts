@@ -86,7 +86,7 @@ export class AuthService extends ClientListener {
     if (e.message.isMe) {
       if (this.authDialogOpen) {
         logTrace(this, `Received createActorMessage for self, resetting widgets`);
-        this.sp.browser.executeJavaScript('window.skyrimPlatform.widgets.set([]);');
+        this.sp.browser.executeJavaScript('window.skyrimPlatform.widgets.remove(1);');
         this.authDialogOpen = false;
       } else {
         logTrace(this, `Received createActorMessage for self, but auth dialog was not open so not resetting widgets`);
@@ -376,7 +376,7 @@ export class AuthService extends ClientListener {
   private deniedWidgetSetter = () => {
     const widget = {
       type: "form",
-      id: 2,
+      id: 1,
       caption: "new",
       elements: [
         {
@@ -403,7 +403,7 @@ export class AuthService extends ClientListener {
         }
       ]
     }
-    window.skyrimPlatform.widgets.set([widget]);
+    window.skyrimPlatform.widgets.add(widget);
 
     // Make sure gamemode will not be able to update widgets anymore
     window.skyrimPlatform.widgets = null;
@@ -420,7 +420,7 @@ export class AuthService extends ClientListener {
 
     const widget = {
       type: "form",
-      id: 2,
+      id: 1,
       caption: "упс",
       elements: new Array<any>()
     }
@@ -445,7 +445,7 @@ export class AuthService extends ClientListener {
       hint: undefined
     });
 
-    window.skyrimPlatform.widgets.set([widget]);
+    window.skyrimPlatform.widgets.add(widget);
   }
 
   private browsersideWidgetSetter = () => {
@@ -486,7 +486,7 @@ export class AuthService extends ClientListener {
         },
       ]
     };
-    window.skyrimPlatform.widgets.set([loginWidget]);
+    window.skyrimPlatform.widgets.add(loginWidget);
   };
 
   private handleConnectionDenied(e: ConnectionDenied) {

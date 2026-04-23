@@ -29,7 +29,7 @@ export class SuccefullLoginInGameService extends ClientListener {
         if (e.arguments[0] !== events.succefullLoginOk) {
             return;
         }
-        this.sp.browser.executeJavaScript('window.skyrimPlatform.widgets.set([]);');
+        this.sp.browser.executeJavaScript('window.skyrimPlatform.widgets.remove(3);');
         this.sp.browser.setFocused(false);
     }
 
@@ -53,6 +53,6 @@ export class SuccefullLoginInGameService extends ClientListener {
                 }
             ]
         };
-        window.skyrimPlatform.widgets.set([widget]);
+        window.skyrimPlatform.widgets.add(widget);
     }
 }
