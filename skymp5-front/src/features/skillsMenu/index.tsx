@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 import { FrameButton } from "@/components/FrameButton/FrameButton";
 import content, { levels } from "./content";
@@ -10,47 +10,60 @@ import selectSound from "./assets/ButtonDown.wav";
 import learnSound from "./assets/LearnSkill.wav";
 import { IPlayerData } from "@/interfaces/skillMenu";
 
+type Perk = {
+  name: string;
+  description: string;
+  levelsPrice: number[];
+  levelsDescription?: string[];
+  icon: string;
+};
+
+const playAudio = (id: string) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const audio = el.cloneNode(true) as HTMLAudioElement;
+  void audio.play();
+};
+
+const setFullPageDisplay = (display: string) => {
+  const el = document.getElementsByClassName("fullPage")[0] as HTMLElement | undefined;
+  if (el) el.style.display = display;
+};
+
 const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
-  const [currentHeader, setcurrentHeader] = useState("abilities");
-  const [currentLevel, setcurrentLevel] = useState(" ");
-  const [currentDescription, setcurrentDescription] = useState(" ");
-  const [selectedPerk, setselectedPerk] = useState(null);
-  const [scale, setscale] = useState(1);
-  const [pExp, setpExp] = useState(0);
-  const [expHint, setexpHint] = useState(false);
-  const [pMem, setpMem] = useState(0);
-  const [memHint, setmemHint] = useState(false);
-  const [playerData, setplayerData] = useState<IPlayerData | null>(null);
-  const [confirmDiscard, setconfirmDiscard] = useState(false);
+  const [currentHeader, setCurrentHeader] = useState("abilities");
+  const [currentLevel, setCurrentLevel] = useState(" ");
+  const [currentDescription, setCurrentDescription] = useState(" ");
+  const [selectedPerk, setSelectedPerk] = useState<Perk | null>(null);
+  const [scale, setScale] = useState(1);
+  const [pExp, setPExp] = useState(0);
+  const [expHint, setExpHint] = useState(false);
+  const [pMem, setPMem] = useState(0);
+  const [memHint, setMemHint] = useState(false);
+  const [playerData, setPlayerData] = useState<IPlayerData | null>(null);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
 
-  const fetchData = (event) => {
-    const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
-    if (el) {
-      el.style.display = "none";
-    }
+  const fetchData = useCallback((event: Event) => {
+    setFullPageDisplay("none");
     const newPlayerData = JSON.parse((event as CustomEvent).detail) as IPlayerData;
-    setplayerData(newPlayerData);
-  };
+    setPlayerData(newPlayerData);
+  }, []);
 
-  const quitHandler = () => {
-    const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
-    if (el) {
-      el.style.display = "flex";
-    }
+  const quitHandler = useCallback(() => {
+    setFullPageDisplay("flex");
     try {
-      const audio = document.getElementById("quitSound").cloneNode(true) as HTMLAudioElement;
-      audio.play();
+      playAudio("quitSound");
     } catch (e) {
       console.log("Error playing sound", e);
     }
-    setplayerData(undefined);
+    setPlayerData(null);
     send("/skill quit");
-  };
+  }, [send]);
 
-  const init = () => {
-    setconfirmDiscard(false);
+  const init = useCallback(() => {
+    setConfirmDiscard(false);
     send("/skill init");
-  };
+  }, [send]);
 
   useEffect(() => {
     window.addEventListener("updateSkillMenu", fetchData);
@@ -73,102 +86,81 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
     //   })
     // );
     return () => {
-      setplayerData(undefined);
+      setPlayerData(null);
       window.removeEventListener("updateSkillMenu", fetchData);
       window.removeEventListener("initSkillMenu", init);
-      const el = document.getElementsByClassName("fullPage")[0] as HTMLElement;
-      if (el) {
-        el.style.display = "flex";
-      }
+      window.removeEventListener("skymp5-client:browserUnfocused", quitHandler);
+      setFullPageDisplay("flex");
     };
-  }, []);
+  }, [fetchData, init, quitHandler]);
 
   useEffect(() => {
     if (!playerData) return;
-    setpExp(playerData.exp);
-    setpMem(playerData.mem);
-    setscale(window.innerWidth >= 1920 ? 1 : window.innerWidth / 2500);
+    setPExp(playerData.exp);
+    setPMem(playerData.mem);
+    setScale(window.innerWidth >= 1920 ? 1 : window.innerWidth / 2500);
   }, [playerData]);
 
-  const hoverHandler = (perk) => {
-    setcurrentHeader(perk.description);
-    const audio = document.getElementById("hoverSound").cloneNode(true) as HTMLAudioElement;
-    audio.play();
+  const hoverHandler = (perk: Perk) => {
+    if (!playerData) return;
+    setCurrentHeader(perk.description);
+    playAudio("hoverSound");
     const playerLevel = playerData.perks[perk.name] || 0;
-    setcurrentLevel(levels[playerLevel].name);
-    setcurrentDescription("");
+    setCurrentLevel(levels[playerLevel].name);
+    setCurrentDescription("");
     if (!perk.levelsDescription) return;
-    setcurrentDescription(perk.levelsDescription[playerLevel]);
+    setCurrentDescription(perk.levelsDescription[playerLevel]);
   };
 
-  const clickHandler = (perk) => {
+  const clickHandler = (perk: Perk) => {
+    if (!playerData) return;
     const playerLevel = playerData.perks[perk.name] || 0;
     if (playerLevel === perk.levelsPrice.length) return;
-    setcurrentLevel(levels[playerLevel + 1].name);
+    setCurrentLevel(levels[playerLevel + 1].name);
     if (perk.levelsDescription) {
-      setcurrentDescription(perk.levelsDescription[playerLevel + 1]);
+      setCurrentDescription(perk.levelsDescription[playerLevel + 1]);
     } else {
-      setcurrentDescription("");
+      setCurrentDescription("");
     }
-    const audio = document.getElementById("selectSound").cloneNode(true) as HTMLAudioElement;
-    audio.play();
+    playAudio("selectSound");
     if (perk.levelsPrice[playerLevel] > pExp) {
-      setcurrentDescription(`${selectedPerk.levelsPrice[playerLevel] - pExp} experience short`);
+      setCurrentDescription(`${perk.levelsPrice[playerLevel] - pExp} experience short`);
       return;
     }
     if (perk.levelsPrice[playerLevel] > pMem) {
-      setcurrentDescription("not enough memory");
+      setCurrentDescription("not enough memory");
       return;
     }
-    setselectedPerk(perk);
+    setSelectedPerk(perk);
   };
 
   const learnHandler = () => {
+    if (!playerData || !selectedPerk) return;
     const level = playerData.perks[selectedPerk.name] || 0;
     const price = selectedPerk.levelsPrice[level];
     // level index for skills array
     // 0 level for first level to craft
     send(`/skill ${selectedPerk.name} ${level}`);
-    setpExp(pExp - price);
-    setpMem(pMem - price);
+    setPExp(pExp - price);
+    setPMem(pMem - price);
     playerData.perks[selectedPerk.name] = level + 1;
-    const audio = document.getElementById("learnSound").cloneNode(true) as HTMLAudioElement;
-    audio.play();
+    playAudio("learnSound");
   };
 
   const discardHandler = () => {
-    // let returnExp = 0;
-    // let memReturn = 0;
     send("/skill discard");
-    setconfirmDiscard(false);
-    // Object.keys(playerData.perks).forEach((key) => {
-    //   const index = mapper[key];
-    //   const returnPrice = content[index[0]][index[1]].levelsPrice
-    //     .slice(0, playerData.perks[key])
-    //     .reduce((a, b) => a + b, 0);
-    //   returnExp += returnPrice;
-    //   memReturn += returnPrice;
-    // });
-    // const newExp = Math.min(pExp, 500) + Math.round(returnExp / 2);
-    // const newMem = pMem + memReturn;
-    // setpExp(newExp);
-    // setpMem(newMem);
-    // setplayerData({
-    //   mem: newMem,
-    //   exp: newExp,
-    //   perks: {}
-    // });
+    setConfirmDiscard(false);
   };
 
-  const confirmHanlder = () => {
-    setconfirmDiscard(true);
-    setcurrentLevel("do you want to reset your progress?");
-    setcurrentDescription(
+  const confirmHandler = () => {
+    setConfirmDiscard(true);
+    setCurrentLevel("do you want to reset your progress?");
+    setCurrentDescription(
       "by clicking \u201cyes\u201d you will fully reset all learned professions and get back half of the spent experience. You will also lose all learned spells.",
     );
   };
 
-  if (!playerData) return <></>;
+  if (!playerData) return null;
 
   return (
     <div className="skill-container">
@@ -178,8 +170,8 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
             <span>{currentHeader}</span>
             <div
               className="perks__exp-container__line"
-              onMouseEnter={() => setmemHint(true)}
-              onMouseLeave={() => setmemHint(false)}
+              onMouseEnter={() => setMemHint(true)}
+              onMouseLeave={() => setMemHint(false)}
             >
               <SkyrimHint
                 active="true"
@@ -210,7 +202,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                       key={perk.name}
                       onMouseEnter={() => hoverHandler(perk)}
                       onClick={() => clickHandler(perk)}
-                      onBlur={() => setselectedPerk(null)}
+                      onBlur={() => setSelectedPerk(null)}
                       tabIndex={0}
                     >
                       <div
@@ -241,8 +233,8 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                 <div className="perks__exp-container">
                   <div
                     className="perks__exp-container__line"
-                    onMouseEnter={() => setexpHint(true)}
-                    onMouseLeave={() => setexpHint(false)}
+                    onMouseEnter={() => setExpHint(true)}
+                    onMouseLeave={() => setExpHint(false)}
                   >
                     <SkyrimHint
                       text={"abilities can be upgraded with experience"}
@@ -286,7 +278,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                       variant="DEFAULT"
                       width={178}
                       height={56}
-                      onMouseDown={() => setconfirmDiscard(false)}
+                      onMouseDown={() => setConfirmDiscard(false)}
                     ></FrameButton>
                   </div>
                 ) : (
@@ -296,8 +288,7 @@ const SkillsMenu = ({ send }: { send: (message: string) => void }) => {
                     variant="DEFAULT"
                     width={242}
                     height={56}
-                    // disabled={Object.keys(playerData.perks).length === 0}
-                    onMouseDown={() => confirmHanlder()}
+                    onMouseDown={() => confirmHandler()}
                   ></FrameButton>
                 )}
               </div>
