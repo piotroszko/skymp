@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
+import AdminPanel from "./features/adminPanel";
 import AnimList from "./features/animList";
 import Constructor from "./features/constructor";
 import Chat from "./features/constructor/components/chat";
@@ -77,13 +78,14 @@ function App({ elem, height, width }: AppProps) {
   }, [onWindowFocus, onMoveWindow, onMouseUp, handleWidgetUpdate]);
 
   if (isLoggined) {
-    const noopSend = (_message: string) => {};
+    const noopSend = (_message: string) => { };
     return (
       <div className={`App ${!("skyrimPlatform" in window) ? "bg" : ""}`}>
         <AnimList />
         <Chat />
         <SkillsMenu send={noopSend} />
         <TestMenu send={noopSend} />
+        <AdminPanel />
       </div>
     );
   }
@@ -104,6 +106,7 @@ function App({ elem, height, width }: AppProps) {
             width={width || 512}
           />
         ))}
+        <AdminPanel />
       </div>
     );
   }

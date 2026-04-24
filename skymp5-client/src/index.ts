@@ -56,7 +56,7 @@ import { SweetCameraEnforcementService } from "./services/services/sweetCameraEn
 import { SweetTaffyNicknamesService } from "./services/services/sweetTaffyNicknamesService";
 import { ServerJsVerificationService } from "./services/services/serverJsVerificationService";
 import { SweetTaffyEvalService } from "./services/services/sweetTaffyEvalService";
-import { SuccefullLoginInGameService } from "./services/services/succefullLoginInGameService";
+import { AdminPanelService } from "./services/services/adminPanelService";
 
 once("update", () => {
   Utility.setINIBool("bAlwaysActive:General", true);
@@ -118,7 +118,7 @@ const main = () => {
       new ProfilingService(sp, controller),
       new SweetTaffyNicknamesService(sp, controller),
       new ServerJsVerificationService(sp, controller),
-      new SuccefullLoginInGameService(sp, controller),
+      new AdminPanelService(sp, controller),
     ];
     SpApiInteractor.setup(listeners);
   } catch (e) {
