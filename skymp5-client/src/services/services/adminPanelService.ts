@@ -14,7 +14,7 @@ export class AdminPanelService extends ClientListener {
   }
 
   private onQueryKeyCodeBindings(e: QueryKeyCodeBindings) {
-    if (!e.isDown([DxScanCode.CapsLock])) {
+    if (!e.isDown([DxScanCode.F1])) {
       return;
     }
 
