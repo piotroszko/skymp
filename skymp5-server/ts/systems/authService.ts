@@ -90,6 +90,29 @@ export class AuthService implements System {
     return record.characters.map((c) => ({ profileId: c.profileId, name: c.name }));
   }
 
+  private propagateAppearanceName(ctx: SystemContext, profileId: number, newName: string): void {
+    try {
+      const actorIds = ctx.svr.getActorsByProfileId(profileId);
+      if (!actorIds.length) {
+        return;
+      }
+      const mp = ctx.svr as unknown as {
+        get(formId: number, propName: string): unknown;
+        set(formId: number, propName: string, value: unknown): void;
+      };
+      for (const actorId of actorIds) {
+        const appearance = mp.get(actorId, "appearance");
+        if (!appearance || typeof appearance !== "object") {
+          continue;
+        }
+        const next = { ...(appearance as Record<string, unknown>), name: newName };
+        mp.set(actorId, "appearance", next);
+      }
+    } catch (e) {
+      this.log(`propagateAppearanceName failed: ${(e as Error).message}`);
+    }
+  }
+
   private send(ctx: SystemContext, userId: number, payload: object): void {
     ctx.svr.sendCustomPacket(userId, JSON.stringify(payload));
   }
@@ -373,6 +396,7 @@ export class AuthService implements System {
           ok: true,
           characters: updated ? this.serializeCharacters(updated) : [],
         });
+        this.propagateAppearanceName(ctx, profileId, trimmed);
         this.log(`Renamed character ${profileId} to "${trimmed}" for user ${info.userId}`);
       } catch (e) {
         this.log(`renameCharacterRequest failed: ${(e as Error).message}`);
