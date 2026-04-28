@@ -57,25 +57,321 @@ export class AuthService implements System {
   customPacket(userId: number, type: string, content: Content, ctx: SystemContext): void {
     switch (type) {
       case "registerRequest":
-        this.handleRegister(userId, content, ctx);
+        this.runHandler("registerResult", () => this.handleRegister(userId, content, ctx), userId, ctx);
         return;
       case "loginRequest":
-        this.handleLogin(userId, content, ctx);
+        this.runHandler("loginResult", () => this.handleLogin(userId, content, ctx), userId, ctx);
         return;
       case "createCharacterRequest":
-        this.handleCreateCharacter(userId, content, ctx);
+        this.runHandler("createCharacterResult", () => this.handleCreateCharacter(userId, content, ctx), userId, ctx);
         return;
       case "deleteCharacterRequest":
-        this.handleDeleteCharacter(userId, content, ctx);
+        this.runHandler("deleteCharacterResult", () => this.handleDeleteCharacter(userId, content, ctx), userId, ctx);
         return;
       case "renameCharacterRequest":
-        this.handleRenameCharacter(userId, content, ctx);
+        this.runHandler("renameCharacterResult", () => this.handleRenameCharacter(userId, content, ctx), userId, ctx);
         return;
       case "playRequest":
-        this.handlePlay(userId, content, ctx);
+        this.runHandler("playResult", () => this.handlePlay(userId, content, ctx), userId, ctx);
         return;
       default:
         return;
+    }
+  }
+
+  private runHandler(
+    resultType: string,
+    handler: () => Promise<void>,
+    userId: number,
+    ctx: SystemContext,
+  ): void {
+    handler().catch((e: unknown) => {
+      this.log(`${resultType} handler failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, resultType, "Internal server error");
+    });
+  }
+
+  private async handleRegister(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+    const email = content["email"];
+    const password = content["password"];
+
+    const emailErr = this.validateEmail(email);
+    if (emailErr) {
+      this.sendError(ctx, userId, "registerResult", emailErr);
+      return;
+    }
+    const passwordErr = this.validatePassword(password);
+    if (passwordErr) {
+      this.sendError(ctx, userId, "registerResult", passwordErr);
+      return;
+    }
+
+    try {
+      const existing = await this.store.findByEmail(email as string);
+      if (existing) {
+        this.sendError(ctx, userId, "registerResult", "Email already registered");
+        return;
+      }
+
+      const hash = await bcrypt.hash(password as string, BCRYPT_ROUNDS);
+      await this.store.create(email as string, hash);
+
+      this.send(ctx, userId, { customPacketType: "registerResult", ok: true });
+      this.log(`Registered ${normalizeEmail(email as string)}`);
+    } catch (e) {
+      loginErrorsCounter.inc({ reason: "register-exception" });
+      this.log(`registerRequest failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, "registerResult", "Registration failed");
+    }
+  }
+
+  private async handleLogin(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+    const email = content["email"];
+    const password = content["password"];
+
+    if (typeof email !== "string" || typeof password !== "string") {
+      this.sendError(ctx, userId, "loginResult", "Email and password are required");
+      return;
+    }
+
+    try {
+      const record = await this.store.findByEmail(email);
+      const ok = record ? await bcrypt.compare(password, record.passwordHash) : false;
+
+      if (!record || !ok) {
+        loginErrorsCounter.inc({ reason: "bad-credentials" });
+        this.sendError(ctx, userId, "loginResult", "Invalid email or password");
+        return;
+      }
+
+      const token = this.generateSessionToken();
+      this.sessions.set(token, {
+        userId: record.userId,
+        ip: ctx.svr.getUserIp(userId),
+        createdAt: Date.now(),
+        lastSeen: Date.now(),
+      });
+
+      this.send(ctx, userId, {
+        customPacketType: "loginResult",
+        ok: true,
+        session: token,
+        characters: this.serializeCharacters(record),
+      });
+      this.log(`Login session issued for ${record.email}`);
+    } catch (e) {
+      loginErrorsCounter.inc({ reason: "login-exception" });
+      this.log(`loginRequest failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, "loginResult", "Login failed");
+    }
+  }
+
+  private async handleCreateCharacter(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+    const session = content["session"];
+
+    if (typeof session !== "string") {
+      this.sendError(ctx, userId, "createCharacterResult", "Session is required");
+      return;
+    }
+
+    const info = this.getSession(session);
+    if (!info) {
+      this.sendError(ctx, userId, "createCharacterResult", "Session expired, please log in again");
+      return;
+    }
+
+    try {
+      const record = await this.store.getById(info.userId);
+      if (!record) {
+        this.sendError(ctx, userId, "createCharacterResult", "Account not found");
+        return;
+      }
+      if (record.characters.length >= this.options.maxCharactersPerAccount) {
+        this.sendError(
+          ctx,
+          userId,
+          "createCharacterResult",
+          `Reached the maximum of ${this.options.maxCharactersPerAccount} characters`,
+        );
+        return;
+      }
+
+      // Allocate first, then build a unique placeholder using the profileId.
+      // The player picks a real name in the race menu and the client syncs it
+      // back via renameCharacterRequest.
+      const character = await this.store.addCharacter(info.userId, "");
+      const finalName = `New character #${character.profileId}`;
+      await this.store.renameCharacter(info.userId, character.profileId, finalName);
+      this.send(ctx, userId, {
+        customPacketType: "createCharacterResult",
+        ok: true,
+        profileId: character.profileId,
+        name: finalName,
+      });
+      this.log(`Created character ${character.profileId} (${finalName}) for user ${info.userId}`);
+    } catch (e) {
+      this.log(`createCharacterRequest failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, "createCharacterResult", "Failed to create character");
+    }
+  }
+
+  private async handleDeleteCharacter(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+    const session = content["session"];
+    const profileId = content["profileId"];
+
+    if (typeof session !== "string") {
+      this.sendError(ctx, userId, "deleteCharacterResult", "Session is required");
+      return;
+    }
+    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
+      this.sendError(ctx, userId, "deleteCharacterResult", "profileId is required");
+      return;
+    }
+
+    const info = this.getSession(session);
+    if (!info) {
+      this.sendError(ctx, userId, "deleteCharacterResult", "Session expired, please log in again");
+      return;
+    }
+
+    try {
+      const record = await this.store.getById(info.userId);
+      if (!record) {
+        this.sendError(ctx, userId, "deleteCharacterResult", "Account not found");
+        return;
+      }
+      if (!record.characters.some((c) => c.profileId === profileId)) {
+        this.sendError(ctx, userId, "deleteCharacterResult", "Character not found");
+        return;
+      }
+
+      await this.store.deleteCharacter(info.userId, profileId);
+      const updated = await this.store.getById(info.userId);
+      this.send(ctx, userId, {
+        customPacketType: "deleteCharacterResult",
+        ok: true,
+        characters: updated ? this.serializeCharacters(updated) : [],
+      });
+      this.log(`Deleted character ${profileId} from user ${info.userId}`);
+    } catch (e) {
+      this.log(`deleteCharacterRequest failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, "deleteCharacterResult", "Failed to delete character");
+    }
+  }
+
+  private async handleRenameCharacter(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+    const session = content["session"];
+    const profileId = content["profileId"];
+    const name = content["name"];
+
+    if (typeof session !== "string") {
+      this.sendError(ctx, userId, "renameCharacterResult", "Session is required");
+      return;
+    }
+    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
+      this.sendError(ctx, userId, "renameCharacterResult", "profileId is required");
+      return;
+    }
+    const nameErr = this.validateCharacterName(name);
+    if (nameErr) {
+      this.sendError(ctx, userId, "renameCharacterResult", nameErr);
+      return;
+    }
+
+    const info = this.getSession(session);
+    if (!info) {
+      this.sendError(ctx, userId, "renameCharacterResult", "Session expired, please log in again");
+      return;
+    }
+
+    try {
+      const record = await this.store.getById(info.userId);
+      if (!record) {
+        this.sendError(ctx, userId, "renameCharacterResult", "Account not found");
+        return;
+      }
+      if (!record.characters.some((c) => c.profileId === profileId)) {
+        this.sendError(ctx, userId, "renameCharacterResult", "Character not found");
+        return;
+      }
+
+      const trimmed = (name as string).trim();
+      const duplicate = record.characters.some(
+        (c) => c.profileId !== profileId && c.name.trim().toLowerCase() === trimmed.toLowerCase(),
+      );
+      if (duplicate) {
+        this.sendError(ctx, userId, "renameCharacterResult", "A character with this name already exists");
+        return;
+      }
+
+      await this.store.renameCharacter(info.userId, profileId, trimmed);
+      const updated = await this.store.getById(info.userId);
+      this.send(ctx, userId, {
+        customPacketType: "renameCharacterResult",
+        ok: true,
+        characters: updated ? this.serializeCharacters(updated) : [],
+      });
+      this.propagateAppearanceName(ctx, profileId, trimmed);
+      this.log(`Renamed character ${profileId} to "${trimmed}" for user ${info.userId}`);
+    } catch (e) {
+      this.log(`renameCharacterRequest failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, "renameCharacterResult", "Failed to rename character");
+    }
+  }
+
+  private async handlePlay(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+    const session = content["session"];
+    const profileId = content["profileId"];
+
+    if (typeof session !== "string") {
+      this.sendError(ctx, userId, "playResult", "Session is required");
+      return;
+    }
+    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
+      this.sendError(ctx, userId, "playResult", "profileId is required");
+      return;
+    }
+
+    const info = this.getSession(session);
+    if (!info) {
+      this.sendError(ctx, userId, "playResult", "Session expired, please log in again");
+      return;
+    }
+
+    try {
+      const record = await this.store.getById(info.userId);
+      if (!record) {
+        this.sendError(ctx, userId, "playResult", "Account not found");
+        return;
+      }
+
+      const owned = record.characters.some((c) => c.profileId === profileId);
+      if (!owned) {
+        this.sendError(ctx, userId, "playResult", "Character does not belong to this account");
+        return;
+      }
+
+      const svrWithLoginAttempt = ctx.svr as unknown as { onLoginAttempt?: (id: number) => boolean };
+      if (svrWithLoginAttempt.onLoginAttempt) {
+        const cont = svrWithLoginAttempt.onLoginAttempt(profileId);
+        if (!cont) {
+          this.sendError(ctx, userId, "playResult", "You are not allowed to play");
+          return;
+        }
+      }
+
+      loginsCounter.inc();
+      this.log(`User slot ${userId} playing as profileId ${profileId}`);
+      (ctx.gm as unknown as { emit: (event: string, ...args: unknown[]) => void }).emit(
+        "spawnAllowed",
+        userId,
+        profileId,
+        [],
+        undefined,
+      );
+    } catch (e) {
+      this.log(`playRequest failed: ${(e as Error).message}`);
+      this.sendError(ctx, userId, "playResult", "Failed to start play");
     }
   }
 
@@ -164,301 +460,5 @@ export class AuthService implements System {
       return "Password is too long";
     }
     return null;
-  }
-
-  private handleRegister(userId: number, content: Content, ctx: SystemContext): void {
-    const email = content["email"];
-    const password = content["password"];
-
-    const emailErr = this.validateEmail(email);
-    if (emailErr) {
-      this.sendError(ctx, userId, "registerResult", emailErr);
-      return;
-    }
-    const passwordErr = this.validatePassword(password);
-    if (passwordErr) {
-      this.sendError(ctx, userId, "registerResult", passwordErr);
-      return;
-    }
-
-    (async () => {
-      try {
-        const existing = await this.store.findByEmail(email as string);
-        if (existing) {
-          this.sendError(ctx, userId, "registerResult", "Email already registered");
-          return;
-        }
-
-        const hash = await bcrypt.hash(password as string, BCRYPT_ROUNDS);
-        await this.store.create(email as string, hash);
-
-        this.send(ctx, userId, { customPacketType: "registerResult", ok: true });
-        this.log(`Registered ${normalizeEmail(email as string)}`);
-      } catch (e) {
-        loginErrorsCounter.inc({ reason: "register-exception" });
-        this.log(`registerRequest failed: ${(e as Error).message}`);
-        this.sendError(ctx, userId, "registerResult", "Registration failed");
-      }
-    })();
-  }
-
-  private handleLogin(userId: number, content: Content, ctx: SystemContext): void {
-    const email = content["email"];
-    const password = content["password"];
-
-    if (typeof email !== "string" || typeof password !== "string") {
-      this.sendError(ctx, userId, "loginResult", "Email and password are required");
-      return;
-    }
-
-    (async () => {
-      try {
-        const record = await this.store.findByEmail(email);
-        const ok = record ? await bcrypt.compare(password, record.passwordHash) : false;
-
-        if (!record || !ok) {
-          loginErrorsCounter.inc({ reason: "bad-credentials" });
-          this.sendError(ctx, userId, "loginResult", "Invalid email or password");
-          return;
-        }
-
-        const token = this.generateSessionToken();
-        this.sessions.set(token, {
-          userId: record.userId,
-          ip: ctx.svr.getUserIp(userId),
-          createdAt: Date.now(),
-          lastSeen: Date.now(),
-        });
-
-        this.send(ctx, userId, {
-          customPacketType: "loginResult",
-          ok: true,
-          session: token,
-          characters: record.characters.map((c) => ({ profileId: c.profileId, name: c.name })),
-        });
-        this.log(`Login session issued for ${record.email}`);
-      } catch (e) {
-        loginErrorsCounter.inc({ reason: "login-exception" });
-        this.log(`loginRequest failed: ${(e as Error).message}`);
-        this.sendError(ctx, userId, "loginResult", "Login failed");
-      }
-    })();
-  }
-
-  private handleCreateCharacter(userId: number, content: Content, ctx: SystemContext): void {
-    const session = content["session"];
-
-    if (typeof session !== "string") {
-      this.sendError(ctx, userId, "createCharacterResult", "Session is required");
-      return;
-    }
-
-    const info = this.getSession(session);
-    if (!info) {
-      this.sendError(ctx, userId, "createCharacterResult", "Session expired, please log in again");
-      return;
-    }
-
-    (async () => {
-      try {
-        const record = await this.store.getById(info.userId);
-        if (!record) {
-          this.sendError(ctx, userId, "createCharacterResult", "Account not found");
-          return;
-        }
-        if (record.characters.length >= this.options.maxCharactersPerAccount) {
-          this.sendError(
-            ctx,
-            userId,
-            "createCharacterResult",
-            `Reached the maximum of ${this.options.maxCharactersPerAccount} characters`,
-          );
-          return;
-        }
-
-        // Allocate first, then build a unique placeholder using the profileId.
-        // The player picks a real name in the race menu and the client syncs it
-        // back via renameCharacterRequest.
-        const placeholder = "";
-        const character = await this.store.addCharacter(info.userId, placeholder);
-        const finalName = `New character #${character.profileId}`;
-        await this.store.renameCharacter(info.userId, character.profileId, finalName);
-        this.send(ctx, userId, {
-          customPacketType: "createCharacterResult",
-          ok: true,
-          profileId: character.profileId,
-          name: finalName,
-        });
-        this.log(`Created character ${character.profileId} (${finalName}) for user ${info.userId}`);
-      } catch (e) {
-        this.log(`createCharacterRequest failed: ${(e as Error).message}`);
-        this.sendError(ctx, userId, "createCharacterResult", "Failed to create character");
-      }
-    })();
-  }
-
-  private handleDeleteCharacter(userId: number, content: Content, ctx: SystemContext): void {
-    const session = content["session"];
-    const profileId = content["profileId"];
-
-    if (typeof session !== "string") {
-      this.sendError(ctx, userId, "deleteCharacterResult", "Session is required");
-      return;
-    }
-    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
-      this.sendError(ctx, userId, "deleteCharacterResult", "profileId is required");
-      return;
-    }
-
-    const info = this.getSession(session);
-    if (!info) {
-      this.sendError(ctx, userId, "deleteCharacterResult", "Session expired, please log in again");
-      return;
-    }
-
-    (async () => {
-      try {
-        const record = await this.store.getById(info.userId);
-        if (!record) {
-          this.sendError(ctx, userId, "deleteCharacterResult", "Account not found");
-          return;
-        }
-        if (!record.characters.some((c) => c.profileId === profileId)) {
-          this.sendError(ctx, userId, "deleteCharacterResult", "Character not found");
-          return;
-        }
-
-        await this.store.deleteCharacter(info.userId, profileId);
-        const updated = await this.store.getById(info.userId);
-        this.send(ctx, userId, {
-          customPacketType: "deleteCharacterResult",
-          ok: true,
-          characters: updated ? this.serializeCharacters(updated) : [],
-        });
-        this.log(`Deleted character ${profileId} from user ${info.userId}`);
-      } catch (e) {
-        this.log(`deleteCharacterRequest failed: ${(e as Error).message}`);
-        this.sendError(ctx, userId, "deleteCharacterResult", "Failed to delete character");
-      }
-    })();
-  }
-
-  private handleRenameCharacter(userId: number, content: Content, ctx: SystemContext): void {
-    const session = content["session"];
-    const profileId = content["profileId"];
-    const name = content["name"];
-
-    if (typeof session !== "string") {
-      this.sendError(ctx, userId, "renameCharacterResult", "Session is required");
-      return;
-    }
-    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
-      this.sendError(ctx, userId, "renameCharacterResult", "profileId is required");
-      return;
-    }
-    const nameErr = this.validateCharacterName(name);
-    if (nameErr) {
-      this.sendError(ctx, userId, "renameCharacterResult", nameErr);
-      return;
-    }
-
-    const info = this.getSession(session);
-    if (!info) {
-      this.sendError(ctx, userId, "renameCharacterResult", "Session expired, please log in again");
-      return;
-    }
-
-    (async () => {
-      try {
-        const record = await this.store.getById(info.userId);
-        if (!record) {
-          this.sendError(ctx, userId, "renameCharacterResult", "Account not found");
-          return;
-        }
-        if (!record.characters.some((c) => c.profileId === profileId)) {
-          this.sendError(ctx, userId, "renameCharacterResult", "Character not found");
-          return;
-        }
-
-        const trimmed = (name as string).trim();
-        const duplicate = record.characters.some(
-          (c) => c.profileId !== profileId && c.name.trim().toLowerCase() === trimmed.toLowerCase(),
-        );
-        if (duplicate) {
-          this.sendError(ctx, userId, "renameCharacterResult", "A character with this name already exists");
-          return;
-        }
-
-        await this.store.renameCharacter(info.userId, profileId, trimmed);
-        const updated = await this.store.getById(info.userId);
-        this.send(ctx, userId, {
-          customPacketType: "renameCharacterResult",
-          ok: true,
-          characters: updated ? this.serializeCharacters(updated) : [],
-        });
-        this.propagateAppearanceName(ctx, profileId, trimmed);
-        this.log(`Renamed character ${profileId} to "${trimmed}" for user ${info.userId}`);
-      } catch (e) {
-        this.log(`renameCharacterRequest failed: ${(e as Error).message}`);
-        this.sendError(ctx, userId, "renameCharacterResult", "Failed to rename character");
-      }
-    })();
-  }
-
-  private handlePlay(userId: number, content: Content, ctx: SystemContext): void {
-    const session = content["session"];
-    const profileId = content["profileId"];
-
-    if (typeof session !== "string") {
-      this.sendError(ctx, userId, "playResult", "Session is required");
-      return;
-    }
-    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
-      this.sendError(ctx, userId, "playResult", "profileId is required");
-      return;
-    }
-
-    const info = this.getSession(session);
-    if (!info) {
-      this.sendError(ctx, userId, "playResult", "Session expired, please log in again");
-      return;
-    }
-
-    (async () => {
-      try {
-        const record = await this.store.getById(info.userId);
-        if (!record) {
-          this.sendError(ctx, userId, "playResult", "Account not found");
-          return;
-        }
-
-        const owned = record.characters.some((c) => c.profileId === profileId);
-        if (!owned) {
-          this.sendError(ctx, userId, "playResult", "Character does not belong to this account");
-          return;
-        }
-
-        if ((ctx.svr as unknown as { onLoginAttempt?: (id: number) => boolean }).onLoginAttempt) {
-          const cont = (ctx.svr as unknown as { onLoginAttempt: (id: number) => boolean }).onLoginAttempt(profileId);
-          if (!cont) {
-            this.sendError(ctx, userId, "playResult", "You are not allowed to play");
-            return;
-          }
-        }
-
-        loginsCounter.inc();
-        this.log(`User slot ${userId} playing as profileId ${profileId}`);
-        (ctx.gm as unknown as { emit: (event: string, ...args: unknown[]) => void }).emit(
-          "spawnAllowed",
-          userId,
-          profileId,
-          [],
-          undefined,
-        );
-      } catch (e) {
-        this.log(`playRequest failed: ${(e as Error).message}`);
-        this.sendError(ctx, userId, "playResult", "Failed to start play");
-      }
-    })();
   }
 }
