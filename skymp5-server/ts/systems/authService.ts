@@ -1,7 +1,7 @@
 import * as crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import { System, Log, Content, SystemContext } from "./system";
-import { IUserStore, normalizeEmail } from "../auth/userStore/IUserStore";
+import { IUserStore, UserRecord, normalizeEmail } from "../auth/userStore/IUserStore";
 import { loginsCounter, loginErrorsCounter } from "./metricsSystem";
 
 const BCRYPT_ROUNDS = 12;
@@ -65,12 +65,29 @@ export class AuthService implements System {
       case "createCharacterRequest":
         this.handleCreateCharacter(userId, content, ctx);
         return;
+      case "deleteCharacterRequest":
+        this.handleDeleteCharacter(userId, content, ctx);
+        return;
+      case "renameCharacterRequest":
+        this.handleRenameCharacter(userId, content, ctx);
+        return;
       case "playRequest":
         this.handlePlay(userId, content, ctx);
         return;
       default:
         return;
     }
+  }
+
+  private validateCharacterName(name: unknown): string | null {
+    if (typeof name !== "string" || name.trim().length === 0 || name.length > 64) {
+      return "Character name is invalid";
+    }
+    return null;
+  }
+
+  private serializeCharacters(record: UserRecord) {
+    return record.characters.map((c) => ({ profileId: c.profileId, name: c.name }));
   }
 
   private send(ctx: SystemContext, userId: number, payload: object): void {
@@ -241,7 +258,16 @@ export class AuthService implements System {
           return;
         }
 
-        const character = await this.store.addCharacter(info.userId, name.trim());
+        const trimmed = name.trim();
+        const duplicate = record.characters.some(
+          (c) => c.name.trim().toLowerCase() === trimmed.toLowerCase(),
+        );
+        if (duplicate) {
+          this.sendError(ctx, userId, "createCharacterResult", "A character with this name already exists");
+          return;
+        }
+
+        const character = await this.store.addCharacter(info.userId, trimmed);
         this.send(ctx, userId, {
           customPacketType: "createCharacterResult",
           ok: true,
@@ -252,6 +278,113 @@ export class AuthService implements System {
       } catch (e) {
         this.log(`createCharacterRequest failed: ${(e as Error).message}`);
         this.sendError(ctx, userId, "createCharacterResult", "Failed to create character");
+      }
+    })();
+  }
+
+  private handleDeleteCharacter(userId: number, content: Content, ctx: SystemContext): void {
+    const session = content["session"];
+    const profileId = content["profileId"];
+
+    if (typeof session !== "string") {
+      this.sendError(ctx, userId, "deleteCharacterResult", "Session is required");
+      return;
+    }
+    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
+      this.sendError(ctx, userId, "deleteCharacterResult", "profileId is required");
+      return;
+    }
+
+    const info = this.getSession(session);
+    if (!info) {
+      this.sendError(ctx, userId, "deleteCharacterResult", "Session expired, please log in again");
+      return;
+    }
+
+    (async () => {
+      try {
+        const record = await this.store.getById(info.userId);
+        if (!record) {
+          this.sendError(ctx, userId, "deleteCharacterResult", "Account not found");
+          return;
+        }
+        if (!record.characters.some((c) => c.profileId === profileId)) {
+          this.sendError(ctx, userId, "deleteCharacterResult", "Character not found");
+          return;
+        }
+
+        await this.store.deleteCharacter(info.userId, profileId);
+        const updated = await this.store.getById(info.userId);
+        this.send(ctx, userId, {
+          customPacketType: "deleteCharacterResult",
+          ok: true,
+          characters: updated ? this.serializeCharacters(updated) : [],
+        });
+        this.log(`Deleted character ${profileId} from user ${info.userId}`);
+      } catch (e) {
+        this.log(`deleteCharacterRequest failed: ${(e as Error).message}`);
+        this.sendError(ctx, userId, "deleteCharacterResult", "Failed to delete character");
+      }
+    })();
+  }
+
+  private handleRenameCharacter(userId: number, content: Content, ctx: SystemContext): void {
+    const session = content["session"];
+    const profileId = content["profileId"];
+    const name = content["name"];
+
+    if (typeof session !== "string") {
+      this.sendError(ctx, userId, "renameCharacterResult", "Session is required");
+      return;
+    }
+    if (typeof profileId !== "number" || !Number.isFinite(profileId)) {
+      this.sendError(ctx, userId, "renameCharacterResult", "profileId is required");
+      return;
+    }
+    const nameErr = this.validateCharacterName(name);
+    if (nameErr) {
+      this.sendError(ctx, userId, "renameCharacterResult", nameErr);
+      return;
+    }
+
+    const info = this.getSession(session);
+    if (!info) {
+      this.sendError(ctx, userId, "renameCharacterResult", "Session expired, please log in again");
+      return;
+    }
+
+    (async () => {
+      try {
+        const record = await this.store.getById(info.userId);
+        if (!record) {
+          this.sendError(ctx, userId, "renameCharacterResult", "Account not found");
+          return;
+        }
+        if (!record.characters.some((c) => c.profileId === profileId)) {
+          this.sendError(ctx, userId, "renameCharacterResult", "Character not found");
+          return;
+        }
+
+        const trimmed = (name as string).trim();
+        const duplicate = record.characters.some(
+          (c) => c.profileId !== profileId && c.name.trim().toLowerCase() === trimmed.toLowerCase(),
+        );
+        if (duplicate) {
+          this.sendError(ctx, userId, "renameCharacterResult", "A character with this name already exists");
+          return;
+        }
+
+        await this.store.renameCharacter(info.userId, profileId, trimmed);
+        const updated = await this.store.getById(info.userId);
+        this.send(ctx, userId, {
+          customPacketType: "renameCharacterResult",
+          ok: true,
+          characters: updated ? this.serializeCharacters(updated) : [],
+        });
+        this.log(`Renamed character ${profileId} to "${trimmed}" for user ${info.userId}`);
+      } catch (e) {
+        this.log(`renameCharacterRequest failed: ${(e as Error).message}`);
+        this.sendError(ctx, userId, "renameCharacterResult", "Failed to rename character");
       }
     })();
   }

@@ -1,10 +1,16 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 
 import { LoginLocale } from "./index";
-import { AccountCharacter, requestCreateCharacter, requestPlay } from "./authBridge";
+import {
+  AccountCharacter,
+  requestCreateCharacter,
+  requestDeleteCharacter,
+  requestPlay,
+  requestRenameCharacter,
+} from "./authBridge";
 
 interface CharacterSelectFormProps {
   locale: LoginLocale;
@@ -13,15 +19,44 @@ interface CharacterSelectFormProps {
   errorMessage: string | null;
 }
 
+type RowMode = "view" | "edit" | "confirmDelete";
+
 const CharacterSelectForm = (props: CharacterSelectFormProps) => {
   const [showCreate, setShowCreate] = useState(props.characters.length === 0);
-  const [name, setName] = useState("");
+  const [createName, setCreateName] = useState("");
+  const createInputKey = useRef(0);
+
+  const [rowMode, setRowMode] = useState<Record<number, RowMode>>({});
+  const [renameDraft, setRenameDraft] = useState<Record<number, string>>({});
+  const renameInputKey = useRef<Record<number, number>>({});
+
+  const previousCount = useRef(props.characters.length);
+  useEffect(() => {
+    if (props.characters.length > previousCount.current) {
+      setShowCreate(false);
+      setCreateName("");
+      createInputKey.current += 1;
+    }
+    previousCount.current = props.characters.length;
+  }, [props.characters.length]);
+
+  // After successful rename or deletion, reset that row to view mode.
+  const charactersKey = props.characters.map((c) => `${c.profileId}:${c.name}`).join("|");
+  useEffect(() => {
+    setRowMode({});
+    setRenameDraft({});
+  }, [charactersKey]);
+
+  const trimmedCreateName = createName.trim();
+  const isCreateDuplicate =
+    trimmedCreateName.length > 0 &&
+    props.characters.some((c) => c.name.trim().toLowerCase() === trimmedCreateName.toLowerCase());
 
   const handleCreate = useCallback(() => {
     if (props.inFlight) return;
-    if (name.trim().length === 0) return;
-    requestCreateCharacter(name.trim());
-  }, [name, props.inFlight]);
+    if (trimmedCreateName.length === 0 || isCreateDuplicate) return;
+    requestCreateCharacter(trimmedCreateName);
+  }, [trimmedCreateName, isCreateDuplicate, props.inFlight]);
 
   const handlePlay = useCallback(
     (profileId: number) => {
@@ -31,22 +66,143 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
     [props.inFlight],
   );
 
+  const setRow = (profileId: number, mode: RowMode) =>
+    setRowMode((prev) => ({ ...prev, [profileId]: mode }));
+
+  const startRename = (c: AccountCharacter) => {
+    setRenameDraft((prev) => ({ ...prev, [c.profileId]: c.name }));
+    renameInputKey.current[c.profileId] = (renameInputKey.current[c.profileId] ?? 0) + 1;
+    setRow(c.profileId, "edit");
+  };
+
+  const cancelRow = (profileId: number) => {
+    setRow(profileId, "view");
+  };
+
+  const submitRename = (c: AccountCharacter) => {
+    if (props.inFlight) return;
+    const next = (renameDraft[c.profileId] ?? c.name).trim();
+    if (next.length === 0 || next === c.name) {
+      cancelRow(c.profileId);
+      return;
+    }
+    const duplicate = props.characters.some(
+      (other) =>
+        other.profileId !== c.profileId &&
+        other.name.trim().toLowerCase() === next.toLowerCase(),
+    );
+    if (duplicate) return;
+    requestRenameCharacter(c.profileId, next);
+  };
+
+  const submitDelete = (profileId: number) => {
+    if (props.inFlight) return;
+    requestDeleteCharacter(profileId);
+  };
+
+  const renderRow = (c: AccountCharacter) => {
+    const mode = rowMode[c.profileId] ?? "view";
+
+    if (mode === "edit") {
+      const draft = (renameDraft[c.profileId] ?? c.name).trim();
+      const duplicate =
+        draft.length > 0 &&
+        props.characters.some(
+          (other) =>
+            other.profileId !== c.profileId &&
+            other.name.trim().toLowerCase() === draft.toLowerCase(),
+        );
+      const canSave = !props.inFlight && draft.length > 0 && draft !== c.name && !duplicate;
+
+      return (
+        <div key={c.profileId} style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
+          <SkyrimInput
+            key={renameInputKey.current[c.profileId]}
+            labelText=""
+            initialValue={c.name}
+            onInput={(e) =>
+              setRenameDraft((prev) => ({ ...prev, [c.profileId]: (e.target as HTMLInputElement).value }))
+            }
+            placeholder={props.locale.LOGIN.CHARACTER_NAME_PLACEHOLDER}
+            type={"text"}
+            name={`rename-${c.profileId}`}
+          />
+          {duplicate ? (
+            <div style={{ color: "#ff8a8a" }}>{props.locale.LOGIN.NAME_TAKEN}</div>
+          ) : null}
+          <div style={{ display: "flex", gap: "8px" }}>
+            <SkyrimButton
+              name=""
+              disabled={!canSave}
+              onClick={() => submitRename(c)}
+              text={props.locale.LOGIN.SAVE_BUTTON_TEXT}
+            />
+            <SkyrimButton
+              name=""
+              disabled={false}
+              onClick={() => cancelRow(c.profileId)}
+              text={props.locale.LOGIN.CANCEL_BUTTON_TEXT}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (mode === "confirmDelete") {
+      return (
+        <div key={c.profileId} style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div>{`${props.locale.LOGIN.CONFIRM_DELETE} (${c.name})`}</div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <SkyrimButton
+              name=""
+              disabled={props.inFlight}
+              onClick={() => submitDelete(c.profileId)}
+              text={props.locale.LOGIN.CONFIRM_YES}
+            />
+            <SkyrimButton
+              name=""
+              disabled={false}
+              onClick={() => cancelRow(c.profileId)}
+              text={props.locale.LOGIN.CONFIRM_NO}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div key={c.profileId} style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
+        <SkyrimButton
+          name=""
+          disabled={props.inFlight}
+          onClick={() => handlePlay(c.profileId)}
+          text={`${c.name} — ${props.locale.LOGIN.PLAY_BUTTON_TEXT}`}
+        />
+        <div style={{ display: "flex", gap: "8px" }}>
+          <SkyrimButton
+            name=""
+            disabled={props.inFlight}
+            onClick={() => startRename(c)}
+            text={props.locale.LOGIN.EDIT_BUTTON_TEXT}
+          />
+          <SkyrimButton
+            name=""
+            disabled={props.inFlight}
+            onClick={() => setRow(c.profileId, "confirmDelete")}
+            text={props.locale.LOGIN.DELETE_BUTTON_TEXT}
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={"login-form--content_main"}>
       {props.characters.length === 0 && !showCreate ? (
         <div style={{ padding: "8px 0" }}>{props.locale.LOGIN.NO_CHARACTERS_HINT}</div>
       ) : null}
 
-      {props.characters.map((c) => (
-        <div className={"login-form--content_main__button"} key={c.profileId}>
-          <SkyrimButton
-            name=""
-            disabled={props.inFlight}
-            onClick={() => handlePlay(c.profileId)}
-            text={`${c.name} — ${props.locale.LOGIN.PLAY_BUTTON_TEXT}`}
-          />
-        </div>
-      ))}
+      {props.characters.map(renderRow)}
 
       {showCreate ? (
         <>
@@ -57,18 +213,22 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
               </span>
             </div>
             <SkyrimInput
+              key={createInputKey.current}
               labelText=""
               initialValue=""
-              onInput={(e) => setName((e.target as HTMLInputElement).value)}
+              onInput={(e) => setCreateName((e.target as HTMLInputElement).value)}
               placeholder={props.locale.LOGIN.CHARACTER_NAME_PLACEHOLDER}
               type={"text"}
               name={"name"}
             />
           </div>
+          {isCreateDuplicate ? (
+            <div style={{ color: "#ff8a8a", padding: "4px 0" }}>{props.locale.LOGIN.NAME_TAKEN}</div>
+          ) : null}
           <div className={"login-form--content_main__button"}>
             <SkyrimButton
               name=""
-              disabled={props.inFlight || name.trim().length === 0}
+              disabled={props.inFlight || trimmedCreateName.length === 0 || isCreateDuplicate}
               onClick={handleCreate}
               text={props.locale.LOGIN.CREATE_CHARACTER_BUTTON_TEXT}
             />
@@ -78,7 +238,11 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
               <SkyrimButton
                 name=""
                 disabled={false}
-                onClick={() => setShowCreate(false)}
+                onClick={() => {
+                  setShowCreate(false);
+                  setCreateName("");
+                  createInputKey.current += 1;
+                }}
                 text={props.locale.LOGIN.BACK}
               />
             </div>

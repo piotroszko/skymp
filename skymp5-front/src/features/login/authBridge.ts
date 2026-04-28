@@ -6,7 +6,14 @@ export interface AccountCharacter {
 }
 
 export interface AuthResult {
-  type: "registerResult" | "loginResult" | "createCharacterResult" | "playResult" | "connectionDenied";
+  type:
+    | "registerResult"
+    | "loginResult"
+    | "createCharacterResult"
+    | "deleteCharacterResult"
+    | "renameCharacterResult"
+    | "playResult"
+    | "connectionDenied";
   ok?: boolean;
   error?: string;
   characters?: AccountCharacter[];
@@ -33,6 +40,12 @@ export const requestLogin = (email: string, password: string) =>
 
 export const requestCreateCharacter = (name: string) =>
   sendMessage("authCreateCharacter", name);
+
+export const requestDeleteCharacter = (profileId: number) =>
+  sendMessage("authDeleteCharacter", profileId);
+
+export const requestRenameCharacter = (profileId: number, name: string) =>
+  sendMessage("authRenameCharacter", profileId, name);
 
 export const requestPlay = (profileId: number) =>
   sendMessage("authPlay", profileId);

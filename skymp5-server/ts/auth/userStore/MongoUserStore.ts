@@ -98,4 +98,39 @@ export class MongoUserStore implements IUserStore {
     }
     return character;
   }
+
+  async deleteCharacter(userId: number, profileId: number): Promise<void> {
+    if (!this.users) {
+      throw new Error("MongoUserStore not initialized");
+    }
+    const result = await this.users.updateOne(
+      { userId },
+      { $pull: { characters: { profileId } } },
+    );
+    if (result.matchedCount === 0) {
+      throw new Error("User not found");
+    }
+    if (result.modifiedCount === 0) {
+      throw new Error("Character not found");
+    }
+  }
+
+  async renameCharacter(userId: number, profileId: number, newName: string): Promise<UserCharacter> {
+    if (!this.users) {
+      throw new Error("MongoUserStore not initialized");
+    }
+    const result = await this.users.findOneAndUpdate(
+      { userId, "characters.profileId": profileId },
+      { $set: { "characters.$.name": newName } },
+      { returnDocument: "after" },
+    );
+    if (!result) {
+      throw new Error("Character not found");
+    }
+    const character = result.characters.find((c) => c.profileId === profileId);
+    if (!character) {
+      throw new Error("Character not found");
+    }
+    return character;
+  }
 }

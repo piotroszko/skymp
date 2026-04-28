@@ -18,6 +18,8 @@ export interface IUserStore {
   getById(userId: number): Promise<UserRecord | null>;
   create(email: string, passwordHash: string): Promise<UserRecord>;
   addCharacter(userId: number, name: string): Promise<UserCharacter>;
+  deleteCharacter(userId: number, profileId: number): Promise<void>;
+  renameCharacter(userId: number, profileId: number, newName: string): Promise<UserCharacter>;
 }
 
 export function normalizeEmail(email: string): string {

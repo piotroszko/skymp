@@ -135,4 +135,31 @@ export class FileUserStore implements IUserStore {
     this.writeRecord(record);
     return character;
   }
+
+  async deleteCharacter(userId: number, profileId: number): Promise<void> {
+    const record = await this.getById(userId);
+    if (!record) {
+      throw new Error("User not found");
+    }
+    const before = record.characters.length;
+    record.characters = record.characters.filter((c) => c.profileId !== profileId);
+    if (record.characters.length === before) {
+      throw new Error("Character not found");
+    }
+    this.writeRecord(record);
+  }
+
+  async renameCharacter(userId: number, profileId: number, newName: string): Promise<UserCharacter> {
+    const record = await this.getById(userId);
+    if (!record) {
+      throw new Error("User not found");
+    }
+    const character = record.characters.find((c) => c.profileId === profileId);
+    if (!character) {
+      throw new Error("Character not found");
+    }
+    character.name = newName;
+    this.writeRecord(record);
+    return character;
+  }
 }

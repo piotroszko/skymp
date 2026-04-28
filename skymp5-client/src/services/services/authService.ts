@@ -14,6 +14,8 @@ const events = {
   registerAttempt: "authRegisterAttempt",
   loginAttempt: "authLoginAttempt",
   createCharacter: "authCreateCharacter",
+  deleteCharacter: "authDeleteCharacter",
+  renameCharacter: "authRenameCharacter",
   play: "authPlay",
   showAuthScreen: "authShowScreen",
   authResult: "authResult",
@@ -108,6 +110,12 @@ export class AuthService extends ClientListener {
       case events.createCharacter:
         this.handleCreateCharacter(args[1] as string);
         return;
+      case events.deleteCharacter:
+        this.handleDeleteCharacter(args[1] as number);
+        return;
+      case events.renameCharacter:
+        this.handleRenameCharacter(args[1] as number, args[2] as string);
+        return;
       case events.play:
         this.handlePlay(args[1] as number);
         return;
@@ -151,6 +159,44 @@ export class AuthService extends ClientListener {
       return;
     }
     this.sendCustomPacket("createCharacterRequest", { session: this.session, name });
+  }
+
+  private handleDeleteCharacter(profileId: number) {
+    if (!this.session) {
+      this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
+        type: "deleteCharacterResult", ok: false, error: "Not logged in",
+      });
+      return;
+    }
+    if (typeof profileId !== "number") {
+      this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
+        type: "deleteCharacterResult", ok: false, error: "profileId is required",
+      });
+      return;
+    }
+    this.sendCustomPacket("deleteCharacterRequest", { session: this.session, profileId });
+  }
+
+  private handleRenameCharacter(profileId: number, name: string) {
+    if (!this.session) {
+      this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
+        type: "renameCharacterResult", ok: false, error: "Not logged in",
+      });
+      return;
+    }
+    if (typeof profileId !== "number") {
+      this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
+        type: "renameCharacterResult", ok: false, error: "profileId is required",
+      });
+      return;
+    }
+    if (typeof name !== "string" || name.trim().length === 0) {
+      this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
+        type: "renameCharacterResult", ok: false, error: "Character name is required",
+      });
+      return;
+    }
+    this.sendCustomPacket("renameCharacterRequest", { session: this.session, profileId, name });
   }
 
   private handlePlay(profileId: number) {
@@ -232,6 +278,22 @@ export class AuthService extends ClientListener {
         }
         this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
           type: "createCharacterResult",
+          ok,
+          error: typeof content.error === "string" ? content.error : undefined,
+          characters: this.characters,
+        });
+        return;
+      }
+      case "deleteCharacterResult":
+      case "renameCharacterResult": {
+        const ok = !!content.ok;
+        if (ok && Array.isArray(content.characters)) {
+          this.characters = (content.characters as AccountCharacter[])
+            .filter((c) => !!c && typeof c.profileId === "number")
+            .map((c) => ({ profileId: c.profileId, name: c.name }));
+        }
+        this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
+          type,
           ok,
           error: typeof content.error === "string" ? content.error : undefined,
           characters: this.characters,

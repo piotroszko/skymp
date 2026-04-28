@@ -27,6 +27,14 @@
     "REGISTER_BUTTON": "register now",
     "REGISTER_BUTTON_HINT": "click to create an account",
     "NO_CHARACTERS_HINT": "you have no characters yet — create one to enter the world",
-    "PASSWORDS_DO_NOT_MATCH": "passwords do not match"
+    "PASSWORDS_DO_NOT_MATCH": "passwords do not match",
+    "NAME_TAKEN": "a character with this name already exists",
+    "EDIT_BUTTON_TEXT": "rename",
+    "DELETE_BUTTON_TEXT": "delete",
+    "SAVE_BUTTON_TEXT": "save",
+    "CANCEL_BUTTON_TEXT": "cancel",
+    "CONFIRM_DELETE": "delete this character?",
+    "CONFIRM_YES": "yes, delete",
+    "CONFIRM_NO": "keep"
   }
 }

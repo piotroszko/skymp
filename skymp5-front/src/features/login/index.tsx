@@ -49,6 +49,22 @@ const LoginPage = () => {
           setErrorMessage(result.error ?? "Could not create character");
         }
         return;
+      case "deleteCharacterResult":
+        if (result.ok) {
+          setErrorMessage(null);
+          setCharacters(result.characters ?? characters);
+        } else {
+          setErrorMessage(result.error ?? "Could not delete character");
+        }
+        return;
+      case "renameCharacterResult":
+        if (result.ok) {
+          setErrorMessage(null);
+          setCharacters(result.characters ?? characters);
+        } else {
+          setErrorMessage(result.error ?? "Could not rename character");
+        }
+        return;
       case "playResult":
         if (!result.ok) {
           setErrorMessage(result.error ?? "Could not start play");
