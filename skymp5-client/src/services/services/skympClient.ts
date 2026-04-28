@@ -27,34 +27,20 @@ export class SkympClient extends ClientListener {
 
     this.controller.emitter.on("createActorMessage", (e) => this.onActorCreateMessage(e));
 
-    // TODO: refactor out very similar code in frontHotReloadService.ts
-    const authGameData = storage[authGameDataStorageKey] as AuthGameData | undefined;
-
-    const storageHasValidAuthGameData = authGameData?.local || authGameData?.remote;
-
-    if (storageHasValidAuthGameData) {
-      logTrace(this, `Recovered AuthGameData from storage, starting client`);
-      this.startClient();
-    } else {
-      logTrace(this, `Unable to recover AuthGameData from storage, requesting auth`);
-
-      // Next tick because we're in constructor of the service, AuthService may not be listening events yet
-      this.controller.once("tick", () => {
-        this.controller.emitter.emit("authNeeded", {});
-      });
-      this.controller.emitter.on("authAttempt", (e) => this.onAuthAttempt(e));
-    }
+    // Auth happens via custom packets after the connection is established,
+    // so the client always connects immediately and AuthService coordinates the
+    // login UI on top of the live connection.
+    logTrace(this, `Starting client immediately; auth will be performed via custom packets`);
+    this.controller.emitter.on("authAttempt", (e) => this.onAuthAttempt(e));
+    this.controller.once("tick", () => {
+      this.controller.emitter.emit("authNeeded", {});
+    });
+    this.startClient();
   }
 
   private onAuthAttempt(e: AuthAttemptEvent) {
-    logTrace(this, `Caught auth event`);
-
+    logTrace(this, `Caught auth event, persisting authGameData`);
     storage[authGameDataStorageKey] = e.authGameData;
-
-    this.startClient();
-
-    // TODO: remove this when you will be able to see errors without console
-    // this.sp.browser.setFocused(false);
   }
 
   private onActorCreateMessage(e: ConnectionMessage<CreateActorMessage>) {

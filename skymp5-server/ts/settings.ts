@@ -5,19 +5,15 @@ import { RequestError as OctokitRequestError } from '@octokit/request-error';
 import { ArgumentParser } from 'argparse';
 import lodash from 'lodash';
 
-export interface DiscordAuthSettings {
-  botToken: string;
-  guildId: string;
-  banRoleId: string;
-  eventLogChannelId?: string;
-  hideIpRoleId?: string;
+export interface AuthSettings {
+  passwordMinLength?: number;
+  sessionTtlMs?: number;
+  maxCharactersPerAccount?: number;
 }
 
 export class Settings {
-  masterKey: string | null = null;
   port = 7777;
   maxPlayers = 100;
-  master: string = "https://gateway.skymp.net";
   name = 'Yet Another Server';
   gamemodePath = '...';
   loadOrder = new Array<string>();
@@ -30,7 +26,9 @@ export class Settings {
       angleZ: 72,
     },
   ];
-  discordAuth: DiscordAuthSettings | null = null;
+  databaseUri: string | null = null;
+  databaseName: string | null = null;
+  auth: AuthSettings | null = null;
 
   allSettings: Record<string, unknown> | null = null;
 
@@ -57,17 +55,17 @@ export class Settings {
 
     const settings = await fetchServerSettings();
     [
-      'masterKey',
       'port',
       'maxPlayers',
-      'master',
       'name',
       'gamemodePath',
       'loadOrder',
       'dataDir',
       'startPoints',
       'offlineMode',
-      'discordAuth',
+      'databaseUri',
+      'databaseName',
+      'auth',
     ].forEach((prop) => {
       if (settings[prop]) {
         (this as Record<string, unknown>)[prop] = settings[prop];

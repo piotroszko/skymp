@@ -2,8 +2,13 @@
   "LOGIN": {
     "HEADER_TEXT_LOGIN": "login",
     "HEADER_TEXT_REGISTER": "registration",
-    "LOGIN_BUTTON_TEXT": "travel to skyrim",
+    "HEADER_TEXT_CHARACTERS": "choose your character",
+    "LOGIN_BUTTON_TEXT": "log in",
     "REGISTER_BUTTON_TEXT": "create account",
+    "PLAY_BUTTON_TEXT": "travel to skyrim",
+    "CREATE_CHARACTER_BUTTON_TEXT": "create character",
+    "CHARACTER_NAME": "character name",
+    "CHARACTER_NAME_PLACEHOLDER": "Lydia",
     "EMAIL": "email",
     "PASSWORD": "password",
     "PASSWORD_VERIFY": "confirm",
@@ -20,6 +25,8 @@
     "PASSWORD_VERIFY_PLACEHOLDER": "password again",
     "EMAIL_PLACEHOLDER": "dude33@gmail.com",
     "REGISTER_BUTTON": "register now",
-    "REGISTER_BUTTON_HINT": "click to create an account"
+    "REGISTER_BUTTON_HINT": "click to create an account",
+    "NO_CHARACTERS_HINT": "you have no characters yet — create one to enter the world",
+    "PASSWORDS_DO_NOT_MATCH": "passwords do not match"
   }
 }

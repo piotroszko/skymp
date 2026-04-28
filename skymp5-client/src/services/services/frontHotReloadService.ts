@@ -1,6 +1,4 @@
 import { logTrace } from "../../logging";
-import { AuthGameData, authGameDataStorageKey } from "../../features/authModel";
-import { AuthAttemptEvent } from "../events/authAttemptEvent";
 import { ClientListener, Sp, CombinedController } from "./clientListener";
 
 export class FrontHotReloadService extends ClientListener {
@@ -15,21 +13,6 @@ export class FrontHotReloadService extends ClientListener {
             return;
         }
 
-        // TODO: refactor out very similar code in skympClient.ts
-        const authGameData = this.sp.storage[authGameDataStorageKey] as AuthGameData | undefined;
-
-        const storageHasValidAuthGameData = authGameData?.local || authGameData?.remote;
-
-        if (storageHasValidAuthGameData) {
-            logTrace(this, `Recovered AuthGameData from storage, starting FrontHotReloadService`);
-            this.connectToFrontHotReload();
-        } else {
-            logTrace(this, `Unable to recover AuthGameData from storage, waiting for auth`);
-            this.controller.emitter.on("authAttempt", (e) => this.onAuthAttempt(e));
-        }
-    }
-
-    private onAuthAttempt(e: AuthAttemptEvent) {
         this.connectToFrontHotReload();
     }
 

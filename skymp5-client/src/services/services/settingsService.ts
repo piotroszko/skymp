@@ -1,5 +1,4 @@
 import { HttpClient, HttpHeaders, HttpResponse, printConsole, Utility } from "skyrimPlatform";
-import { AuthService } from "./authService";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { Mod, ServerManifest } from "../messages_http/serverManifest";
 import { TimersService } from "./timersService";
@@ -84,14 +83,8 @@ export class SettingsService extends ClientListener {
             serverInfoRequestTimeoutMs,
           );
 
-          let headers: HttpHeaders = {};
-          let session = this.controller.lookupListener(AuthService).readAuthDataFromDisk()?.session;
-          if (session) {
-            headers['X-Session'] = session;
-          }
-
           masterApiClient.get(
-            `/api/servers/${masterKey}/serverinfo`, { headers },
+            `/api/servers/${masterKey}/serverinfo`, { headers: {} as HttpHeaders },
             states.handleResponse,
           );
         } catch (e) {

@@ -17,11 +17,9 @@ sourceMapSupport.install({
 import * as scampNative from "./scampNative";
 import { Settings } from "./settings";
 import { System } from "./systems/system";
-import { MasterClient } from "./systems/masterClient";
 import { Spawn } from "./systems/spawn";
-import { Login } from "./systems/login";
-import { DiscordBanSystem } from "./systems/discordBanSystem";
-import { MasterApiBalanceSystem } from "./systems/masterApiBalanceSystem";
+import { AuthService, defaultAuthOptions } from "./systems/authService";
+import { createUserStore } from "./auth/userStore/UserStoreFactory";
 import { EventEmitter } from "events";
 import { pid } from "process";
 import * as fs from "fs";
@@ -185,18 +183,29 @@ const setupGamemode = (server: any, gamemodePath: string) => {
 const main = async () => {
   const settingsObject = await Settings.get();
   const {
-    port, master, maxPlayers, name, masterKey, offlineMode, gamemodePath
+    offlineMode, gamemodePath, dataDir, databaseUri, databaseName, auth
   } = settingsObject;
 
   const log = console.log;
+
+  const userStore = await createUserStore({
+    offlineMode,
+    dataDir,
+    databaseUri: databaseUri || undefined,
+    databaseName: databaseName || undefined,
+  });
+
+  const authOptions = {
+    passwordMinLength: auth?.passwordMinLength ?? defaultAuthOptions.passwordMinLength,
+    sessionTtlMs: auth?.sessionTtlMs ?? defaultAuthOptions.sessionTtlMs,
+    maxCharactersPerAccount: auth?.maxCharactersPerAccount ?? defaultAuthOptions.maxCharactersPerAccount,
+  };
+
   const systems = new Array<System>();
   systems.push(
     new MetricsSystem(),
-    new MasterClient(log, port, master, maxPlayers, name, masterKey, 5000, offlineMode),
     new Spawn(log),
-    new Login(log, maxPlayers, master, port, masterKey, offlineMode),
-    new DiscordBanSystem(),
-    new MasterApiBalanceSystem(log, maxPlayers, master, port, masterKey, offlineMode),
+    new AuthService(log, userStore, authOptions),
   );
 
   setupStreams(scampNative.getScampNative());
@@ -312,7 +321,6 @@ const main = async () => {
 
 main();
 
-// This is needed at least to handle axios errors in masterClient
 // TODO: implement alerts
 process.on("unhandledRejection", (...args) => {
   console.error("[!!!] unhandledRejection")

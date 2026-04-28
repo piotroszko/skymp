@@ -4,67 +4,90 @@ import "./styles.scss";
 import * as en from "@/assets/locales/en.json";
 import * as ru from "@/assets/locales/ru.json";
 import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
-import { SkyrimHint } from "@/components/SkyrimHint/SkyrimHint";
 
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import CharacterSelectForm from "./CharacterSelectForm";
+import { AccountCharacter, useAuthResult } from "./authBridge";
 
 export type LoginLocale = typeof en;
 
+type Phase = "login" | "register" | "characters";
+
 const LoginPage = () => {
   const locale: LoginLocale = navigator.language !== "ru-RU" ? en : ru;
-  const [isGithubHintOpened, setGithubHintOpened] = useState(false);
-  const [isPatreonHintOpened, setPatreonHintOpened] = useState(false);
-  const [isRegister, setRegister] = useState(false);
+  const [phase, setPhase] = useState<Phase>("login");
+  const [characters, setCharacters] = useState<AccountCharacter[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [inFlight, setInFlight] = useState(false);
+
+  useAuthResult((result) => {
+    setInFlight(false);
+    switch (result.type) {
+      case "registerResult":
+        if (result.ok) {
+          setErrorMessage(null);
+          setPhase("login");
+        } else {
+          setErrorMessage(result.error ?? "Registration failed");
+        }
+        return;
+      case "loginResult":
+        if (result.ok) {
+          setErrorMessage(null);
+          setCharacters(result.characters ?? []);
+          setPhase("characters");
+        } else {
+          setErrorMessage(result.error ?? "Login failed");
+        }
+        return;
+      case "createCharacterResult":
+        if (result.ok) {
+          setErrorMessage(null);
+          setCharacters(result.characters ?? characters);
+        } else {
+          setErrorMessage(result.error ?? "Could not create character");
+        }
+        return;
+      case "playResult":
+        if (!result.ok) {
+          setErrorMessage(result.error ?? "Could not start play");
+        }
+        return;
+      case "connectionDenied":
+        setErrorMessage(result.error ?? "Connection denied");
+        return;
+    }
+  });
+
+  const setRegister = (value: boolean) => {
+    setErrorMessage(null);
+    setPhase(value ? "register" : "login");
+  };
+
+  const headerText =
+    phase === "register"
+      ? locale.LOGIN.HEADER_TEXT_REGISTER
+      : phase === "characters"
+        ? locale.LOGIN.HEADER_TEXT_CHARACTERS
+        : locale.LOGIN.HEADER_TEXT_LOGIN;
+
   return (
     <div className={"login"}>
       <div className={"login-form"}>
         <div className={"login-form--content"}>
-          <div className={"login-form--content_header"}>
-            {isRegister ? locale.LOGIN.HEADER_TEXT_REGISTER : locale.LOGIN.HEADER_TEXT_LOGIN}
-          </div>
-          <div className={"login-form--content_social"}>
-            <a
-              href={"https://github.com/skyrim-multiplayer/skymp"}
-              target={"_blank"}
-              rel="noreferrer"
-              className={"login-form--content_social__link"}
-              onMouseOver={() => {
-                setGithubHintOpened(true);
-              }}
-              onMouseOut={() => setGithubHintOpened(false)}
-            >
-              <SkyrimHint
-                active=""
-                text={locale.LOGIN.GITHUB_HINT}
-                isOpened={isGithubHintOpened}
-                left={true}
-              />
-              <img src={require("@/assets/img/github.svg").default} alt={"Fork me on Github"} />
-            </a>
-            <a
-              href={"https://github.com/skyrim-multiplayer/skymp"}
-              target={"_blank"}
-              rel="noreferrer"
-              className={"login-form--content_social__link"}
-              onMouseOver={() => {
-                setPatreonHintOpened(true);
-              }}
-              onMouseOut={() => setPatreonHintOpened(false)}
-            >
-              <SkyrimHint
-                active=""
-                text={locale.LOGIN.PATREON_HINT}
-                isOpened={isPatreonHintOpened}
-                left={false}
-              />
-              <img src={require("@/assets/img/patreon.svg").default} alt={"Become a Patron"} />
-            </a>
-          </div>
-          {isRegister ? (
-            <RegisterForm locale={locale} setRegister={setRegister} />
+          <div className={"login-form--content_header"}>{headerText}</div>
+          {phase === "register" ? (
+            <RegisterForm locale={locale} setRegister={setRegister} inFlight={inFlight} errorMessage={errorMessage} />
+          ) : phase === "characters" ? (
+            <CharacterSelectForm
+              locale={locale}
+              characters={characters}
+              inFlight={inFlight}
+              errorMessage={errorMessage}
+            />
           ) : (
-            <LoginForm locale={locale} setRegister={setRegister} />
+            <LoginForm locale={locale} setRegister={setRegister} inFlight={inFlight} errorMessage={errorMessage} />
           )}
         </div>
         <SkyrimFrame name="" />

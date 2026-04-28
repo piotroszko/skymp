@@ -8,6 +8,8 @@ import Chat from "./features/constructor/components/chat";
 import { Widget } from "./features/constructor/types";
 import SkillsMenu from "./features/skillsMenu";
 import TestMenu from "./features/testMenu";
+import LoginPage from "./features/login";
+import { useAuthVisibility } from "./features/login/authBridge";
 
 interface AppProps {
   elem?: Widget[];
@@ -18,7 +20,10 @@ interface AppProps {
 function App({ elem, height, width }: AppProps) {
   const dispatch = useDispatch();
   const [isLoggined] = useState(false);
+  const [authVisible, setAuthVisible] = useState(false);
   const [widgets, setWidgets] = useState<Widget[] | null>(elem ?? null);
+
+  useAuthVisibility((visible) => setAuthVisible(visible));
 
   const onWindowFocus = useCallback(() => {
     const focus = document.hasFocus();
@@ -76,6 +81,14 @@ function App({ elem, height, width }: AppProps) {
       window.skyrimPlatform?.widgets?.removeListener(handleWidgetUpdate);
     };
   }, [onWindowFocus, onMoveWindow, onMouseUp, handleWidgetUpdate]);
+
+  if (authVisible) {
+    return (
+      <div className={`App ${!("skyrimPlatform" in window) ? "bg" : ""}`}>
+        <LoginPage />
+      </div>
+    );
+  }
 
   if (isLoggined) {
     const noopSend = (_message: string) => { };
