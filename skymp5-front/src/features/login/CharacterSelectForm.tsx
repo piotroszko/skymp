@@ -49,24 +49,22 @@ const noticeStyle: React.CSSProperties = {
   color: "rgba(157, 158, 158, 0.85)",
 };
 
-const CharacterSelectForm = (props: CharacterSelectFormProps) => {
-  const [showCreate, setShowCreate] = useState(props.characters.length === 0);
-  const [createName, setCreateName] = useState("");
-  const createInputKey = useRef(0);
+const nameLabelStyle: React.CSSProperties = {
+  width: ROW_WIDTH,
+  textAlign: "center",
+  color: "#b6b6b6",
+  fontSize: 22,
+  lineHeight: "26px",
+  fontFamily: "Bankir-Retro, serif",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+};
 
+const CharacterSelectForm = (props: CharacterSelectFormProps) => {
   const [rowMode, setRowMode] = useState<Record<number, RowMode>>({});
   const [renameDraft, setRenameDraft] = useState<Record<number, string>>({});
   const renameInputKey = useRef<Record<number, number>>({});
-
-  const previousCount = useRef(props.characters.length);
-  useEffect(() => {
-    if (props.characters.length > previousCount.current) {
-      setShowCreate(false);
-      setCreateName("");
-      createInputKey.current += 1;
-    }
-    previousCount.current = props.characters.length;
-  }, [props.characters.length]);
 
   // After successful rename or deletion, reset that row to view mode.
   const charactersKey = props.characters.map((c) => `${c.profileId}:${c.name}`).join("|");
@@ -75,16 +73,10 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
     setRenameDraft({});
   }, [charactersKey]);
 
-  const trimmedCreateName = createName.trim();
-  const isCreateDuplicate =
-    trimmedCreateName.length > 0 &&
-    props.characters.some((c) => c.name.trim().toLowerCase() === trimmedCreateName.toLowerCase());
-
   const handleCreate = useCallback(() => {
     if (props.inFlight) return;
-    if (trimmedCreateName.length === 0 || isCreateDuplicate) return;
-    requestCreateCharacter(trimmedCreateName);
-  }, [trimmedCreateName, isCreateDuplicate, props.inFlight]);
+    requestCreateCharacter();
+  }, [props.inFlight]);
 
   const handlePlay = useCallback(
     (profileId: number) => {
@@ -209,12 +201,13 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
 
     return (
       <div key={c.profileId} style={rowContainerStyle}>
+        <div style={nameLabelStyle} title={c.name}>{c.name}</div>
         <SkyrimButton
           name=""
           disabled={props.inFlight}
           width={ROW_WIDTH}
           onClick={() => handlePlay(c.profileId)}
-          text={`${c.name} — ${props.locale.LOGIN.PLAY_BUTTON_TEXT}`}
+          text={props.locale.LOGIN.PLAY_BUTTON_TEXT}
         />
         <div style={sideBySideStyle}>
           <SkyrimButton
@@ -240,66 +233,20 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
 
   return (
     <div className={"login-form--content_main"}>
-      {props.characters.length === 0 && !showCreate ? (
+      {props.characters.length === 0 ? (
         <div style={{ padding: "8px 0" }}>{props.locale.LOGIN.NO_CHARACTERS_HINT}</div>
       ) : null}
 
       {props.characters.map(renderRow)}
 
-      {showCreate ? (
-        <>
-          <div className={"login-form--content_main__email"}>
-            <div className={"login-form--content_main__label"}>
-              <span className={"login-form--content_main__label___text"}>
-                {props.locale.LOGIN.CHARACTER_NAME}
-              </span>
-            </div>
-            <SkyrimInput
-              key={createInputKey.current}
-              labelText=""
-              initialValue=""
-              onInput={(e) => setCreateName((e.target as HTMLInputElement).value)}
-              placeholder={props.locale.LOGIN.CHARACTER_NAME_PLACEHOLDER}
-              type={"text"}
-              name={"name"}
-            />
-          </div>
-          {isCreateDuplicate ? (
-            <div style={{ color: "#ff8a8a", padding: "4px 0" }}>{props.locale.LOGIN.NAME_TAKEN}</div>
-          ) : null}
-          <div className={"login-form--content_main__button"}>
-            <SkyrimButton
-              name=""
-              disabled={props.inFlight || trimmedCreateName.length === 0 || isCreateDuplicate}
-              onClick={handleCreate}
-              text={props.locale.LOGIN.CREATE_CHARACTER_BUTTON_TEXT}
-            />
-          </div>
-          {props.characters.length > 0 ? (
-            <div className={"login-form--content_main__button"}>
-              <SkyrimButton
-                name=""
-                disabled={false}
-                onClick={() => {
-                  setShowCreate(false);
-                  setCreateName("");
-                  createInputKey.current += 1;
-                }}
-                text={props.locale.LOGIN.BACK}
-              />
-            </div>
-          ) : null}
-        </>
-      ) : (
-        <div className={"login-form--content_main__button"}>
-          <SkyrimButton
-            name=""
-            disabled={false}
-            onClick={() => setShowCreate(true)}
-            text={props.locale.LOGIN.CREATE_CHARACTER_BUTTON_TEXT}
-          />
-        </div>
-      )}
+      <div className={"login-form--content_main__button"}>
+        <SkyrimButton
+          name=""
+          disabled={props.inFlight}
+          onClick={handleCreate}
+          text={props.locale.LOGIN.CREATE_CHARACTER_BUTTON_TEXT}
+        />
+      </div>
 
       {props.errorMessage ? (
         <div className={"login-form--content_main__error"} style={{ color: "#ff8a8a", padding: "8px 0" }}>

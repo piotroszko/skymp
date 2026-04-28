@@ -42,7 +42,49 @@ export class AuthService extends ClientListener {
     this.controller.emitter.on("customPacketMessage", (e) => this.onCustomPacketMessage(e));
     this.controller.emitter.on("connectionDenied", (e) => this.onConnectionDenied(e));
     this.controller.on("browserMessage", (e) => this.onBrowserMessage(e));
+    this.controller.on("update", () => this.onUpdate());
     this.controller.once("update", () => { this.playerEverSawActualGameplay = true; });
+  }
+
+  private onUpdate() {
+    if (!this.session || this.selectedProfileId === null) {
+      return;
+    }
+    let raceMenuOpen = false;
+    try {
+      raceMenuOpen = this.sp.Ui.isMenuOpen("RaceSex Menu");
+    } catch {
+      return;
+    }
+    if (raceMenuOpen === this.lastRaceMenuOpen) {
+      return;
+    }
+    this.lastRaceMenuOpen = raceMenuOpen;
+    if (raceMenuOpen) {
+      return;
+    }
+    // Race menu just closed — sync the display name back to the auth side.
+    let displayName = "";
+    try {
+      const player = this.sp.Game.getPlayer();
+      if (player) {
+        displayName = (player.getDisplayName() || "").trim();
+      }
+    } catch (e) {
+      logError(this, "Failed to read player display name on race menu close", e);
+      return;
+    }
+    if (!displayName) {
+      return;
+    }
+    const profileId = this.selectedProfileId;
+    const session = this.session;
+    const matching = this.characters.find((c) => c.profileId === profileId);
+    if (matching && matching.name === displayName) {
+      return;
+    }
+    logTrace(this, "Syncing character name from race menu:", displayName);
+    this.sendCustomPacket("renameCharacterRequest", { session, profileId, name: displayName });
   }
 
   private onAuthNeeded(_e: AuthNeededEvent) {
@@ -108,7 +150,7 @@ export class AuthService extends ClientListener {
         this.handleLoginAttempt(args[1] as string, args[2] as string);
         return;
       case events.createCharacter:
-        this.handleCreateCharacter(args[1] as string);
+        this.handleCreateCharacter();
         return;
       case events.deleteCharacter:
         this.handleDeleteCharacter(args[1] as number);
@@ -145,20 +187,14 @@ export class AuthService extends ClientListener {
     this.sendCustomPacket("loginRequest", { email, password });
   }
 
-  private handleCreateCharacter(name: string) {
+  private handleCreateCharacter() {
     if (!this.session) {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
         type: "createCharacterResult", ok: false, error: "Not logged in",
       });
       return;
     }
-    if (typeof name !== "string" || name.trim().length === 0) {
-      this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "createCharacterResult", ok: false, error: "Character name is required",
-      });
-      return;
-    }
-    this.sendCustomPacket("createCharacterRequest", { session: this.session, name });
+    this.sendCustomPacket("createCharacterRequest", { session: this.session });
   }
 
   private handleDeleteCharacter(profileId: number) {
@@ -213,6 +249,7 @@ export class AuthService extends ClientListener {
       return;
     }
     this.playRequestInFlightProfileId = profileId;
+    this.selectedProfileId = profileId;
     this.sendCustomPacket("playRequest", { session: this.session, profileId });
 
     if (this.email) {
@@ -333,4 +370,6 @@ export class AuthService extends ClientListener {
 
   private shouldShowAuthOnLoad = false;
   private frontReady = false;
+  private selectedProfileId: number | null = null;
+  private lastRaceMenuOpen = false;
 }

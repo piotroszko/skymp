@@ -224,14 +224,9 @@ export class AuthService implements System {
 
   private handleCreateCharacter(userId: number, content: Content, ctx: SystemContext): void {
     const session = content["session"];
-    const name = content["name"];
 
     if (typeof session !== "string") {
       this.sendError(ctx, userId, "createCharacterResult", "Session is required");
-      return;
-    }
-    if (typeof name !== "string" || name.trim().length === 0 || name.length > 64) {
-      this.sendError(ctx, userId, "createCharacterResult", "Character name is invalid");
       return;
     }
 
@@ -258,23 +253,20 @@ export class AuthService implements System {
           return;
         }
 
-        const trimmed = name.trim();
-        const duplicate = record.characters.some(
-          (c) => c.name.trim().toLowerCase() === trimmed.toLowerCase(),
-        );
-        if (duplicate) {
-          this.sendError(ctx, userId, "createCharacterResult", "A character with this name already exists");
-          return;
-        }
-
-        const character = await this.store.addCharacter(info.userId, trimmed);
+        // Allocate first, then build a unique placeholder using the profileId.
+        // The player picks a real name in the race menu and the client syncs it
+        // back via renameCharacterRequest.
+        const placeholder = "";
+        const character = await this.store.addCharacter(info.userId, placeholder);
+        const finalName = `New character #${character.profileId}`;
+        await this.store.renameCharacter(info.userId, character.profileId, finalName);
         this.send(ctx, userId, {
           customPacketType: "createCharacterResult",
           ok: true,
           profileId: character.profileId,
-          name: character.name,
+          name: finalName,
         });
-        this.log(`Created character ${character.profileId} (${character.name}) for user ${info.userId}`);
+        this.log(`Created character ${character.profileId} (${finalName}) for user ${info.userId}`);
       } catch (e) {
         this.log(`createCharacterRequest failed: ${(e as Error).message}`);
         this.sendError(ctx, userId, "createCharacterResult", "Failed to create character");

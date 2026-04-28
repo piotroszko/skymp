@@ -38,8 +38,8 @@ export const requestRegister = (email: string, password: string) =>
 export const requestLogin = (email: string, password: string) =>
   sendMessage("authLoginAttempt", email, password);
 
-export const requestCreateCharacter = (name: string) =>
-  sendMessage("authCreateCharacter", name);
+export const requestCreateCharacter = () =>
+  sendMessage("authCreateCharacter");
 
 export const requestDeleteCharacter = (profileId: number) =>
   sendMessage("authDeleteCharacter", profileId);
