@@ -21,6 +21,34 @@ interface CharacterSelectFormProps {
 
 type RowMode = "view" | "edit" | "confirmDelete";
 
+const ROW_WIDTH = 320;
+const HALF_BUTTON_WIDTH = 156;
+const ROW_GAP = 8;
+const SMALL_BUTTON_HEIGHT = 36;
+
+const rowContainerStyle: React.CSSProperties = {
+  width: ROW_WIDTH,
+  padding: "8px 0",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 6,
+};
+
+const sideBySideStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "row",
+  gap: ROW_GAP,
+  width: ROW_WIDTH,
+  justifyContent: "space-between",
+};
+
+const noticeStyle: React.CSSProperties = {
+  width: ROW_WIDTH,
+  textAlign: "center",
+  color: "rgba(157, 158, 158, 0.85)",
+};
+
 const CharacterSelectForm = (props: CharacterSelectFormProps) => {
   const [showCreate, setShowCreate] = useState(props.characters.length === 0);
   const [createName, setCreateName] = useState("");
@@ -115,11 +143,12 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
       const canSave = !props.inFlight && draft.length > 0 && draft !== c.name && !duplicate;
 
       return (
-        <div key={c.profileId} style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
+        <div key={c.profileId} style={rowContainerStyle}>
           <SkyrimInput
             key={renameInputKey.current[c.profileId]}
             labelText=""
             initialValue={c.name}
+            width={ROW_WIDTH}
             onInput={(e) =>
               setRenameDraft((prev) => ({ ...prev, [c.profileId]: (e.target as HTMLInputElement).value }))
             }
@@ -128,18 +157,22 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
             name={`rename-${c.profileId}`}
           />
           {duplicate ? (
-            <div style={{ color: "#ff8a8a" }}>{props.locale.LOGIN.NAME_TAKEN}</div>
+            <div style={{ ...noticeStyle, color: "#ff8a8a" }}>{props.locale.LOGIN.NAME_TAKEN}</div>
           ) : null}
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={sideBySideStyle}>
             <SkyrimButton
               name=""
               disabled={!canSave}
+              width={HALF_BUTTON_WIDTH}
+              height={SMALL_BUTTON_HEIGHT}
               onClick={() => submitRename(c)}
               text={props.locale.LOGIN.SAVE_BUTTON_TEXT}
             />
             <SkyrimButton
               name=""
               disabled={false}
+              width={HALF_BUTTON_WIDTH}
+              height={SMALL_BUTTON_HEIGHT}
               onClick={() => cancelRow(c.profileId)}
               text={props.locale.LOGIN.CANCEL_BUTTON_TEXT}
             />
@@ -150,18 +183,22 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
 
     if (mode === "confirmDelete") {
       return (
-        <div key={c.profileId} style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
-          <div>{`${props.locale.LOGIN.CONFIRM_DELETE} (${c.name})`}</div>
-          <div style={{ display: "flex", gap: "8px" }}>
+        <div key={c.profileId} style={rowContainerStyle}>
+          <div style={noticeStyle}>{`${props.locale.LOGIN.CONFIRM_DELETE} (${c.name})`}</div>
+          <div style={sideBySideStyle}>
             <SkyrimButton
               name=""
               disabled={props.inFlight}
+              width={HALF_BUTTON_WIDTH}
+              height={SMALL_BUTTON_HEIGHT}
               onClick={() => submitDelete(c.profileId)}
               text={props.locale.LOGIN.CONFIRM_YES}
             />
             <SkyrimButton
               name=""
               disabled={false}
+              width={HALF_BUTTON_WIDTH}
+              height={SMALL_BUTTON_HEIGHT}
               onClick={() => cancelRow(c.profileId)}
               text={props.locale.LOGIN.CONFIRM_NO}
             />
@@ -171,23 +208,28 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
     }
 
     return (
-      <div key={c.profileId} style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "4px" }}>
+      <div key={c.profileId} style={rowContainerStyle}>
         <SkyrimButton
           name=""
           disabled={props.inFlight}
+          width={ROW_WIDTH}
           onClick={() => handlePlay(c.profileId)}
           text={`${c.name} — ${props.locale.LOGIN.PLAY_BUTTON_TEXT}`}
         />
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={sideBySideStyle}>
           <SkyrimButton
             name=""
             disabled={props.inFlight}
+            width={HALF_BUTTON_WIDTH}
+            height={SMALL_BUTTON_HEIGHT}
             onClick={() => startRename(c)}
             text={props.locale.LOGIN.EDIT_BUTTON_TEXT}
           />
           <SkyrimButton
             name=""
             disabled={props.inFlight}
+            width={HALF_BUTTON_WIDTH}
+            height={SMALL_BUTTON_HEIGHT}
             onClick={() => setRow(c.profileId, "confirmDelete")}
             text={props.locale.LOGIN.DELETE_BUTTON_TEXT}
           />

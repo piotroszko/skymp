@@ -34,7 +34,7 @@
     "SAVE_BUTTON_TEXT": "save",
     "CANCEL_BUTTON_TEXT": "cancel",
     "CONFIRM_DELETE": "delete this character?",
-    "CONFIRM_YES": "yes, delete",
-    "CONFIRM_NO": "keep"
+    "CONFIRM_YES": "delete",
+    "CONFIRM_NO": "cancel"
   }
 }
