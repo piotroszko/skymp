@@ -57,6 +57,7 @@ import { SweetTaffyNicknamesService } from "./services/sweetTaffyNicknamesServic
 import { ServerJsVerificationService } from "./services/serverJsVerificationService";
 import { SweetTaffyEvalService } from "./services/sweetTaffyEvalService";
 import { AdminPanelService } from "./services/adminPanelService";
+import { EventLoggerService } from "./services/eventLoggerService";
 
 once("update", () => {
   Utility.setINIBool("bAlwaysActive:General", true);
@@ -119,6 +120,7 @@ const main = () => {
       new SweetTaffyNicknamesService(sp, controller),
       new ServerJsVerificationService(sp, controller),
       new AdminPanelService(sp, controller),
+      new EventLoggerService(sp, controller),
     ];
     SpApiInteractor.setup(listeners);
   } catch (e) {
