@@ -1,10 +1,10 @@
 import { setTextSize } from "skyrimPlatform";
-import { logTrace, logError } from "../../logging";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { NewLocalLagValueCalculatedEvent } from "../events/newLocalLagValueCalculatedEvent";
-import { SendMessageEvent } from "../events/sendMessageEvent";
-import { SendMessageWithRefrIdEvent } from "../events/sendMessageWithRefrIdEvent";
-import { AnyMessage } from "../messages/anyMessage";
+import { logTrace, logError } from "../logging";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { NewLocalLagValueCalculatedEvent } from "../types/events/newLocalLagValueCalculatedEvent";
+import { SendMessageEvent } from "../types/events/sendMessageEvent";
+import { SendMessageWithRefrIdEvent } from "../types/events/sendMessageWithRefrIdEvent";
+import { AnyMessage } from "../types/messages/anyMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class NetInfoService extends ClientListener {

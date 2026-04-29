@@ -1,6 +1,6 @@
-import { logError, logTrace } from "../../logging";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { CustomPacketMessage } from "../messages/customPacketMessage";
+import { logError, logTrace } from "../logging";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { CustomPacketMessage } from "../types/messages/customPacketMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { NetworkingService } from "./networkingService";
 import { ServerJsVerificationService } from "./serverJsVerificationService";

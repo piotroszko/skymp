@@ -4,15 +4,15 @@ import {
   storage,
 } from 'skyrimPlatform';
 import * as networking from './networkingService';
-import { setupHooks } from '../../sync/animation';
-import { AuthGameData, authGameDataStorageKey } from '../../features/authModel';
+import { setupHooks } from '../sync/animation';
+import { AuthGameData, authGameDataStorageKey } from '../features/authModel';
 import { ClientListener, CombinedController, Sp } from './clientListener';
-import { ConnectionFailed } from '../events/connectionFailed';
-import { ConnectionDenied } from '../events/connectionDenied';
-import { ConnectionMessage } from '../events/connectionMessage';
-import { CreateActorMessage } from '../messages/createActorMessage';
-import { AuthAttemptEvent } from '../events/authAttemptEvent';
-import { logTrace } from '../../logging';
+import { ConnectionFailed } from '../types/events/connectionFailed';
+import { ConnectionDenied } from '../types/events/connectionDenied';
+import { ConnectionMessage } from '../types/events/connectionMessage';
+import { CreateActorMessage } from '../types/messages/createActorMessage';
+import { AuthAttemptEvent } from '../types/events/authAttemptEvent';
+import { logTrace } from '../logging';
 import { SettingsService, TargetPeer } from './settingsService';
 
 printConsole('Hello Multiplayer!');

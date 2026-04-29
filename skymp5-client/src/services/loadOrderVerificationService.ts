@@ -1,8 +1,8 @@
 import { Game, Utility, printConsole, createText, setTextSize } from "skyrimPlatform";
-import { getScreenResolution } from "../../view/formView";
+import { getScreenResolution } from "../view/formView";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { Mod } from "../messages_http/serverManifest";
-import { logTrace } from "../../logging";
+import { Mod } from "../types/messages_http/serverManifest";
+import { logTrace } from "../logging";
 import { SettingsService } from "./settingsService";
 
 const STATE_KEY = 'loadOrderCheckState';

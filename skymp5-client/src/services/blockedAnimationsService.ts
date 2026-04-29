@@ -1,4 +1,4 @@
-import { logTrace } from "../../logging";
+import { logTrace } from "../logging";
 import { ClientListener, Sp, CombinedController } from "./clientListener";
 
 export class BlockedAnimationsService extends ClientListener {

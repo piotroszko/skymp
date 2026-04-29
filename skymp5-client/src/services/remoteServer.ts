@@ -14,55 +14,55 @@ import {
   storage, // TODO: use this.sp.storage instead
 } from 'skyrimPlatform';
 
-import * as messages from '../../messages';
+import * as messages from '../messages';
 
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { ObjectReferenceEx } from '../../extensions/objectReferenceEx';
-import { IdManager } from '../../lib/idManager';
-import { nameof } from '../../lib/nameof';
-import { setActorValuePercentage } from '../../sync/actorvalues';
-import { applyAppearanceToPlayer } from '../../sync/appearance';
-import { applyEquipment, isBadMenuShown } from '../../sync/equipment';
-import { Inventory, applyInventory } from '../../sync/inventory';
-import { Movement } from '../../sync/movement';
-import { learnSpells, removeAllSpells } from '../../sync/spell';
-import { ModelApplyUtils } from '../../view/modelApplyUtils';
-import { FormModel, WorldModel } from '../../view/model';
+import { ObjectReferenceEx } from '../extensions/objectReferenceEx';
+import { IdManager } from '../lib/idManager';
+import { nameof } from '../lib/nameof';
+import { setActorValuePercentage } from '../sync/actorvalues';
+import { applyAppearanceToPlayer } from '../sync/appearance';
+import { applyEquipment, isBadMenuShown } from '../sync/equipment';
+import { Inventory, applyInventory } from '../sync/inventory';
+import { Movement } from '../sync/movement';
+import { learnSpells, removeAllSpells } from '../sync/spell';
+import { ModelApplyUtils } from '../view/modelApplyUtils';
+import { FormModel, WorldModel } from '../view/model';
 import { LoadGameService } from './loadGameService';
-import { UpdateMovementMessage } from '../messages/updateMovementMessage';
-import { ChangeValuesMessage } from '../messages/changeValuesMessage';
-import { UpdateAnimationMessage } from '../messages/updateAnimationMessage';
-import { UpdateEquipmentMessage } from '../messages/updateEquipmentMessage';
+import { UpdateMovementMessage } from '../types/messages/updateMovementMessage';
+import { ChangeValuesMessage } from '../types/messages/changeValuesMessage';
+import { UpdateAnimationMessage } from '../types/messages/updateAnimationMessage';
+import { UpdateEquipmentMessage } from '../types/messages/updateEquipmentMessage';
 import { RagdollService } from './ragdollService';
-import { UpdateAppearanceMessage } from '../messages/updateAppearanceMessage';
-import { TeleportMessage } from '../messages/teleportMessage';
-import { DeathStateContainerMessage } from '../messages/deathStateContainerMessage';
-import { RespawnNeededError } from '../../lib/errors';
-import { OpenContainerMessage } from '../messages/openContainerMessage';
-import { ActivateMessage } from '../messages/activateMessage';
+import { UpdateAppearanceMessage } from '../types/messages/updateAppearanceMessage';
+import { TeleportMessage } from '../types/messages/teleportMessage';
+import { DeathStateContainerMessage } from '../types/messages/deathStateContainerMessage';
+import { RespawnNeededError } from '../lib/errors';
+import { OpenContainerMessage } from '../types/messages/openContainerMessage';
+import { ActivateMessage } from '../types/messages/activateMessage';
 import { ClientListener, CombinedController, Sp } from './clientListener';
-import { HostStartMessage } from '../messages/hostStartMessage';
-import { HostStopMessage } from '../messages/hostStopMessage';
-import { ConnectionMessage } from '../events/connectionMessage';
-import { SetInventoryMessage } from '../messages/setInventoryMessage';
-import { CreateActorMessage, CreateActorMessageAdditionalProps } from '../messages/createActorMessage';
-import { DestroyActorMessage } from '../messages/destroyActorMessage';
-import { SetRaceMenuOpenMessage } from '../messages/setRaceMenuOpenMessage';
-import { UpdatePropertyMessage } from '../messages/updatePropertyMessage';
-import { TeleportMessage2 } from '../messages/teleportMessage2';
+import { HostStartMessage } from '../types/messages/hostStartMessage';
+import { HostStopMessage } from '../types/messages/hostStopMessage';
+import { ConnectionMessage } from '../types/events/connectionMessage';
+import { SetInventoryMessage } from '../types/messages/setInventoryMessage';
+import { CreateActorMessage, CreateActorMessageAdditionalProps } from '../types/messages/createActorMessage';
+import { DestroyActorMessage } from '../types/messages/destroyActorMessage';
+import { SetRaceMenuOpenMessage } from '../types/messages/setRaceMenuOpenMessage';
+import { UpdatePropertyMessage } from '../types/messages/updatePropertyMessage';
+import { TeleportMessage2 } from '../types/messages/teleportMessage2';
 
 // TODO: refactor worldViewMisc into service
 import {
   getObjectReference,
   getViewFromStorage,
   remoteIdToLocalId,
-} from '../../view/worldViewMisc';
+} from '../view/worldViewMisc';
 import { TimeService } from './timeService';
-import { logTrace, logError } from '../../logging';
+import { logTrace, logError } from '../logging';
 
-import { SpellCastMessage } from '../messages/spellCastMessage';
-import { UpdateAnimVariablesMessage } from '../messages/updateAnimVariablesMessage';
-import { MsgType } from '../../messages';
+import { SpellCastMessage } from '../types/messages/spellCastMessage';
+import { UpdateAnimVariablesMessage } from '../types/messages/updateAnimVariablesMessage';
+import { MsgType } from '../messages';
 
 export const getPcInventory = (): Inventory | undefined => {
   const res = storage['pcInv'];

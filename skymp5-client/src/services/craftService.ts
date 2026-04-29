@@ -1,11 +1,11 @@
 // TODO: refactor this out
-import { localIdToRemoteId } from "../../view/worldViewMisc";
+import { localIdToRemoteId } from "../view/worldViewMisc";
 
 import { Actor, ContainerChangedEvent } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { Inventory } from "../../sync/inventory";
-import { MsgType } from "../../messages";
-import { logTrace, logError } from "../../logging";
+import { Inventory } from "../sync/inventory";
+import { MsgType } from "../messages";
+import { logTrace, logError } from "../logging";
 
 type FurnitureId = number;
 

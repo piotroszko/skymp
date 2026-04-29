@@ -1,6 +1,6 @@
 import { ActivateEvent, browser } from 'skyrimPlatform'
 import { ClientListener, CombinedController, Sp } from './clientListener';
-import { logTrace } from '../../logging';
+import { logTrace } from '../logging';
 
 // TODO: move to server/gamemode
 export class SweetTaffySkillMenuService extends ClientListener {

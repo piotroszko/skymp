@@ -1,5 +1,5 @@
-import { EventEmitterFactory } from "./events/events";
-import { ClientListener, ClientListenerConstructor, CombinedController } from "./services/clientListener";
+import { EventEmitterFactory } from "../types/events/events";
+import { ClientListener, ClientListenerConstructor, CombinedController } from "./clientListener";
 import * as sp from "skyrimPlatform";
 
 export class SpApiInteractor {

@@ -1,14 +1,14 @@
 // TODO: refactor this out
-import { localIdToRemoteId, remoteIdToLocalId } from "../../view/worldViewMisc";
+import { localIdToRemoteId, remoteIdToLocalId } from "../view/worldViewMisc";
 
 // @ts-expect-error (TODO: Remove in 2.10.0)
 import { SpellCastEvent, Actor, printConsole, Game, getAnimationVariablesFromActor, ActorAnimationVariables, SpellType, SlotType, EquippedItemType } from 'skyrimPlatform'
 import { ClientListener, CombinedController, Sp } from './clientListener';
-import { logTrace } from '../../logging';
+import { logTrace } from '../logging';
 
-import { MsgType } from "../../messages";
-import { SpellCastMsgData, SpellCastMessage } from "../messages/spellCastMessage";
-import { UpdateAnimVariablesMessageMsgData } from "../messages/updateAnimVariablesMessage";
+import { MsgType } from "../messages";
+import { SpellCastMsgData, SpellCastMessage } from "../types/messages/spellCastMessage";
+import { UpdateAnimVariablesMessageMsgData } from "../types/messages/updateAnimVariablesMessage";
 
 export class MagicSyncService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {

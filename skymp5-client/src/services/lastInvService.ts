@@ -1,4 +1,4 @@
-import { Inventory } from "../../sync/inventory";
+import { Inventory } from "../sync/inventory";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class LastInvService extends ClientListener {

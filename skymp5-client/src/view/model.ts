@@ -3,7 +3,7 @@ import { Animation } from "../sync/animation";
 import { Appearance } from "../sync/appearance";
 import { Equipment } from "../sync/equipment";
 import { Inventory } from "../sync/inventory";
-import { CreateActorMessageMainProps, CreateActorMessageAdditionalProps } from "src/services/messages/createActorMessage";
+import { CreateActorMessageMainProps, CreateActorMessageAdditionalProps } from "src/types/messages/createActorMessage";
 
 // Own properties (not inherited) are being assigned locally
 export interface FormModel extends CreateActorMessageAdditionalProps, CreateActorMessageMainProps{

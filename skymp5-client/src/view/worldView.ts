@@ -3,10 +3,10 @@ import { Form } from "skyrimPlatform";
 import { WorldModel } from './model';
 import { FormViewArray } from './formViewArray';
 import { PlayerCharacterDataHolder } from './playerCharacterDataHolder';
-import { ClientListener, CombinedController, Sp } from '../services/services/clientListener';
+import { ClientListener, CombinedController, Sp } from '../services/clientListener';
 import { logTrace } from "../logging";
-import { SinglePlayerService } from "../services/services/singlePlayerService";
-import { RemoteServer } from "../services/services/remoteServer";
+import { SinglePlayerService } from "../services/singlePlayerService";
+import { RemoteServer } from "../services/remoteServer";
 
 export class WorldView extends ClientListener {
   constructor(private sp: Sp, private controller: CombinedController) {

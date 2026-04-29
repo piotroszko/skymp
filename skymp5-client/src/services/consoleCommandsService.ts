@@ -1,8 +1,8 @@
-import { logError, logTrace } from "../../logging";
-import { MsgType } from "../../messages";
+import { logError, logTrace } from "../logging";
+import { MsgType } from "../messages";
 
 // TODO: refactor this out
-import { localIdToRemoteId } from "../../view/worldViewMisc";
+import { localIdToRemoteId } from "../view/worldViewMisc";
 
 import { ClientListener, Sp, CombinedController } from "./clientListener";
 

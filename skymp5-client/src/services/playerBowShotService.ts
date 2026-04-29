@@ -1,9 +1,9 @@
 import { Ammo, Game, PlayerBowShotEvent, WeaponType } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { MsgType } from "../../messages";
-import { getEquipment } from "../../sync/equipment";
-import { QueryBlockSetInventoryEvent } from "../events/queryBlockSetInventoryEvent";
-import { logError, logTrace } from "../../logging";
+import { MsgType } from "../messages";
+import { getEquipment } from "../sync/equipment";
+import { QueryBlockSetInventoryEvent } from "../types/events/queryBlockSetInventoryEvent";
+import { logError, logTrace } from "../logging";
 
 export class PlayerBowShotService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {

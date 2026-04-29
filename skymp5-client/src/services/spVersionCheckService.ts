@@ -1,4 +1,4 @@
-import { requiredVersion } from "../../version";
+import { requiredVersion } from "../version";
 import { ClientListener, Sp, CombinedController } from "./clientListener";
 
 export class SpVersionCheckService extends ClientListener {

@@ -1,4 +1,4 @@
-import { logTrace } from "../../logging";
+import { logTrace } from "../logging";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { Session } from 'inspector';
 import * as fs from "fs";

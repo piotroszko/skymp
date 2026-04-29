@@ -1,5 +1,5 @@
-import { logTrace, logError } from "../../logging";
-import { AnimDebugSettings } from "../messages_settings/animDebugSettings";
+import { logTrace, logError } from "../logging";
+import { AnimDebugSettings } from "../types/messages_settings/animDebugSettings";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { ButtonEvent, CameraStateChangedEvent, DxScanCode, Menu, setTextSize } from "skyrimPlatform";
 

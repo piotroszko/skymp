@@ -1,8 +1,8 @@
 import { Actor } from "skyrimPlatform";
-import { ApplyDeathStateEvent } from "../events/applyDeathStateEvent";
+import { ApplyDeathStateEvent } from "../types/events/applyDeathStateEvent";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { RespawnNeededError } from "../../lib/errors";
-import { AnimationEventName } from "../../sync/animation";
+import { RespawnNeededError } from "../lib/errors";
+import { AnimationEventName } from "../sync/animation";
 import { RagdollService } from "./ragdollService";
 
 export class DeathService extends ClientListener {

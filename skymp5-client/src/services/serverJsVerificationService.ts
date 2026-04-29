@@ -1,7 +1,7 @@
 import { verify } from 'node:crypto';
 import { ClientListener, CombinedController, Sp } from './clientListener';
 import { SettingsService } from './settingsService';
-import { logTrace } from '../../logging';
+import { logTrace } from '../logging';
 
 export class ServerJsVerificationService extends ClientListener {
   constructor(private sp: Sp, private controller: CombinedController) {

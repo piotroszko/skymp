@@ -1,15 +1,15 @@
-import { localIdToRemoteId, remoteIdToLocalId } from "../../view/worldViewMisc";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { CustomEventMessage } from "../messages/customEventMessage";
-import { UpdateGamemodeDataMessage } from "../messages/updateGameModeDataMessage";
+import { localIdToRemoteId, remoteIdToLocalId } from "../view/worldViewMisc";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { CustomEventMessage } from "../types/messages/customEventMessage";
+import { UpdateGamemodeDataMessage } from "../types/messages/updateGameModeDataMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { MsgType } from "../../messages";
-import { GamemodeApiEventSourceCtx } from "../messages_gamemode/gamemodeApiEventSourceCtx";
+import { MsgType } from "../messages";
+import { GamemodeApiEventSourceCtx } from "../types/messages_gamemode/gamemodeApiEventSourceCtx";
 
 // The reason we use global skyrimPlatform is that this.sp may be limited, and gamemode api needs unlimited access to skyrimPlatform
 // Sligthly different types
 import * as skyrimPlatform from "skyrimPlatform";
-import { logError, logTrace } from "../../logging";
+import { logError, logTrace } from "../logging";
 import { ServerJsVerificationService } from "./serverJsVerificationService";
 
 export class GamemodeEventSourceService extends ClientListener {

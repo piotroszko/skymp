@@ -1,28 +1,28 @@
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { SinglePlayerService } from "./singlePlayerService";
-import { FormModel, WorldModel } from "../../view/model";
-import { MsgType } from "../../messages";
-import { getMovement } from "../../sync/movementGet";
+import { FormModel, WorldModel } from "../view/model";
+import { MsgType } from "../messages";
+import { getMovement } from "../sync/movementGet";
 
 // TODO: refactor this out
-import * as worldViewMisc from "../../view/worldViewMisc";
+import * as worldViewMisc from "../view/worldViewMisc";
 
-import { Animation, AnimationSource } from "../../sync/animation";
+import { Animation, AnimationSource } from "../sync/animation";
 import { Actor, EquipEvent, FormType } from "skyrimPlatform";
-import { getAppearance } from "../../sync/appearance";
-import { ActorValues, getActorValues } from "../../sync/actorvalues";
-import { getEquipment } from "../../sync/equipment";
-import { nextHostAttempt } from "../../view/hostAttempts";
+import { getAppearance } from "../sync/appearance";
+import { ActorValues, getActorValues } from "../sync/actorvalues";
+import { getEquipment } from "../sync/equipment";
+import { nextHostAttempt } from "../view/hostAttempts";
 import { SkympClient } from "./skympClient";
-import { MessageWithRefrId } from "../events/sendMessageWithRefrIdEvent";
-import { UpdateMovementMessage } from "../messages/updateMovementMessage";
-import { ChangeValuesMessage } from "../messages/changeValuesMessage";
-import { UpdateAnimationMessage } from "../messages/updateAnimationMessage";
-import { UpdateEquipmentMessage } from "../messages/updateEquipmentMessage";
-import { UpdateAppearanceMessage } from "../messages/updateAppearanceMessage";
+import { MessageWithRefrId } from "../types/events/sendMessageWithRefrIdEvent";
+import { UpdateMovementMessage } from "../types/messages/updateMovementMessage";
+import { ChangeValuesMessage } from "../types/messages/changeValuesMessage";
+import { UpdateAnimationMessage } from "../types/messages/updateAnimationMessage";
+import { UpdateEquipmentMessage } from "../types/messages/updateEquipmentMessage";
+import { UpdateAppearanceMessage } from "../types/messages/updateAppearanceMessage";
 import { RemoteServer } from "./remoteServer";
 import { DeathService } from "./deathService";
-import { logTrace } from "../../logging";
+import { logTrace } from "../logging";
 
 const playerFormId = 0x14;
 

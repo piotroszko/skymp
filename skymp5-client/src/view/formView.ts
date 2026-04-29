@@ -13,8 +13,8 @@ import { lastTryHost, tryHost } from "./hostAttempts";
 import { ModelApplyUtils } from "./modelApplyUtils";
 import { localIdToRemoteId } from "./worldViewMisc";
 import { SpApiInteractor } from "../services/spApiInteractor";
-import { WorldCleanerService } from "../services/services/worldCleanerService";
-import { GamemodeUpdateService } from "../services/services/gamemodeUpdateService";
+import { WorldCleanerService } from "../services/worldCleanerService";
+import { GamemodeUpdateService } from "../services/gamemodeUpdateService";
 
 export interface ScreenResolution {
   width: number;

@@ -2,7 +2,7 @@ import { FormView } from "./formView";
 import { FormModel, WorldModel } from "./model";
 import { NiPoint3 } from "../sync/movement";
 import { SpApiInteractor } from "../services/spApiInteractor";
-import { GamemodeUpdateService } from "../services/services/gamemodeUpdateService";
+import { GamemodeUpdateService } from "../services/gamemodeUpdateService";
 
 export class FormViewArray {
   updateForm(form: FormModel, i: number) {

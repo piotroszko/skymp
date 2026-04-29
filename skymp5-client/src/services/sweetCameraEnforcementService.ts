@@ -1,8 +1,8 @@
-import { MsgType } from "../../messages";
-import { logTrace, logError } from "../../logging";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { CustomPacketMessage } from "../messages/customPacketMessage";
-import { AnimDebugSettings } from "../messages_settings/animDebugSettings";
+import { MsgType } from "../messages";
+import { logTrace, logError } from "../logging";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { CustomPacketMessage } from "../types/messages/customPacketMessage";
+import { AnimDebugSettings } from "../types/messages_settings/animDebugSettings";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { ButtonEvent, DxScanCode, Menu } from "skyrimPlatform";
 

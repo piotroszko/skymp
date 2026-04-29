@@ -1,10 +1,10 @@
 // TODO: refactor this out
-import { localIdToRemoteId } from "../../view/worldViewMisc";
+import { localIdToRemoteId } from "../view/worldViewMisc";
 
 import { FormType, HitEvent, storage } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { MsgType } from "../../messages";
-import { Hit } from "../messages/hitMessage";
+import { MsgType } from "../messages";
+import { Hit } from "../types/messages/hitMessage";
 
 export class HitService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {

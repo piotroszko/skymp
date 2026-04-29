@@ -1,5 +1,5 @@
-import { NicknameCreateEvent } from "../events/nicknameCreateEvent";
-import { NicknameDestroyEvent } from "../events/nicknameDestroyEvent";
+import { NicknameCreateEvent } from "../types/events/nicknameCreateEvent";
+import { NicknameDestroyEvent } from "../types/events/nicknameDestroyEvent";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class SweetTaffyNicknamesService extends ClientListener {

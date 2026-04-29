@@ -1,12 +1,12 @@
-import { logTrace, logError } from "../../logging";
-import { NeverError } from "../../lib/errors";
-import { MsgType } from "../../messages";
-import { SendMessageEvent } from "../events/sendMessageEvent";
-import { SendMessageWithRefrIdEvent } from "../events/sendMessageWithRefrIdEvent";
-import { AnyMessage } from "../messages/anyMessage";
+import { logTrace, logError } from "../logging";
+import { NeverError } from "../lib/errors";
+import { MsgType } from "../messages";
+import { SendMessageEvent } from "../types/events/sendMessageEvent";
+import { SendMessageWithRefrIdEvent } from "../types/events/sendMessageWithRefrIdEvent";
+import { AnyMessage } from "../types/messages/anyMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { RemoteServer } from "./remoteServer";
-import { SendRawMessageEvent } from "../events/sendRawMessageEvent";
+import { SendRawMessageEvent } from "../types/events/sendRawMessageEvent";
 
 export class NetworkingService extends ClientListener {
   constructor(private sp: Sp, private controller: CombinedController) {

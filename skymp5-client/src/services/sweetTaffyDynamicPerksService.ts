@@ -1,10 +1,10 @@
-import { BasicEntry } from "../../sync/inventory";
+import { BasicEntry } from "../sync/inventory";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { ContainerChangedEvent, Form } from "skyrimPlatform";
-import { CreateActorMessage } from "../messages/createActorMessage";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { SetInventoryMessage } from "../messages/setInventoryMessage";
-import { logTrace } from "../../logging";
+import { CreateActorMessage } from "../types/messages/createActorMessage";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { SetInventoryMessage } from "../types/messages/setInventoryMessage";
+import { logTrace } from "../logging";
 
 export class SweetTaffyDynamicPerksService extends ClientListener {
   constructor(private sp: Sp, private controller: CombinedController) {

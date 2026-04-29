@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders, HttpResponse, printConsole, Utility } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { Mod, ServerManifest } from "../messages_http/serverManifest";
+import { Mod, ServerManifest } from "../types/messages_http/serverManifest";
 import { TimersService } from "./timersService";
-import { logTrace } from "../../logging";
+import { logTrace } from "../logging";
 
 interface IHttpClientWithCallback {
   get(path: string, options?: { headers?: HttpHeaders }): Promise<HttpResponse>;

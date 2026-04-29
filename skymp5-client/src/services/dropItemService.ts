@@ -1,10 +1,10 @@
 import { Actor, ContainerChangedEvent } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
-import { MsgType } from "../../messages";
+import { MsgType } from "../messages";
 import { SweetTaffySweetCantDropService } from "./sweetTaffySweetCantDropService";
 import { WorldCleanerService } from "./worldCleanerService";
-import { logTrace } from "../../logging";
+import { logTrace } from "../logging";
 
 export class DropItemService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {

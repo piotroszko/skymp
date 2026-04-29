@@ -1,13 +1,13 @@
-import { MsgType } from "../../messages";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { FinishSpSnippetMessage } from "../messages/finishSpSnippetMessage";
-import { SpSnippetMessage } from "../messages/spSnippetMessage";
+import { MsgType } from "../messages";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { FinishSpSnippetMessage } from "../types/messages/finishSpSnippetMessage";
+import { SpSnippetMessage } from "../types/messages/spSnippetMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 // TODO: refactor worldViewMisc into service
-import { remoteIdToLocalId } from '../../view/worldViewMisc';
-import { logError, logTrace } from "../../logging";
-import { WorldView } from "../../view/worldView";
+import { remoteIdToLocalId } from '../view/worldViewMisc';
+import { logError, logTrace } from "../logging";
+import { WorldView } from "../view/worldView";
 
 export class SpSnippetService extends ClientListener {
   constructor(private sp: Sp, private controller: CombinedController) {

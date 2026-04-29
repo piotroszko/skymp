@@ -1,7 +1,7 @@
 import { ObjectReference, Actor, Game, FormType, TextureSet, NetImmerse } from "skyrimPlatform";
 import { Inventory, applyInventory } from "../sync/inventory";
 import { logError, logTrace } from "../logging";
-import { SetNodeScaleEntry, SetNodeTextureSetEntry } from "src/services/messages/createActorMessage";
+import { SetNodeScaleEntry, SetNodeTextureSetEntry } from "src/types/messages/createActorMessage";
 
 // For 0xff000000+ used from FormView
 // For objects from master files used directly from remoteServer.ts

@@ -1,7 +1,7 @@
 import { Game, ObjectReference, storage } from "skyrimPlatform";
 import { WorldView } from "./worldView";
 import { SpApiInteractor } from '../services/spApiInteractor';
-import { RemoteServer } from "../services/services/remoteServer";
+import { RemoteServer } from "../services/remoteServer";
 
 export const getViewFromStorage = (): WorldView | undefined => {
   const res = storage["view"] as WorldView;

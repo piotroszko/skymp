@@ -1,8 +1,8 @@
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { NiPoint3 } from "../../sync/movement";
-import { ObjectReferenceEx } from "../../extensions/objectReferenceEx";
+import { NiPoint3 } from "../sync/movement";
+import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
 import { Actor } from "skyrimPlatform";
-import { logTrace } from "../../logging";
+import { logTrace } from "../logging";
 
 export class WorldCleanerService extends ClientListener {
   constructor(private sp: Sp, private controller: CombinedController) {

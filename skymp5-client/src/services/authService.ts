@@ -1,14 +1,14 @@
-import { AccountCharacter, AuthGameData, RemoteAuthGameData, authGameDataStorageKey } from "../../features/authModel";
+import { AccountCharacter, AuthGameData, RemoteAuthGameData, authGameDataStorageKey } from "../features/authModel";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { BrowserMessageEvent } from "skyrimPlatform";
-import { AuthNeededEvent } from "../events/authNeededEvent";
-import { BrowserWindowLoadedEvent } from "../events/browserWindowLoadedEvent";
-import { logTrace, logError } from "../../logging";
-import { ConnectionMessage } from "../events/connectionMessage";
-import { CreateActorMessage } from "../messages/createActorMessage";
-import { CustomPacketMessage } from "../messages/customPacketMessage";
-import { MsgType } from "../../messages";
-import { ConnectionDenied } from "../events/connectionDenied";
+import { AuthNeededEvent } from "../types/events/authNeededEvent";
+import { BrowserWindowLoadedEvent } from "../types/events/browserWindowLoadedEvent";
+import { logTrace, logError } from "../logging";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { CreateActorMessage } from "../types/messages/createActorMessage";
+import { CustomPacketMessage } from "../types/messages/customPacketMessage";
+import { MsgType } from "../messages";
+import { ConnectionDenied } from "../types/events/connectionDenied";
 
 const events = {
   registerAttempt: "authRegisterAttempt",

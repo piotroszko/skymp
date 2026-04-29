@@ -1,6 +1,6 @@
 import { ActorValue } from "skyrimPlatform";
 import { ClientListener, Sp, CombinedController } from "./clientListener";
-import { logError } from "../../logging";
+import { logError } from "../logging";
 
 export class DisableSkillAdvanceService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {

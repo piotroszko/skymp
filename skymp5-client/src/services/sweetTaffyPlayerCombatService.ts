@@ -1,4 +1,4 @@
-import { logTrace, logError } from "../../logging";
+import { logTrace, logError } from "../logging";
 import { ClientListener, Sp, CombinedController } from "./clientListener";
 import { WeaponType } from "skyrimPlatform";
 

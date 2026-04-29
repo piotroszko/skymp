@@ -1,6 +1,6 @@
 import { BrowserMessageEvent, DxScanCode } from "skyrimPlatform";
-import { logError, logTrace } from "../../logging";
-import { QueryKeyCodeBindings } from "../events/queryKeyCodeBindings";
+import { logError, logTrace } from "../logging";
+import { QueryKeyCodeBindings } from "../types/events/queryKeyCodeBindings";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 const openEventString = `window.dispatchEvent(new CustomEvent('openAdminPanel'))`;

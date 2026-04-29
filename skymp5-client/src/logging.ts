@@ -1,5 +1,5 @@
 import { printConsole } from "@skyrim-platform/skyrim-platform";
-import { ClientListener } from "./services/services/clientListener";
+import { ClientListener } from "./services/clientListener";
 
 // TODO: redirect this to spdlog
 export function logError(service: ClientListener | string, ...rest: unknown[]) {

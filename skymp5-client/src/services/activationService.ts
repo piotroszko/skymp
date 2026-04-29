@@ -1,13 +1,13 @@
 import { ActivateEvent, Actor } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { MsgType } from "../../messages";
-import { getInventory } from "../../sync/inventory";
+import { MsgType } from "../messages";
+import { getInventory } from "../sync/inventory";
 
 // TODO: refactor this out
-import { localIdToRemoteId } from "../../view/worldViewMisc";
+import { localIdToRemoteId } from "../view/worldViewMisc";
 
 import { LastInvService } from "./lastInvService";
-import { logError, logTrace } from "../../logging";
+import { logError, logTrace } from "../logging";
 
 export class ActivationService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {

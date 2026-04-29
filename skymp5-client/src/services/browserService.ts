@@ -1,7 +1,7 @@
 
 // TODO: send event instead of direct dependency on FormView class
-import { FormView } from "../../view/formView";
-import { QueryKeyCodeBindings } from "../events/queryKeyCodeBindings";
+import { FormView } from "../view/formView";
+import { QueryKeyCodeBindings } from "../types/events/queryKeyCodeBindings";
 
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { BrowserMessageEvent, DxScanCode, Menu, MenuCloseEvent, MenuOpenEvent } from "skyrimPlatform";

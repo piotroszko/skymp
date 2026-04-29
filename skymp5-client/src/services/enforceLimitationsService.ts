@@ -1,4 +1,4 @@
-import { GameLoadEvent } from "../events/gameLoadEvent";
+import { GameLoadEvent } from "../types/events/gameLoadEvent";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class EnforceLimitationsService extends ClientListener {

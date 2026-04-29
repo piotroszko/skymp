@@ -1,14 +1,14 @@
 import { Actor, ContainerChangedEvent, printConsole } from "skyrimPlatform";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { MsgType } from "../../messages";
+import { MsgType } from "../messages";
 import { getPcInventory } from "./remoteServer";
-import { getInventory, getDiff, hasExtras, removeSimpleItemsAsManyAsPossible, sumInventories } from "../../sync/inventory";
+import { getInventory, getDiff, hasExtras, removeSimpleItemsAsManyAsPossible, sumInventories } from "../sync/inventory";
 import { LastInvService } from "./lastInvService";
 
-import { PutItemMessage } from "../messages/putItemMessage";
-import { TakeItemMessage } from "../messages/takeItemMessage";
+import { PutItemMessage } from "../types/messages/putItemMessage";
+import { TakeItemMessage } from "../types/messages/takeItemMessage";
 import { SweetTaffySweetCantDropService } from "./sweetTaffySweetCantDropService";
-import { localIdToRemoteId } from "../../view/worldViewMisc";
+import { localIdToRemoteId } from "../view/worldViewMisc";
 
 export class ContainersService extends ClientListener {
     constructor(private sp: Sp, private controller: CombinedController) {
