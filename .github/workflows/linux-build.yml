@@ -1,9 +1,6 @@
-# TODO(#2280): rename from PR to something else (also applies to Windows etc)
-# TODO(#2280): keep in line with deploy.yml
-name: PR Linux
+name: Linux Build
 on:
     pull_request:
-        # any
     push:
         branches:
           - main
@@ -12,22 +9,18 @@ env:
     BUILD_TYPE: RelWithDebInfo
 
 jobs:
-    pr-docker:
+    build:
         strategy:
           fail-fast: false
           matrix:
             base_system:
-            # The usual container used for all builds within the CI and the one
-            # we use as the base for server builds with preinstalled/cached deps
+            # Canonical container with preinstalled/cached vcpkg deps
             - ubuntu-vcpkg-deps
 
-            # Distros that our contributors are likely to run
+            # Distros contributors are likely to run locally
             - ubuntu-2404
             - ubuntu-2510  # latest non-LTS
             - archlinux
-
-            # TODO(#2280): return Debian, add Fedora
-            # TODO(#2280): test gcc build, test build w/o ninja
 
         runs-on: ubuntu-latest
         steps:
