@@ -9,8 +9,28 @@ env:
     BUILD_TYPE: RelWithDebInfo
 
 jobs:
+    determine-runner:
+        runs-on: ubuntu-latest
+        concurrency:
+          group: runner-determination
+          cancel-in-progress: false
+        outputs:
+          runner: ${{ steps.set-runner.outputs.use-runner }}
+        steps:
+          - name: Wait for parallel job startup lag
+            run: sleep 15
+          - name: Determine runner
+            id: set-runner
+            uses: mikehardy/runner-fallback-action@v1
+            with:
+              primary-runner: "self-hosted"
+              fallback-runner: "ubuntu-latest"
+              fallback-on-error: true
+              github-token: ${{ secrets.RUNNER_FALLBACK_TOKEN }}
+
     build:
-        runs-on: self-hosted
+        needs: determine-runner
+        runs-on: ${{ fromJson(needs.determine-runner.outputs.runner) }}
         steps:
           - name: Checkout
             uses: actions/checkout@v4
