@@ -5,3 +5,5 @@ build
 .clang-format
 .github/workflows
 skymp5-functions-lib
+skymp5-front
+CONTRIBUTING.md
