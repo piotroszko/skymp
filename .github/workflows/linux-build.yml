@@ -37,6 +37,14 @@ jobs:
             with:
                 submodules: recursive
 
+          - name: Cleanup self-hosted state
+            if: runner.environment == 'self-hosted'
+            run: |
+                # Remove leftover container from a prior run (name conflict otherwise)
+                docker rm -f prepare_deps_container 2>/dev/null || true
+                # Reclaim disk by dropping dangling images orphaned by previous commits
+                docker image prune -f || true
+
           - name: Debug - print env
             run: env
 
@@ -54,6 +62,8 @@ jobs:
                 # get base image for this distro (or build configuration, in case with skymp-deps)
                 base_image="`misc/deps_linux/ubuntu-vcpkg-deps.sh --get-image-uri`"
 
+                docker rm -f prepare_deps_container 2>/dev/null || true
+
                 docker run \
                   --name prepare_deps_container \
                   -v "${{github.workspace}}:/src" \
@@ -64,6 +74,7 @@ jobs:
                   'misc/deps_linux/ubuntu-vcpkg-deps.sh' '--ensure-deps-noninteractive'
 
                 docker commit prepare_deps_container localhost/buildimage
+                docker rm -f prepare_deps_container
 
           - name: Debug - check build tools
             run:
