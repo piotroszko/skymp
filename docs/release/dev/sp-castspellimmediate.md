@@ -1,1 +1,0 @@
-Added `castSpellImmediate` method.
