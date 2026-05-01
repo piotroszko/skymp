@@ -40,10 +40,7 @@ jobs:
           - name: Cleanup self-hosted state
             if: runner.environment == 'self-hosted'
             run: |
-                # Remove leftover container from a prior run (name conflict otherwise)
                 docker rm -f prepare_deps_container 2>/dev/null || true
-                # Reclaim disk by dropping dangling images orphaned by previous commits
-                docker image prune -f || true
 
           - name: Debug - print env
             run: env
@@ -64,6 +61,8 @@ jobs:
 
                 docker rm -f prepare_deps_container 2>/dev/null || true
 
+                old_buildimage_id="`docker image inspect localhost/buildimage --format '{{.Id}}' 2>/dev/null || true`"
+
                 docker run \
                   --name prepare_deps_container \
                   -v "${{github.workspace}}:/src" \
@@ -75,6 +74,13 @@ jobs:
 
                 docker commit prepare_deps_container localhost/buildimage
                 docker rm -f prepare_deps_container
+
+                if [ -n "$old_buildimage_id" ]; then
+                  new_buildimage_id="`docker image inspect localhost/buildimage --format '{{.Id}}'`"
+                  if [ "$old_buildimage_id" != "$new_buildimage_id" ]; then
+                    docker image rm "$old_buildimage_id" 2>/dev/null || true
+                  fi
+                fi
 
           - name: Debug - check build tools
             run:
