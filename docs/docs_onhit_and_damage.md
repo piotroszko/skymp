@@ -30,8 +30,7 @@ formula by something else.
 
 At the moment, `TES5DamageFormula` is not complete enough and only takes basic
 values into account. If you notice something missing, consider creating an
-issue if it's not present yet. If you have C++ knowledge, we would be glad to
-see your [contributions](https://github.com/skyrim-multiplayer/skymp/blob/main/CONTRIBUTING.md)!
+issue if it's not present yet.
 
 Incoming damage:
 ```
