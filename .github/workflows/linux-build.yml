@@ -41,6 +41,11 @@ jobs:
             if: runner.environment == 'self-hosted'
             run: |
                 docker rm -f prepare_deps_container 2>/dev/null || true
+                # Wipe build/ from prior runs. The runner-data volume keeps
+                # the workspace between runs, and CMake state / test files
+                # left in build/ poison subsequent test runs (e.g. the
+                # MigrationDatabase 'newDatabase is not empty' failure).
+                rm -rf "$GITHUB_WORKSPACE/build" || true
 
           - name: Resolve host docker workspace path
             run: |
