@@ -10,18 +10,6 @@ env:
 
 jobs:
     build:
-        strategy:
-          fail-fast: false
-          matrix:
-            base_system:
-            # Canonical container with preinstalled/cached vcpkg deps
-            - ubuntu-vcpkg-deps
-
-            # Distros contributors are likely to run locally
-            - ubuntu-2404
-            - ubuntu-2510  # latest non-LTS
-            - archlinux
-
         runs-on: ubuntu-latest
         steps:
           - name: Checkout
@@ -44,7 +32,7 @@ jobs:
                 # cat ${{github.workspace}}/misc/github_env_linux >> "$GITHUB_ENV"
 
                 # get base image for this distro (or build configuration, in case with skymp-deps)
-                base_image="`misc/deps_linux/${{ matrix.base_system }}.sh --get-image-uri`"
+                base_image="`misc/deps_linux/ubuntu-vcpkg-deps.sh --get-image-uri`"
 
                 docker run \
                   --name prepare_deps_container \
@@ -53,7 +41,7 @@ jobs:
                   -e "CI=$CI" \
                   -e "CREATE_UID=`id -u`" \
                   "$base_image" \
-                  'misc/deps_linux/${{ matrix.base_system }}.sh' '--ensure-deps-noninteractive'
+                  'misc/deps_linux/ubuntu-vcpkg-deps.sh' '--ensure-deps-noninteractive'
 
                 docker commit prepare_deps_container localhost/buildimage
 
@@ -148,7 +136,7 @@ jobs:
             if: always()
             uses: actions/upload-artifact@v7
             with:
-              name: ${{matrix.base_system}}_vcpkg_logs
+              name: ubuntu-vcpkg-deps_vcpkg_logs
               path: |
                 ${{github.workspace}}/build/vcpkg-*.log
                 ${{github.workspace}}/vcpkg/buildtrees/**/*.log
@@ -157,13 +145,13 @@ jobs:
           - name: Rename compile_commands.json
             run: |
               cd '${{ github.workspace }}/build'
-              ln -s compile_commands.json '${{ matrix.base_system }}_compile_commands.json'
+              ln -s compile_commands.json 'ubuntu-vcpkg-deps_compile_commands.json'
 
           - name: Upload compile_commands.json
             uses: actions/upload-artifact@v7
             with:
-                name: ${{ matrix.base_system }}_compile_commands.json
-                path: ${{ github.workspace }}/build/${{ matrix.base_system }}_compile_commands.json
+                name: ubuntu-vcpkg-deps_compile_commands.json
+                path: ${{ github.workspace }}/build/ubuntu-vcpkg-deps_compile_commands.json
                 archive: false
 
           - name: Build
@@ -180,13 +168,13 @@ jobs:
           - name: Rename dist.tar.gz
             run: |
               cd '${{ github.workspace }}/build'
-              ln -s dist.tar.gz '${{ matrix.base_system }}_dist.tar.gz'
+              ln -s dist.tar.gz 'ubuntu-vcpkg-deps_dist.tar.gz'
 
           - name: Upload dist.tar.gz
             uses: actions/upload-artifact@v7
             with:
-              name: ${{ matrix.base_system }}_dist.tar.gz
-              path: ${{ github.workspace }}/build/${{ matrix.base_system }}_dist.tar.gz
+              name: ubuntu-vcpkg-deps_dist.tar.gz
+              path: ${{ github.workspace }}/build/ubuntu-vcpkg-deps_dist.tar.gz
               archive: false
 
           - name: Test
