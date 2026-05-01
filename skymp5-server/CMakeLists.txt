@@ -8,12 +8,10 @@ include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
 
 find_package(CMakeRC CONFIG REQUIRED)
 
-if(WIN32)
-  yarn_execute_command(
-    COMMAND install
-    WORKING_DIRECTORY ${SKYMP5_SERVER_SOURCE_DIR}
-  )
-endif()
+yarn_execute_command(
+  COMMAND install
+  WORKING_DIRECTORY ${SKYMP5_SERVER_SOURCE_DIR}
+)
 
 # Find node-addon-api
 if(NOT EMSCRIPTEN)
@@ -126,6 +124,16 @@ if(TARGET ${PROJECT_NAME})
   add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/yarn.lock ${CMAKE_BINARY_DIR}/dist/server/yarn.lock
+  )
+
+  # node dist_back/skymp5-server.js (the integration-test entry point)
+  # resolves modules walking up from build/dist/server/, so external
+  # native deps like bcrypt must be installed there, not in the source
+  # tree.
+  add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND yarn install --frozen-lockfile
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/dist/server
   )
 endif()
 
