@@ -35,6 +35,10 @@ jobs:
             with:
               fetch-depth: 0
 
+          - name: Mark workspace as safe for git
+            if: runner.environment == 'self-hosted'
+            run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           - name: Setup Node.js
             uses: actions/setup-node@v4
             with:
