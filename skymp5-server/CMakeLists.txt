@@ -127,13 +127,17 @@ if(TARGET ${PROJECT_NAME})
   )
 
   # node dist_back/skymp5-server.js (the integration-test entry point)
-  # resolves modules walking up from build/dist/server/, so external
-  # native deps like bcrypt must be installed there, not in the source
-  # tree.
+  # resolves modules walking up from build/dist/server/dist_back/, so
+  # external native deps like bcrypt must exist somewhere along that
+  # path. Install at ${CMAKE_BINARY_DIR}/node_modules so the resolver
+  # finds them there without polluting build/dist/, which is verified
+  # against DistContentsExpected.json by DistContentsTest.
   add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/package.json ${CMAKE_BINARY_DIR}/package.json
+    COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/yarn.lock ${CMAKE_BINARY_DIR}/yarn.lock
     COMMAND yarn install --frozen-lockfile
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/dist/server
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 endif()
 
