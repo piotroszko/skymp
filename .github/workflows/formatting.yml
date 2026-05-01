@@ -9,7 +9,7 @@ jobs:
     determine-runner:
         runs-on: ubuntu-latest
         concurrency:
-          group: runner-determination
+          group: runner-determination-${{ github.workflow }}-${{ github.ref }}
           cancel-in-progress: false
         outputs:
           runner: ${{ steps.set-runner.outputs.use-runner }}
