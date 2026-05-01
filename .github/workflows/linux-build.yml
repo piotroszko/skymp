@@ -42,6 +42,29 @@ jobs:
             run: |
                 docker rm -f prepare_deps_container 2>/dev/null || true
 
+          - name: Resolve host docker workspace path
+            run: |
+                if [ "${{ runner.environment }}" = "self-hosted" ]; then
+                    # The runner is itself a container with workspace on a
+                    # named volume (runner-data:/runner). $GITHUB_WORKSPACE
+                    # only exists at that path inside the runner container,
+                    # so sibling docker runs using the host daemon can't
+                    # bind-mount it. Translate it to the volume's mountpoint
+                    # on the host filesystem.
+                    RUNNER_CID="$(hostname)"
+                    RUNNER_VOLUME="$(docker container inspect "$RUNNER_CID" --format '{{range .Mounts}}{{if eq .Destination "/runner"}}{{.Name}}{{end}}{{end}}' 2>/dev/null)"
+                    if [ -z "$RUNNER_VOLUME" ]; then
+                        echo "::error::Could not discover the named volume backing /runner inside container $RUNNER_CID"
+                        exit 1
+                    fi
+                    RUNNER_VOLUME_MOUNTPOINT="$(docker volume inspect "$RUNNER_VOLUME" --format '{{.Mountpoint}}')"
+                    HOST_WORKSPACE="$RUNNER_VOLUME_MOUNTPOINT/${GITHUB_WORKSPACE#/runner/}"
+                    echo "Translated workspace: $GITHUB_WORKSPACE -> $HOST_WORKSPACE"
+                else
+                    HOST_WORKSPACE="$GITHUB_WORKSPACE"
+                fi
+                echo "HOST_WORKSPACE=$HOST_WORKSPACE" >> "$GITHUB_ENV"
+
           - name: Debug - print env
             run: env
 
@@ -65,7 +88,7 @@ jobs:
 
                 docker run \
                   --name prepare_deps_container \
-                  -v "${{github.workspace}}:/src" \
+                  -v "$HOST_WORKSPACE:/src" \
                   -w "/src" \
                   -e "CI=$CI" \
                   -e "CREATE_UID=`id -u`" \
@@ -84,7 +107,7 @@ jobs:
 
           - name: Debug - check build tools
             run:
-              docker run --rm -v "${{ github.workspace }}:/src" -w /src -u skymp localhost/buildimage bash -c "$script"
+              docker run --rm -v "$HOST_WORKSPACE:/src" -w /src -u skymp localhost/buildimage bash -c "$script"
             env:
               script: |
                 print_info_unsafe() {
@@ -158,13 +181,13 @@ jobs:
 
           - name: Prepare
             run: |
-              docker run --rm -v "${{ github.workspace }}:/src" -w /src -u root localhost/buildimage \
+              docker run --rm -v "$HOST_WORKSPACE:/src" -w /src -u root localhost/buildimage \
                 chown -R skymp:skymp /src
 
           - name: CMake Configure
             id: cmake_configure
             run: |
-              docker run --rm -v "${{ github.workspace }}:/src" -w /src -u skymp localhost/buildimage \
+              docker run --rm -v "$HOST_WORKSPACE:/src" -w /src -u skymp localhost/buildimage \
                 ./build.sh --configure \
                 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
                 -DUNIT_DATA_DIR="/src/skyrim_data_files"
@@ -193,12 +216,12 @@ jobs:
 
           - name: Build
             run: |
-              docker run --rm -v "${{ github.workspace }}:/src" -w /src -u skymp localhost/buildimage \
+              docker run --rm -v "$HOST_WORKSPACE:/src" -w /src -u skymp localhost/buildimage \
                 ./build.sh --build
 
           - name: Prepare dist.tar.gz
             run: |
-              docker run --rm -v "${{ github.workspace }}:/src" -w /src/build -u skymp localhost/buildimage \
+              docker run --rm -v "$HOST_WORKSPACE:/src" -w /src/build -u skymp localhost/buildimage \
                 tar czvf dist.tar.gz dist
 
           # Workaround for https://github.com/actions/upload-artifact/issues/785 and 769
@@ -216,5 +239,5 @@ jobs:
 
           - name: Test
             run: |
-              docker run --rm -v "${{ github.workspace }}:/src" -w /src/build -u skymp localhost/buildimage \
+              docker run --rm -v "$HOST_WORKSPACE:/src" -w /src/build -u skymp localhost/buildimage \
                 ctest -C ${{env.BUILD_TYPE}} --verbose --output-on-failure
