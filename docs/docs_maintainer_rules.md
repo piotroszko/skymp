@@ -27,7 +27,7 @@ Commit types used (sorted by priority):
 
 Repo subdirectories are used to name commit scopes. Commits without scope are allowed.
 
-In practice, you should use `skymp5-server` as the scope of your commit if all changes are in the `skymp5-server` folder, etc.
+In practice, you should use `skymp5-server` as the scope of your commit if all changes are in the `projects/server` folder, etc. The historical `skymp5-*` scope names are kept as logical area labels even though the on-disk folders now live under `projects/`.
 
 `docs` and `tests` commit types must not have scope.
 

@@ -304,7 +304,9 @@ skymp/
   - [x] `build.sh` — verified zero refs; no edits.
   - [x] `docs/docs_repository_structure.md` — rewritten to describe the
         finished `libs/`, `tests/`, `assets/` layout.
-- [ ] Verify `ctest --verbose` runs all unit + integration tests.
+- [x] Verify `ctest --verbose` runs all unit + integration tests.
+      (Verified retroactively during Phase 4 local verification: 12/12 ctest
+      pass in Release config on Windows.)
 
 ### Additional work executed (not in original Phase 3 list)
 
