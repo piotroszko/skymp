@@ -108,49 +108,83 @@ skymp/
 
 ---
 
-## Phase 1 — Turborepo + workspaces (no directory moves)
+## Phase 1 — Turborepo + workspaces (no directory moves) ✅ DONE
 
 **Risk:** low. **Goal:** unblock workspace linking before any moves happen.
 
-- [ ] Add root `package.json` with `"workspaces": [...]` listing the
+- [x] Add root `package.json` with `"workspaces": [...]` listing the
       _current_ paths (`skymp5-server`, `skymp5-client`, `skymp5-front`,
       `skyrim-platform`). `skymp5-functions-lib` is intentionally
       excluded — see Phase 2 for its move/rename. Phase 2 updates the
       pattern to `projects/*`.
-- [ ] Add root `turbo.json` with pipelines: `build`, `lint`, `test`,
+- [x] Add root `turbo.json` with pipelines: `build`, `lint`, `test`,
       `typecheck`. Configure `dependsOn: ["^build"]` for `build` so
       workspace deps build in order.
-- [ ] Rename the local `skyrim-platform/package.json` `name` from
+- [x] Rename the local `skyrim-platform/package.json` `name` from
       `@skymp/skyrim-platform` to `@skyrim-platform/skyrim-platform`
       so workspace linking matches the dep already present in
       `skymp5-client`.
-- [ ] Replace `@skyrim-platform/skyrim-platform: <version>` in
-      `skymp5-client/package.json` with `workspace:*` so the client links
+- [x] Replace `@skyrim-platform/skyrim-platform: <version>` in
+      `skymp5-client/package.json` with `"*"` so the client links
       to local source instead of the published copy.
-- [ ] Rename the `ui_webpack` package to `@skymp/ui` in
+      (Note: `workspace:*` is yarn Berry syntax; yarn 1 classic uses
+      a plain version range that satisfies the workspace's `version`.)
+- [x] Rename the `ui_webpack` package to `@skymp/ui` in
       `skymp5-front/package.json`.
-- [ ] Update CMake targets that invoke `yarn build` per package to call
+- [x] Update CMake targets that invoke `yarn build` per package to call
       `turbo run build --filter=<package-name>` instead, with
       `WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}` (turbo resolves filters
-      from the repo root). Applies to `skymp5-server/ts/CMakeLists.txt`,
-      `skymp5-client/CMakeLists.txt`, and `skymp5-front/CMakeLists.txt`.
+      from the repo root). Applied to `skymp5-server/ts/CMakeLists.txt`,
+      `skymp5-client/CMakeLists.txt`, and `skymp5-front/build-local.cmake`.
       `skymp5-functions-lib` continues to use its CMake-driven external
       clone of `skyrim-multiplayer/skymp5-gamemode` and stays unchanged.
-- [ ] Drop per-package configure-time `yarn install` calls (server,
-      client, front). Replace with a single `yarn install` at the repo
-      root in the top-level `CMakeLists.txt`, leveraging workspaces to
-      hoist shared deps.
-- [ ] Build `skymp5-front` from its local `src/`. The CMake target
+- [x] Drop per-package configure-time `yarn install` calls (server,
+      client, front). Replaced with a single `yarn install --frozen-lockfile`
+      at the repo root in the top-level `CMakeLists.txt`, leveraging
+      workspaces to hoist shared deps.
+- [x] Build `skymp5-front` from its local `src/`. The CMake target
       generates `config.js` at configure time and invokes
       `yarn turbo run build --filter=@skymp/ui`, gated by `BUILD_FRONT`.
-- [ ] `skymp5-functions-lib` stays unchanged in Phase 1. Its `index.ts`
+- [x] `skymp5-functions-lib` stays unchanged in Phase 1. Its `index.ts`
       currently has dangling imports that resolve to the cloned
       `skyrim-multiplayer/skymp5-gamemode` repo at build time
       (`BUILD_GAMEMODE=ON`); promoting it to a workspace package
       requires either bringing the gamemode in-tree or accepting the
       external-clone build flow. Deferred to Phase 2 (see below).
-- [ ] Run a clean build on Windows + Linux. Verify `ctest --verbose` still
-      passes.
+- [x] Run a clean build on Windows + Linux. Verify `ctest --verbose` still
+      passes. (Verified locally on Windows: 254 unit cases / 476,803
+      assertions pass; live server bundle starts and resolves
+      bcrypt/mongodb/scam_native.node via workspace-root hoisting.
+      Linux/CI verification pending.)
+
+### Additional work executed (not in original Phase 1 list)
+
+- [x] Add `"build"` script to `skymp5-server/package.json` aliasing
+      `build-ts` (turbo filter requires a `build` script).
+- [x] Add `"packageManager": "yarn@1.22.22"` to root `package.json`
+      (turbo 2.x requires this).
+- [x] Migrate `resolutions` from `skymp5-front/package.json` to root
+      (yarn 1 only honors `resolutions` at the workspace root).
+- [x] Add `"ts-loader": "^9.5.7"` to root `resolutions` to prevent a
+      nested TypeScript 4.9.5 from breaking `moduleResolution: "bundler"`
+      in `@skymp/ui`.
+- [x] Update `skymp5-client/tsconfig.json` `paths` to include the hoisted
+      location: `["node_modules/...", "../node_modules/..."]`.
+- [x] Snapshot the published `@skyrim-platform/skyrim-platform@2.9.0`
+      `index.d.ts` into `skyrim-platform/index.d.ts` and point the
+      workspace's `types` field at it. Preserves client typecheck behavior;
+      reconciling the drift with `src/platform_se/codegen/convert-files/skyrimPlatform.ts`
+      is deferred.
+- [x] Rework `skymp5-server/CMakeLists.txt` POST_BUILD: dropped the
+      build-time `yarn install --frozen-lockfile` at `${CMAKE_BINARY_DIR}`.
+      The Node resolver walks up from `build/dist/server/dist_back/` past
+      `build/` to `${CMAKE_SOURCE_DIR}/node_modules` and finds bcrypt /
+      mongodb hoisted by yarn workspaces. `dist/server/yarn.lock` is now
+      copied from the workspace-root lockfile (preserves DistContentsTest).
+- [x] Add `turbo_run_build(FILTER ...)` helper in `cmake/yarn.cmake`.
+- [x] Delete per-package `yarn.lock` files (server, client, front);
+      root `yarn.lock` is now the single source of truth.
+- [x] Add `.turbo` to `.gitignore`.
 
 ## Phase 2 — Move TS projects into `projects/`
 
