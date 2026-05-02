@@ -24,7 +24,7 @@
       "modes": ["gha", "manual"],
       "options": {
         "textOnly": true,
-        "excludePaths": ["/third_party/", "/assets/papyrus/", "/overlay_ports/rsm-bsa/", "/overlay_ports/libxml2/"]
+        "excludePaths": ["/third_party/", "/assets/papyrus/", "/third_party/overlay_ports/rsm-bsa/", "/third_party/overlay_ports/libxml2/"]
       }
     },
     {
@@ -33,7 +33,7 @@
       "modes": ["hook", "gha", "manual"],
       "options": {
         "textOnly": true,
-        "excludePaths": ["/third_party/", "/assets/papyrus/", "/overlay_ports/rsm-bsa/", "/overlay_ports/libxml2/"]
+        "excludePaths": ["/third_party/", "/assets/papyrus/", "/third_party/overlay_ports/rsm-bsa/", "/third_party/overlay_ports/libxml2/"]
       }
     },
     {
@@ -42,7 +42,7 @@
       "modes": ["hook", "gha", "manual"],
       "options": {
         "extensions": [".cpp", ".h", ".hpp", ".cxx", ".cc"],
-        "excludePaths": ["/overlay_ports/"]
+        "excludePaths": ["/third_party/overlay_ports/"]
       }
     },
     {

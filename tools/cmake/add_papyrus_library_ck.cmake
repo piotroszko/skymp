@@ -22,7 +22,7 @@ function(add_papyrus_library_ck)
 
       add_custom_command(
         OUTPUT ${out}
-        COMMAND "${A_COMPILER_EXECUTABLE_PATH}" ${A_DIRECTORY} -flags=${CMAKE_SOURCE_DIR}/cmake/TESV_Papyrus_Flags.flg -output=${A_OUTPUT_DIR} -import=${A_DIRECTORY} -all
+        COMMAND "${A_COMPILER_EXECUTABLE_PATH}" ${A_DIRECTORY} -flags=${CMAKE_SOURCE_DIR}/tools/cmake/TESV_Papyrus_Flags.flg -output=${A_OUTPUT_DIR} -import=${A_DIRECTORY} -all
         DEPENDS ${src}
       )
       add_custom_target(${A_NAME} ALL

@@ -1,4 +1,4 @@
-include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/yarn.cmake)
 
 message(STATUS "Writing config.js for frontend")
 

@@ -2,8 +2,8 @@ ignore:
   - .git/
   - '**/third_party'
   - 'assets/papyrus/'
-  - 'overlay_ports/rsm-bsa/*.patch'
-  - 'overlay_ports/libxml2/*'
+  - 'third_party/overlay_ports/rsm-bsa/*.patch'
+  - 'third_party/overlay_ports/libxml2/*'
 
 rules:
   end-of-file:

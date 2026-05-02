@@ -82,10 +82,10 @@ jobs:
                 uname -a
                 lsb_release -a
 
-                # cat ${{github.workspace}}/misc/github_env_linux >> "$GITHUB_ENV"
+                # cat ${{github.workspace}}/tools/scripts/github_env_linux >> "$GITHUB_ENV"
 
                 # get base image for this distro (or build configuration, in case with skymp-deps)
-                base_image="`misc/deps_linux/ubuntu-vcpkg-deps.sh --get-image-uri`"
+                base_image="`tools/scripts/deps_linux/ubuntu-vcpkg-deps.sh --get-image-uri`"
 
                 docker rm -f prepare_deps_container 2>/dev/null || true
 
@@ -98,7 +98,7 @@ jobs:
                   -e "CI=$CI" \
                   -e "CREATE_UID=`id -u`" \
                   "$base_image" \
-                  'misc/deps_linux/ubuntu-vcpkg-deps.sh' '--ensure-deps-noninteractive'
+                  'tools/scripts/deps_linux/ubuntu-vcpkg-deps.sh' '--ensure-deps-noninteractive'
 
                 docker commit prepare_deps_container localhost/buildimage
                 docker rm -f prepare_deps_container
@@ -204,7 +204,7 @@ jobs:
               name: ubuntu-vcpkg-deps_vcpkg_logs
               path: |
                 ${{github.workspace}}/build/vcpkg-*.log
-                ${{github.workspace}}/vcpkg/buildtrees/**/*.log
+                ${{github.workspace}}/third_party/vcpkg/buildtrees/**/*.log
 
           # Workaround for https://github.com/actions/upload-artifact/issues/785 and 769
           - name: Rename compile_commands.json

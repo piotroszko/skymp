@@ -10,4 +10,4 @@ projects/gamemode/coverage
 projects/gamemode/gamemode.js
 projects/server/node_modules
 projects/skyrim-platform/node_modules
-vcpkg
+third_party/vcpkg

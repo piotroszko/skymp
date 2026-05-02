@@ -25,5 +25,5 @@ This example runs tests with only [Respawn] tag. Tags you can see in test files 
 If you see more than 1 unit test failed, please select one to work on and iterate with the following command.
 ```bash
 cd build
-./unit/unit [Respawn]
+./tests/unit/unit [Respawn]
 ```

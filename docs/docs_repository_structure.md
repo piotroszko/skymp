@@ -8,11 +8,15 @@ Build system is CMake-based. If you work with the whole project, CMake would aut
 
 * `<repo_root>/build` - Hardcoded CMake build directory. Stores build artifacts. Obviously, not tracked by Git.
 
-* `<repo_root>/cmake` - CMake scripts.
+* `<repo_root>/tools/cmake` - CMake scripts.
 
-* `<repo_root>/overlay_ports` - Vcpkg overlay ports.
+* `<repo_root>/third_party/overlay_ports` - Vcpkg overlay ports.
 
-* `<repo_root>/overlay_triplets` - Vcpkg overlay triplets.
+* `<repo_root>/third_party/overlay_triplets` - Vcpkg overlay triplets.
+
+* `<repo_root>/third_party/vcpkg` - Vcpkg submodule.
+
+* `<repo_root>/tools/scripts` - Loose helper scripts (Linux deps installer, Git hooks installer, etc.).
 
 ## Project Commons
 

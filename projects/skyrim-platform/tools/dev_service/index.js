@@ -2,7 +2,7 @@ let fs = require("fs-extra");
 let path = require("path");
 let game = require("./game");
 
-// Keep this in sync with triplet file overlay_triplets\x64-windows-sp.cmake or similar
+// Keep this in sync with triplet file third_party/overlay_triplets/x64-windows-sp.cmake or similar
 // Note: at this moment, this list is empty. it was "spdlog" and "fmt" before, but now we use static linking for them.
 const requiredVcpkgDlls = [];
 

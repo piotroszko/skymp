@@ -1,5 +1,5 @@
 project(espm)
-include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
 
 file(GLOB ESPM_SRC "include/*.h" "src/*.cpp" "src/*.h")
 add_library(espm STATIC ${ESPM_SRC})

@@ -1,6 +1,6 @@
 enable_testing()
 
-include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
 
 #
 # MpClientPlugin
