@@ -1,4 +1,3 @@
-// @ts-expect-error (TODO: Remove in 2.10.0)
 import {
   Actor,
   Form,

@@ -2,7 +2,7 @@
   const nodeProcess = require("node:process");
 
   const compatibilityConfig = {
-    staticRenames: { "getplayer": ["getPlayer", "GetPlayer"] },
+    staticRenames: { getplayer: ["getPlayer", "GetPlayer"] },
     uppercaseAliases: ["Spell", "Weapon"],
   };
 
@@ -13,7 +13,9 @@
 
     const aliases = nodeProcess.env[envName].split(",");
 
-    const indexInAliases = aliases.findIndex(alias => alias.toLowerCase() === originalName.toLowerCase());
+    const indexInAliases = aliases.findIndex(
+      (alias) => alias.toLowerCase() === originalName.toLowerCase(),
+    );
 
     if (indexInAliases === -1) {
       return null;
@@ -42,17 +44,17 @@
     }
 
     return firstChar + name;
-  };
+  }
 
   // Replicates the behavior of the prettify function from TSConverter
   // Except it makes the first character lowercase by default
   function prettify(name) {
-    return prettifyImpl(name, ch => ch.toLowerCase());
-  };
+    return prettifyImpl(name, (ch) => ch.toLowerCase());
+  }
 
   function prettifyUpperCase(name) {
-    return prettifyImpl(name, ch => ch.toUpperCase());
-  };
+    return prettifyImpl(name, (ch) => ch.toUpperCase());
+  }
 
   function sortClassesByInheritance(classes, api) {
     const sorted = [];
@@ -101,7 +103,7 @@
       targetObject.desc = sourceObject.desc;
       targetObject.type = sourceObject.type;
     }
-  }
+  };
 
   function createSkyrimPlatform(api, sp) {
     if (!sp) {
@@ -131,36 +133,38 @@
             let tmp = resWithoutClass._sp3ObjectType;
 
             return new Promise((resolve, reject) => {
-              resWithoutClass.then((res) => {
-                if (res !== null && typeof res === "object" && tmp) {
-                  res._sp3ObjectType = tmp;
-                }
-                resolve(wrapObject(res));
-              }).catch(reject);
+              resWithoutClass
+                .then((res) => {
+                  if (res !== null && typeof res === "object" && tmp) {
+                    res._sp3ObjectType = tmp;
+                  }
+                  resolve(wrapObject(res));
+                })
+                .catch(reject);
             });
           }
 
           return wrapObject(resWithoutClass);
-        }
+        },
       }[name];
     };
 
     api._sp3RegisterWrapObjectFunction(wrapObject);
 
-    const classes =
-      sortClassesByInheritance(api._sp3ListClasses(), api)
-        .map(className => prettifyUpperCase(className));
+    const classes = sortClassesByInheritance(api._sp3ListClasses(), api).map((className) =>
+      prettifyUpperCase(className),
+    );
 
-    classes.forEach(className => {
+    classes.forEach((className) => {
       const baseClassName = prettifyUpperCase(api._sp3GetBaseClass(className));
       let staticFunctions = api._sp3ListStaticFunctions(className);
       const methods = api._sp3ListMethods(className);
 
       const staticOverrides = new Set();
-      staticFunctions = staticFunctions.filter(f => {
+      staticFunctions = staticFunctions.filter((f) => {
         const replacement = compatibilityConfig.staticRenames[f.toLowerCase()];
         if (replacement) {
-          replacement.forEach(r => staticOverrides.add(r));
+          replacement.forEach((r) => staticOverrides.add(r));
           return false;
         }
         return true;
@@ -169,8 +173,10 @@
       // The "Computed Property Name" trick is used to create a named function dynamically
       const f = {
         [className]: function () {
-          throw new Error(`Direct construction of ${className} is not allowed. Use .from() or static methods.`);
-        }
+          throw new Error(
+            `Direct construction of ${className} is not allowed. Use .from() or static methods.`,
+          );
+        },
       }[className];
 
       if (baseClassName !== "") {
@@ -180,7 +186,7 @@
       f.prototype.constructor = f;
 
       // Register Instance Methods
-      methods.concat(methods.map(prettify)).forEach(method => {
+      methods.concat(methods.map(prettify)).forEach((method) => {
         const impl = api._sp3GetFunctionImplementation(sp, className, method);
         const methodFinal = createWrapperFunction(impl, false, method);
 
@@ -192,7 +198,7 @@
       staticFunctions
         .concat(staticFunctions.map(prettify))
         .concat(Array.from(staticOverrides))
-        .forEach(staticFunction => {
+        .forEach((staticFunction) => {
           const impl = api._sp3GetFunctionImplementation(sp, className, staticFunction);
           const staticFunctionFinal = createWrapperFunction(impl, true, staticFunction);
 
@@ -207,13 +213,13 @@
           return resWithClass;
         }
         return null;
-      }
+      };
 
       sp[className] = f;
       sp[getClassAliasName(className) || className] = f;
     });
 
-    compatibilityConfig.uppercaseAliases.forEach(alias => {
+    compatibilityConfig.uppercaseAliases.forEach((alias) => {
       if (sp[alias]) {
         sp[alias.toUpperCase()] = sp[alias];
       }

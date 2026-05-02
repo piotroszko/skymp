@@ -183,7 +183,20 @@ if(NOT "${SKIP_SKYRIM_PLATFORM_BUILDING}")
       "${CONVERT_FILES_DIR}/Definitions.txt"
       "${CMAKE_CURRENT_BINARY_DIR}/_codegen/skyrimPlatform.ts"
     )
-    add_custom_target(sp_codegen ALL COMMAND $<TARGET_FILE:TSConverter> ${CODEGEN_ARGS})
+    # Run TSConverter to (re)generate skyrimPlatform.ts in the build dir,
+    # then mirror the freshly generated file to:
+    #   - convert-files/skyrimPlatform.ts (committed fallback used when codegen can't run, e.g. Emscripten)
+    #   - ../../index.d.ts (the published .d.ts that downstream TS workspaces consume)
+    # Both copies use copy_if_different so untouched generations don't dirty the working tree.
+    add_custom_target(sp_codegen ALL
+      COMMAND $<TARGET_FILE:TSConverter> ${CODEGEN_ARGS}
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_BINARY_DIR}/_codegen/skyrimPlatform.ts"
+        "${CONVERT_FILES_DIR}/skyrimPlatform.ts"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_BINARY_DIR}/_codegen/skyrimPlatform.ts"
+        "${CMAKE_CURRENT_LIST_DIR}/../../index.d.ts"
+    )
     add_dependencies(sp_codegen TSConverter)
 
     # force "skyrim-platform" custom target to be built strictly after sp_codegen

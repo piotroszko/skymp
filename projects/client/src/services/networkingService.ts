@@ -26,7 +26,6 @@ export class NetworkingService extends ClientListener {
   }
 
   private onSendRawMessage(e: SendRawMessageEvent) {
-    // @ts-expect-error
     this.sp.mpClientPlugin.sendRaw(
       e.rawMessage,
       e.rawMessage.byteLength,

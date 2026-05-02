@@ -21,17 +21,17 @@ type ReigsterCallback = (exportFn: ExportFn, context: Context) => RegistrationRe
 type Setter = (dependencyExports: object) => void;
 
 let exports = {};
-let getParentDir = (modulePath: string) => modulePath.split('/').slice(0, -1).join('/');
-let normalizePath = (p: string) => p.slice(0, 2) === './' ? p.slice(2) : p;
+let getParentDir = (modulePath: string) => modulePath.split("/").slice(0, -1).join("/");
+let normalizePath = (p: string) => (p.slice(0, 2) === "./" ? p.slice(2) : p);
 
-let modulePath = './index';
+let modulePath = "./index";
 
 let fixPath = (path: string) => {
   let newPath = path;
-  while (newPath.includes('/..')) {
-    let i = newPath.indexOf('/..');
+  while (newPath.includes("/..")) {
+    let i = newPath.indexOf("/..");
     let j = i - 1;
-    while (newPath.charAt(j) != '/') --j;
+    while (newPath.charAt(j) != "/") --j;
     newPath = newPath.slice(0, j) + newPath.slice(i + 3);
   }
   return newPath;
@@ -40,10 +40,10 @@ let fixPath = (path: string) => {
 let registerAnonymousImpl = (dependenciesPaths, onRegister) => {
   let parentDir = getParentDir(normalizePath(modulePath));
   let exports = {};
-  let res = onRegister((name, value) => exports[name] = value, new Context);
+  let res = onRegister((name, value) => (exports[name] = value), new Context());
   res.setters.forEach((setter, i) => {
     let pathRelative = normalizePath(dependenciesPaths[i]);
-    modulePath = parentDir + '/' + pathRelative;
+    modulePath = parentDir + "/" + pathRelative;
     modulePath = fixPath(modulePath);
     setter(require(modulePath));
   });
@@ -55,7 +55,7 @@ let namedRegistrations = {};
 
 let registerNamedImpl = (modulePath, dependenciesPaths, onRegister) => {
   let exports = {};
-  let res = onRegister((name, value) => exports[name] = value, new Context);
+  let res = onRegister((name, value) => (exports[name] = value), new Context());
   res.setters.forEach((setter, i) => {
     let p = dependenciesPaths[i];
     if (!namedRegistrations[p]) {
@@ -75,5 +75,5 @@ System = {
       return registerAnonymousImpl(args[0], args[1]);
     }
     return registerNamedImpl(args[0], args[1], args[2]);
-  }
+  },
 };

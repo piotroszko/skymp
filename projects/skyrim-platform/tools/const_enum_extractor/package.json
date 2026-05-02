@@ -2,12 +2,11 @@
   "name": "const_enum_extractor",
   "version": "1.0.0",
   "description": "",
-  "license": "GPL-3.0",
-  "main": "index.js",
-  "scripts": {
-  },
   "keywords": [],
+  "license": "GPL-3.0",
   "author": "Pospelov",
+  "main": "index.js",
+  "scripts": {},
   "dependencies": {
     "typescript": "^5.3.3"
   }

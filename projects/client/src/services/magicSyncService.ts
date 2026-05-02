@@ -1,10 +1,8 @@
-// @ts-expect-error (TODO: Remove in 2.10.0)
 import {
   SpellCastEvent,
   Actor,
   Game,
   getAnimationVariablesFromActor,
-  ActorAnimationVariables,
   SpellType,
   SlotType,
   EquippedItemType,
@@ -110,17 +108,12 @@ export class MagicSyncService extends ClientListener {
   private getSpellCastEventData(e: SpellCastEvent, isInterruptCast: boolean): SpellCastMsgData {
     const spellCastData: SpellCastMsgData = {
       caster: localIdToRemoteId(e.caster.getFormID(), true),
-      // @ts-expect-error (TODO: Remove in 2.10.0)
       target: e.target ? localIdToRemoteId(e.target.getFormID(), true) : 0,
       spell: e.spell ? e.spell.getFormID() : 0,
       interruptCast: isInterruptCast,
-      // @ts-expect-error (TODO: Remove in 2.10.0)
       isDualCasting: e.isDualCasting,
-      // @ts-expect-error (TODO: Remove in 2.10.0)
       castingSource: e.castingSource,
-      // @ts-expect-error (TODO: Remove in 2.10.0)
       aimAngle: e.aimAngle,
-      // @ts-expect-error (TODO: Remove in 2.10.0)
       aimHeading: e.aimHeading,
       actorAnimationVariables: this.getAnimationVariablesFromActorConverted(e.caster.getFormID()),
     };
@@ -141,7 +134,7 @@ export class MagicSyncService extends ClientListener {
 
   private getUpdateAnimVariablesEventData(
     ac: Actor,
-    animVariables: ActorAnimationVariables,
+    animVariables: UpdateAnimVariablesMessageMsgData["actorAnimationVariables"],
   ): UpdateAnimVariablesMessageMsgData {
     const animVarsData: UpdateAnimVariablesMessageMsgData = {
       actorRemoteId: localIdToRemoteId(ac.getFormID(), true),

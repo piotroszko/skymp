@@ -8,7 +8,6 @@ import {
   Utility,
   Game,
   storage,
-  // @ts-expect-error (TODO: Remove in 2.10.0)
   setCollision,
 } from "skyrimPlatform";
 

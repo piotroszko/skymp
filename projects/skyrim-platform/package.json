@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "oxlint index.d.ts src tools",
     "lint:fix": "oxlint index.d.ts src tools --fix",
-    "fmt": "oxfmt index.d.ts src tools '!src/platform_se/codegen/convert-files/**'",
-    "fmt:check": "oxfmt --check index.d.ts src tools '!src/platform_se/codegen/convert-files/**'"
+    "fmt": "oxfmt index.d.ts src tools",
+    "fmt:check": "oxfmt --check index.d.ts src tools"
   }
 }

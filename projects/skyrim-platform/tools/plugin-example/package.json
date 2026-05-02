@@ -2,6 +2,10 @@
   "name": "example-skyrim-platform-plugin",
   "version": "1.0.0",
   "private": true,
+  "keywords": [
+    "skryim platform",
+    "skyrim"
+  ],
   "main": "dist/index.js",
   "scripts": {
     "webpack": "webpack",
@@ -11,6 +15,9 @@
     "zip:cli": "bestzip",
     "dev": "npm i && npm run webpack:deploy:watch"
   },
+  "dependencies": {
+    "@skyrim-platform/skyrim-platform": "2.9.0"
+  },
   "devDependencies": {
     "bestzip": "^2.2.0",
     "ts-loader": "^9.2.6",
@@ -19,12 +26,5 @@
     "webpack": "^5.104.1",
     "webpack-cli": "^4.9.1",
     "webpack-shell-plugin-next": "^2.2.2"
-  },
-  "keywords": [
-    "skyrim",
-    "skryim platform"
-  ],
-  "dependencies": {
-    "@skyrim-platform/skyrim-platform": "2.9.0"
   }
 }
