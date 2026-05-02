@@ -3,5 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "description": "Placeholder workspace for the in-tree gamemode. Real source lives in skyrim-multiplayer/skymp5-gamemode and is fetched at CMake configure time when BUILD_GAMEMODE=ON.",
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "scripts": {
+    "lint": "oxlint index.ts",
+    "lint:fix": "oxlint index.ts --fix",
+    "fmt": "oxfmt index.ts",
+    "fmt:check": "oxfmt --check index.ts"
+  }
 }

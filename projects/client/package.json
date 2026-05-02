@@ -5,7 +5,11 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "webpack",
-    "watch": "webpack -w"
+    "watch": "webpack -w",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint src --fix",
+    "fmt": "oxfmt src",
+    "fmt:check": "oxfmt --check src"
   },
   "devDependencies": {
     "bestzip": "^2.2.0",

@@ -14,5 +14,12 @@
       "version": "18.0.0"
     }
   },
-  "ignorePatterns": ["node_modules", "dist", "build", ".cache"]
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "build",
+    ".cache",
+    "third_party",
+    "**/codegen/convert-files/**"
+  ]
 }

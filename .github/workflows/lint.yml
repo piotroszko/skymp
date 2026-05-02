@@ -1,4 +1,4 @@
-name: Prettier
+name: Lint
 on: [push, pull_request]
 jobs:
   determine-runner:
@@ -20,8 +20,8 @@ jobs:
           fallback-on-error: true
           github-token: ${{ secrets.RUNNER_FALLBACK_TOKEN }}
 
-  prettier:
-    name: Prettier
+  lint:
+    name: Lint
     needs: determine-runner
     runs-on: ${{ fromJson(needs.determine-runner.outputs.runner) }}
     steps:
@@ -34,9 +34,12 @@ jobs:
       - name: Install yarn packages
         uses: borales/actions-yarn@v4
         with:
-          cmd: --cwd=./tools/prettier install
-      - name: Check prettier errors
+          cmd: install --frozen-lockfile
+      - name: Check formatting
         uses: borales/actions-yarn@v4
         with:
-          cmd: --cwd=./tools/prettier prettier-check
-        continue-on-error: true
+          cmd: fmt:check
+      - name: Run lint
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: lint

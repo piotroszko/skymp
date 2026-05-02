@@ -6,6 +6,13 @@
       "outputs": ["dist/**", "../../build/dist/**"]
     },
     "lint": {},
+    "lint:fix": {
+      "cache": false
+    },
+    "fmt": {
+      "cache": false
+    },
+    "fmt:check": {},
     "test": {
       "dependsOn": ["^build"]
     },

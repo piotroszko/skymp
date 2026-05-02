@@ -5,5 +5,11 @@
   "license": "GPL-3.0",
   "main": "",
   "types": "index.d.ts",
-  "files": ["index.d.ts"]
+  "files": ["index.d.ts"],
+  "scripts": {
+    "lint": "oxlint index.d.ts src tools",
+    "lint:fix": "oxlint index.d.ts src tools --fix",
+    "fmt": "oxfmt index.d.ts src tools '!src/platform_se/codegen/convert-files/**'",
+    "fmt:check": "oxfmt --check index.d.ts src tools '!src/platform_se/codegen/convert-files/**'"
+  }
 }
