@@ -6872,7 +6872,7 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
-turbo@^2.0.0:
+turbo@~2.9.7:
   version "2.9.7"
   resolved "https://registry.yarnpkg.com/turbo/-/turbo-2.9.7.tgz#da6d5a821f0bde5174e1a55af6690dad5c2fb004"
   integrity sha512-epxzqVO2s0IxcSWcgb+qKrtco8isfe7g3VtiS6hkYnEK4A9XQDZbrtavQ6MtWR1KoQn+1fUomaQth2rfRHlUlg==
