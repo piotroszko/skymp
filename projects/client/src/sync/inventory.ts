@@ -70,18 +70,14 @@ const cropName = (s?: string): string => {
   const max = 128;
   return s.length >= max
     ? s
-      .split("")
-      .filter((x, i) => i < max)
-      .join("")
-      .concat("...")
+        .split("")
+        .filter((x, i) => i < max)
+        .join("")
+        .concat("...")
     : s;
 };
 
-const checkIfNameIsGeneratedByGame = (
-  aStr: string,
-  bStr: string,
-  formName: string
-) => {
+const checkIfNameIsGeneratedByGame = (aStr: string, bStr: string, formName: string) => {
   if (!aStr.length && bStr.startsWith(formName)) {
     const bEnding = bStr.substr(formName.length);
     if (bEnding.match(/^\s\(.*\)$/)) {
@@ -135,7 +131,7 @@ export const hasExtras = (e: Entry): boolean => {
 const extractExtraData = (
   refr: ObjectReference,
   extraList: BaseExtraList | null,
-  out: Entry
+  out: Entry,
 ): void => {
   // I see that ExtraWorn is not emitted for 0xFF actors when arrows are equipped. Fixing
   const item = Game.getFormEx(out.baseId);
@@ -162,9 +158,7 @@ const extractExtraData = (
       case "Enchantment":
         out.enchantmentId = (extra as ExtraEnchantment).enchantmentId;
         out.maxCharge = (extra as ExtraEnchantment).maxCharge;
-        out.removeEnchantmentOnUnequip = (
-          extra as ExtraEnchantment
-        ).removeOnUnequip;
+        out.removeEnchantmentOnUnequip = (extra as ExtraEnchantment).removeOnUnequip;
         break;
       case "Charge":
         out.chargePercent = (extra as ExtraCharge).charge;
@@ -202,9 +196,7 @@ const squash = (inv: Inventory): Inventory => {
   return { entries: res.filter((x) => x.count !== 0) };
 };
 
-const getExtraContainerChangesAsInventory = (
-  refr: ObjectReference
-): Inventory => {
+const getExtraContainerChangesAsInventory = (refr: ObjectReference): Inventory => {
   const extraContainerChanges = getExtraContainerChanges(refr.getFormID());
   const entries = new Array<Entry>();
 
@@ -266,7 +258,7 @@ export const sumInventories = (lhs: Inventory, rhs: Inventory): Inventory => {
 export const removeSimpleItemsAsManyAsPossible = (
   inv: Inventory,
   baseId: number,
-  count: number
+  count: number,
 ): Inventory => {
   const res: Inventory = { entries: [] };
   res.entries = JSON.parse(JSON.stringify(inv.entries));
@@ -280,17 +272,13 @@ export const removeSimpleItemsAsManyAsPossible = (
   return res;
 };
 
-export const getDiff = (
-  lhs: Inventory,
-  rhs: Inventory,
-  ignoreWorn: boolean
-): Inventory => {
+export const getDiff = (lhs: Inventory, rhs: Inventory, ignoreWorn: boolean): Inventory => {
   const lhsCopy: Inventory = JSON.parse(JSON.stringify(lhs));
   const rhsCopy: Inventory = JSON.parse(JSON.stringify(rhs));
 
   rhsCopy.entries.forEach((e) => {
     const sameFromLeft = lhsCopy.entries.find(
-      (x) => x.baseId === e.baseId && extrasEqual(x, e, ignoreWorn)
+      (x) => x.baseId === e.baseId && extrasEqual(x, e, ignoreWorn),
     );
     if (sameFromLeft) {
       sameFromLeft.count -= e.count;
@@ -305,10 +293,7 @@ export const getDiff = (
 
 export const getInventory = (refr: ObjectReference): Inventory => {
   return squash(
-    sumInventories(
-      getBaseContainerAsInventory(refr),
-      getExtraContainerChangesAsInventory(refr)
-    )
+    sumInventories(getBaseContainerAsInventory(refr), getExtraContainerChangesAsInventory(refr)),
   );
 };
 
@@ -335,7 +320,7 @@ export const applyInventory = (
   refr: ObjectReference,
   newInventory: Inventory,
   enableCrashProtection: boolean,
-  ignoreWorn = false
+  ignoreWorn = false,
 ): boolean => {
   resetBase(refr);
   const diff = getDiff(newInventory, getInventory(refr), ignoreWorn).entries;
@@ -364,11 +349,7 @@ export const applyInventory = (
     const type = f.getType();
     // For misc items, potions and ingredients we don't want to split them into multiple items
     // This was made to fix a performance issue with users having 10000+ of misc items (i.e. gold)
-    if (
-      type === FormType.Misc ||
-      type === FormType.Potion ||
-      type === FormType.Ingredient
-    ) {
+    if (type === FormType.Misc || type === FormType.Potion || type === FormType.Ingredient) {
       absCount = 1;
       oneStepCount = e.count;
     } else {
@@ -418,16 +399,14 @@ export const applyInventory = (
         f,
         oneStepCount,
         e.health ? e.health : 1,
-        e.enchantmentId
-          ? Enchantment.from(Game.getFormEx(e.enchantmentId))
-          : null,
+        e.enchantmentId ? Enchantment.from(Game.getFormEx(e.enchantmentId)) : null,
         e.maxCharge ? e.maxCharge : 0,
         !!e.removeEnchantmentOnUnequip,
         e.chargePercent ? e.chargePercent : 0,
         e.name ? cropName(e.name) : f.getName(),
         e.soul ? e.soul : 0,
         e.poisonId ? Potion.from(Game.getFormEx(e.poisonId)) : null,
-        e.poisonCount ? e.poisonCount : 0
+        e.poisonCount ? e.poisonCount : 0,
       ];
 
       const argsToPrint = addItemExArgs.map((arg) => {
@@ -440,9 +419,7 @@ export const applyInventory = (
         }
       });
 
-      printConsole(
-        `TESModPlatform.addItemEx(${argsToPrint.join(", ")})`
-      );
+      printConsole(`TESModPlatform.addItemEx(${argsToPrint.join(", ")})`);
 
       TESModPlatform.addItemEx(...addItemExArgs);
     }

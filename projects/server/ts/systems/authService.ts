@@ -1,8 +1,9 @@
-import * as crypto from "crypto";
 import * as bcrypt from "bcrypt";
-import { System, Log, Content, SystemContext } from "./system";
+import * as crypto from "crypto";
+
 import { IUserStore, UserRecord, normalizeEmail } from "../auth/userStore/IUserStore";
 import { loginsCounter, loginErrorsCounter } from "./metricsSystem";
+import { System, Log, Content, SystemContext } from "./system";
 
 const BCRYPT_ROUNDS = 12;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,19 +58,39 @@ export class AuthService implements System {
   customPacket(userId: number, type: string, content: Content, ctx: SystemContext): void {
     switch (type) {
       case "registerRequest":
-        this.runHandler("registerResult", () => this.handleRegister(userId, content, ctx), userId, ctx);
+        this.runHandler(
+          "registerResult",
+          () => this.handleRegister(userId, content, ctx),
+          userId,
+          ctx,
+        );
         return;
       case "loginRequest":
         this.runHandler("loginResult", () => this.handleLogin(userId, content, ctx), userId, ctx);
         return;
       case "createCharacterRequest":
-        this.runHandler("createCharacterResult", () => this.handleCreateCharacter(userId, content, ctx), userId, ctx);
+        this.runHandler(
+          "createCharacterResult",
+          () => this.handleCreateCharacter(userId, content, ctx),
+          userId,
+          ctx,
+        );
         return;
       case "deleteCharacterRequest":
-        this.runHandler("deleteCharacterResult", () => this.handleDeleteCharacter(userId, content, ctx), userId, ctx);
+        this.runHandler(
+          "deleteCharacterResult",
+          () => this.handleDeleteCharacter(userId, content, ctx),
+          userId,
+          ctx,
+        );
         return;
       case "renameCharacterRequest":
-        this.runHandler("renameCharacterResult", () => this.handleRenameCharacter(userId, content, ctx), userId, ctx);
+        this.runHandler(
+          "renameCharacterResult",
+          () => this.handleRenameCharacter(userId, content, ctx),
+          userId,
+          ctx,
+        );
         return;
       case "playRequest":
         this.runHandler("playResult", () => this.handlePlay(userId, content, ctx), userId, ctx);
@@ -91,7 +112,11 @@ export class AuthService implements System {
     });
   }
 
-  private async handleRegister(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+  private async handleRegister(
+    userId: number,
+    content: Content,
+    ctx: SystemContext,
+  ): Promise<void> {
     const email = content["email"];
     const password = content["password"];
 
@@ -166,7 +191,11 @@ export class AuthService implements System {
     }
   }
 
-  private async handleCreateCharacter(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+  private async handleCreateCharacter(
+    userId: number,
+    content: Content,
+    ctx: SystemContext,
+  ): Promise<void> {
     const session = content["session"];
 
     if (typeof session !== "string") {
@@ -215,7 +244,11 @@ export class AuthService implements System {
     }
   }
 
-  private async handleDeleteCharacter(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+  private async handleDeleteCharacter(
+    userId: number,
+    content: Content,
+    ctx: SystemContext,
+  ): Promise<void> {
     const session = content["session"];
     const profileId = content["profileId"];
 
@@ -259,7 +292,11 @@ export class AuthService implements System {
     }
   }
 
-  private async handleRenameCharacter(userId: number, content: Content, ctx: SystemContext): Promise<void> {
+  private async handleRenameCharacter(
+    userId: number,
+    content: Content,
+    ctx: SystemContext,
+  ): Promise<void> {
     const session = content["session"];
     const profileId = content["profileId"];
     const name = content["name"];
@@ -300,7 +337,12 @@ export class AuthService implements System {
         (c) => c.profileId !== profileId && c.name.trim().toLowerCase() === trimmed.toLowerCase(),
       );
       if (duplicate) {
-        this.sendError(ctx, userId, "renameCharacterResult", "A character with this name already exists");
+        this.sendError(
+          ctx,
+          userId,
+          "renameCharacterResult",
+          "A character with this name already exists",
+        );
         return;
       }
 
@@ -351,7 +393,9 @@ export class AuthService implements System {
         return;
       }
 
-      const svrWithLoginAttempt = ctx.svr as unknown as { onLoginAttempt?: (id: number) => boolean };
+      const svrWithLoginAttempt = ctx.svr as unknown as {
+        onLoginAttempt?: (id: number) => boolean;
+      };
       if (svrWithLoginAttempt.onLoginAttempt) {
         const cont = svrWithLoginAttempt.onLoginAttempt(profileId);
         if (!cont) {

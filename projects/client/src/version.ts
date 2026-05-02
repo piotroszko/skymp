@@ -1,8 +1,8 @@
-import { Utility, Debug, getPlatformVersion, on, Game, Ui } from 'skyrimPlatform';
+import { Utility, Debug, getPlatformVersion, on, Game, Ui } from "skyrimPlatform";
 
-export const requiredVersion = '2.9.0';
+export const requiredVersion = "2.9.0";
 
-const realVersion = typeof getPlatformVersion === 'function' ? getPlatformVersion() : 'unknown';
+const realVersion = typeof getPlatformVersion === "function" ? getPlatformVersion() : "unknown";
 
 // TODO: no one actually calls this function. make a service
 export const verifyVersion = (): void => {
@@ -13,8 +13,8 @@ export const verifyVersion = (): void => {
       )} to join this server. Your current version is ${realVersion}`,
     );
     Utility.waitMenuMode(0.5).then(() => {
-      on('update', () => {
-        if (!Ui.isMenuOpen('MessageBoxMenu')) {
+      on("update", () => {
+        if (!Ui.isMenuOpen("MessageBoxMenu")) {
           Game.quitToMainMenu();
         }
       });

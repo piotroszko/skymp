@@ -1,20 +1,41 @@
-import { Actor, ActorBase, createText, destroyText, Form, FormType, Game, Keyword, NetImmerse, ObjectReference, once, printConsole, setTextPos, setTextSize, setTextString, storage, TESModPlatform, Utility, worldPointToScreenPoint } from "skyrimPlatform";
+import {
+  Actor,
+  ActorBase,
+  createText,
+  destroyText,
+  Form,
+  FormType,
+  Game,
+  Keyword,
+  NetImmerse,
+  ObjectReference,
+  once,
+  printConsole,
+  setTextPos,
+  setTextSize,
+  setTextString,
+  storage,
+  TESModPlatform,
+  Utility,
+  worldPointToScreenPoint,
+} from "skyrimPlatform";
+
+import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
+import { RespawnNeededError } from "../lib/errors";
+import { GamemodeUpdateService } from "../services/gamemodeUpdateService";
+import { SpApiInteractor } from "../services/spApiInteractor";
+import { WorldCleanerService } from "../services/worldCleanerService";
 import { setDefaultAnimsDisabled, applyAnimation } from "../sync/animation";
 import { Appearance, applyAppearance } from "../sync/appearance";
 import { isBadMenuShown, applyEquipment } from "../sync/equipment";
-import { RespawnNeededError } from "../lib/errors";
-import { FormModel } from "./model";
 import { applyMovement } from "../sync/movementApply";
-import { SpawnProcess } from "./spawnProcess";
-import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
-import { PlayerCharacterDataHolder } from "./playerCharacterDataHolder";
 import { getMovement } from "../sync/movementGet";
 import { lastTryHost, tryHost } from "./hostAttempts";
+import { FormModel } from "./model";
 import { ModelApplyUtils } from "./modelApplyUtils";
+import { PlayerCharacterDataHolder } from "./playerCharacterDataHolder";
+import { SpawnProcess } from "./spawnProcess";
 import { localIdToRemoteId } from "./worldViewMisc";
-import { SpApiInteractor } from "../services/spApiInteractor";
-import { WorldCleanerService } from "../services/worldCleanerService";
-import { GamemodeUpdateService } from "../services/gamemodeUpdateService";
 
 export interface ScreenResolution {
   width: number;
@@ -27,24 +48,23 @@ export const getScreenResolution = (): ScreenResolution => {
     _screenResolution = {
       width: Utility.getINIInt("iSize W:Display"),
       height: Utility.getINIInt("iSize H:Display"),
-    }
+    };
   }
   return _screenResolution;
-}
+};
 
 export class FormView {
-  constructor(private remoteRefrId?: number) { }
+  constructor(private remoteRefrId?: number) {}
 
   update(model: FormModel): void {
     // Other players mutate into PC clones when moving to another location
     if (model.movement) {
-      if (!this.lastWorldOrCell)
-        this.lastWorldOrCell = model.movement.worldOrCell;
+      if (!this.lastWorldOrCell) this.lastWorldOrCell = model.movement.worldOrCell;
       if (this.lastWorldOrCell !== model.movement.worldOrCell) {
         printConsole(
           `[1] worldOrCell changed, destroying FormView ${this.lastWorldOrCell.toString(
-            16
-          )} => ${model.movement.worldOrCell.toString(16)}`
+            16,
+          )} => ${model.movement.worldOrCell.toString(16)}`,
         );
         this.lastWorldOrCell = model.movement.worldOrCell;
         this.destroy();
@@ -53,8 +73,6 @@ export class FormView {
         return;
       }
     }
-
-
 
     // Don't spawn dead actors if not already
     if (model.isDead) {
@@ -66,10 +84,7 @@ export class FormView {
     // Players with different worldOrCell should be invisible
     if (model.movement) {
       const worldOrCell = ObjectReferenceEx.getWorldOrCell(Game.getPlayer() as Actor);
-      if (
-        worldOrCell !== 0 &&
-        model.movement.worldOrCell !== worldOrCell
-      ) {
+      if (worldOrCell !== 0 && model.movement.worldOrCell !== worldOrCell) {
         this.destroy();
         this.refrId = 0;
         return;
@@ -82,14 +97,16 @@ export class FormView {
         !this.appearanceState.appearance ||
         model.numAppearanceChanges !== this.appearanceState.lastNumChanges
       ) {
-
         // Both non-null
         if (model.appearance && this.appearanceState.appearance) {
           const modelAppearanceCopy: Appearance = JSON.parse(JSON.stringify(model.appearance));
-          const stateAppearanceCopy: Appearance = JSON.parse(JSON.stringify(this.appearanceState.appearance));
+          const stateAppearanceCopy: Appearance = JSON.parse(
+            JSON.stringify(this.appearanceState.appearance),
+          );
           modelAppearanceCopy.name = "";
           stateAppearanceCopy.name = "";
-          const equalWithoutNames = JSON.stringify(modelAppearanceCopy) === JSON.stringify(stateAppearanceCopy);
+          const equalWithoutNames =
+            JSON.stringify(modelAppearanceCopy) === JSON.stringify(stateAppearanceCopy);
 
           if (equalWithoutNames) {
             // Change name inplace
@@ -113,8 +130,7 @@ export class FormView {
       }
     }
 
-    const refId =
-      model.refrId && model.refrId < 0xff000000 ? model.refrId : undefined;
+    const refId = model.refrId && model.refrId < 0xff000000 ? model.refrId : undefined;
     if (refId) {
       if (this.refrId !== refId) {
         this.destroy();
@@ -166,42 +182,51 @@ export class FormView {
         const player = Game.getPlayer() as Actor;
 
         const spawnMethodOriginal = {
-          spawn(baseForm: Form, _spawnPosition: [number, number, number], _spawnRotation: [number, number, number]): ObjectReference {
-            return player.placeAtMe(
-              baseForm,
-              1,
-              true,
-              true
-            ) as ObjectReference;
+          spawn(
+            baseForm: Form,
+            _spawnPosition: [number, number, number],
+            _spawnRotation: [number, number, number],
+          ): ObjectReference {
+            return player.placeAtMe(baseForm, 1, true, true) as ObjectReference;
           },
 
-          triggerSpawnProcess(spawningRefr: ObjectReference, spawnPosition: [number, number, number], appearance: Appearance | null, callback: () => void) {
-            new SpawnProcess(
-              appearance,
-              spawnPosition,
-              spawningRefr.getFormID(),
-              callback
-            );
-          }
+          triggerSpawnProcess(
+            spawningRefr: ObjectReference,
+            spawnPosition: [number, number, number],
+            appearance: Appearance | null,
+            callback: () => void,
+          ) {
+            new SpawnProcess(appearance, spawnPosition, spawningRefr.getFormID(), callback);
+          },
         };
 
         const spawnMethodStub = {
-          spawn(baseForm: Form, spawnPosition: [number, number, number], spawnRotation: [number, number, number]): ObjectReference {
+          spawn(
+            baseForm: Form,
+            spawnPosition: [number, number, number],
+            spawnRotation: [number, number, number],
+          ): ObjectReference {
             const f = storage["formViewFunc1"] as Function;
             const ref: ObjectReference = f(baseForm, spawnPosition, spawnRotation);
             return ref;
           },
 
-          triggerSpawnProcess(spawningRefr: ObjectReference, spawnPosition: [number, number, number], appearance: Appearance | null, callback: () => void) {
+          triggerSpawnProcess(
+            spawningRefr: ObjectReference,
+            spawnPosition: [number, number, number],
+            appearance: Appearance | null,
+            callback: () => void,
+          ) {
             const f = storage["formViewFunc2"] as Function;
             f(spawningRefr, spawnPosition, appearance, callback);
-          }
+          },
         };
 
-        const spawnUsingStubMethod = base.getType() === FormType.NPC
-          && !this.appearanceState.appearance
-          && storage["formViewFunc1Set"] === true
-          && storage["formViewFunc2Set"] === true;
+        const spawnUsingStubMethod =
+          base.getType() === FormType.NPC &&
+          !this.appearanceState.appearance &&
+          storage["formViewFunc1Set"] === true &&
+          storage["formViewFunc2Set"] === true;
         const spawnMethod = spawnUsingStubMethod ? spawnMethodStub : spawnMethodOriginal;
 
         if (model.movement) {
@@ -216,7 +241,7 @@ export class FormView {
           refr?.setAngle(
             model.movement?.rot[0] || 0,
             model.movement?.rot[1] || 0,
-            model.movement?.rot[2] || 0
+            model.movement?.rot[2] || 0,
           );
         } else {
           const race = Actor.from(refr)?.getRace()?.getFormID();
@@ -236,26 +261,30 @@ export class FormView {
           const wolfRace = 0x1320a;
 
           // potential masterambushscript
-          if (race === draugrRace
-            || race === falmerRace
-            || race === chaurusRace
-            || race === frostbiteSpiderRaceGiant
-            || race === frostbiteSpiderRaceLarge
-            || race === dwarvenCenturionRace
-            || race === dwarvenSphereRace
-            || race === dwarvenSpiderRace
-            || race === sprigganRace
-            || race === sprigganRace2
-            || race === sprigganRace3
-            || race === sprigganRace4
-            || race === sprigganRace5
-            || race === wolfRace) {
+          if (
+            race === draugrRace ||
+            race === falmerRace ||
+            race === chaurusRace ||
+            race === frostbiteSpiderRaceGiant ||
+            race === frostbiteSpiderRaceLarge ||
+            race === dwarvenCenturionRace ||
+            race === dwarvenSphereRace ||
+            race === dwarvenSpiderRace ||
+            race === sprigganRace ||
+            race === sprigganRace2 ||
+            race === sprigganRace3 ||
+            race === sprigganRace4 ||
+            race === sprigganRace5 ||
+            race === wolfRace
+          ) {
             Actor.from(refr)?.setActorValue("Aggression", 2);
           }
         }
 
         if (refr !== null) {
-          SpApiInteractor.getControllerInstance().lookupListener(WorldCleanerService).modWcProtection(refr.getFormID(), 1);
+          SpApiInteractor.getControllerInstance()
+            .lookupListener(WorldCleanerService)
+            .modWcProtection(refr.getFormID(), 1);
         }
 
         // TODO: reset all states?
@@ -305,7 +334,8 @@ export class FormView {
       }
       this.applyAll(refr, model);
 
-      const gamemodeUpdateService = SpApiInteractor.getControllerInstance().lookupListener(GamemodeUpdateService);
+      const gamemodeUpdateService =
+        SpApiInteractor.getControllerInstance().lookupListener(GamemodeUpdateService);
       gamemodeUpdateService.updateNeighbor(refr, model, this.state);
     }
   }
@@ -320,13 +350,15 @@ export class FormView {
         if (refr) {
           refr.delete();
         }
-        SpApiInteractor.getControllerInstance().lookupListener(WorldCleanerService).modWcProtection(refrId, -1);
+        SpApiInteractor.getControllerInstance()
+          .lookupListener(WorldCleanerService)
+          .modWcProtection(refrId, -1);
         const ac = Actor.from(refr);
         if (ac) {
           TESModPlatform.setWeaponDrawnMode(ac, -1);
         }
       }
-    })
+    });
 
     this.localImmortal = false;
     this.removeNickname();
@@ -385,7 +417,7 @@ export class FormView {
     }
 
     // TODO: make host service
-    const hosted = storage['hosted'];
+    const hosted = storage["hosted"];
     let alreadyHosted = false;
     if (Array.isArray(hosted)) {
       const remoteId = localIdToRemoteId(this.refrId);
@@ -402,10 +434,7 @@ export class FormView {
 
     if (model.movement) {
       let ac = Actor.from(refr);
-      if (
-        this.movState.lastApply &&
-        Date.now() - this.movState.lastApply > 1500
-      ) {
+      if (this.movState.lastApply && Date.now() - this.movState.lastApply > 1500) {
         if (Date.now() - this.movState.lastRehost > 1000) {
           this.movState.lastRehost = Date.now();
           const remoteId = this.remoteRefrId;
@@ -417,8 +446,7 @@ export class FormView {
       }
 
       if (
-        +(model.numMovementChanges as number) !==
-        this.movState.lastNumChanges ||
+        +(model.numMovementChanges as number) !== this.movState.lastNumChanges ||
         Date.now() - this.movState.lastApply > 2000
       ) {
         this.movState.lastApply = Date.now();
@@ -450,7 +478,7 @@ export class FormView {
             ac.clearKeepOffsetFromActor();
 
             // TODO: make host service
-            const hosted = storage['hosted'];
+            const hosted = storage["hosted"];
             let alreadyHosted = false;
             if (Array.isArray(hosted)) {
               const remoteId = localIdToRemoteId(ac.getFormID());
@@ -461,7 +489,6 @@ export class FormView {
 
             if (!alreadyHosted) {
               if (this.tryHostIfNeed(ac, remoteId)) {
-
                 // previously, we did this cleanup on each update
                 // but I guess it's too expensive and can possibly hurt FPS
                 TESModPlatform.setWeaponDrawnMode(ac, -1);
@@ -479,7 +506,6 @@ export class FormView {
       // Use them only once, for spawning actors with correct animations
       this.animState.useAnimOverrides = false;
     }
-
 
     if (model.appearance) {
       const actor = Actor.from(refr);
@@ -548,15 +574,16 @@ export class FormView {
       const headPart = "NPC Head [Head]";
       const maxNicknameDrawDistance = 1000;
       const playerActor = Game.getPlayer()!;
-      const isVisibleByPlayer = !model.movement?.isSneaking
-        && playerActor.getDistance(refr) <= maxNicknameDrawDistance
-        && playerActor.hasLOS(refr)
-        && !this.isSweetHidePerson(refr);
+      const isVisibleByPlayer =
+        !model.movement?.isSneaking &&
+        playerActor.getDistance(refr) <= maxNicknameDrawDistance &&
+        playerActor.hasLOS(refr) &&
+        !this.isSweetHidePerson(refr);
       if (isVisibleByPlayer) {
         const headScreenPos = worldPointToScreenPoint([
           NetImmerse.getNodeWorldPositionX(refr, headPart, false),
           NetImmerse.getNodeWorldPositionY(refr, headPart, false),
-          NetImmerse.getNodeWorldPositionZ(refr, headPart, false) + 32
+          NetImmerse.getNodeWorldPositionZ(refr, headPart, false) + 32,
         ])[0];
         const resolution = getScreenResolution();
         const textXPos = Math.round(headScreenPos[0] * resolution.width);
@@ -567,7 +594,7 @@ export class FormView {
           setTextSize(this.textNameId, 0.5);
           SpApiInteractor.getControllerInstance().emitter.emit("nicknameCreate", {
             remoteRefrId: this.getRemoteRefrId(),
-            textId: this.textNameId
+            textId: this.textNameId,
           });
         } else {
           const deleteNickname = headScreenPos[2] < 0;
@@ -587,11 +614,11 @@ export class FormView {
   }
 
   private isSweetHidePerson(refr: ObjectReference): boolean {
-    const actor = Actor.from(refr)
+    const actor = Actor.from(refr);
     if (!actor) {
       return false;
     }
-    const keyword = Keyword.getKeyword('SweetHidePerson');
+    const keyword = Keyword.getKeyword("SweetHidePerson");
     return actor.wornHasKeyword(keyword);
   }
 
@@ -599,7 +626,7 @@ export class FormView {
     if (this.textNameId) {
       SpApiInteractor.getControllerInstance().emitter.emit("nicknameDestroy", {
         remoteRefrId: this.getRemoteRefrId(),
-        textId: this.textNameId
+        textId: this.textNameId,
       });
       destroyText(this.textNameId);
       this.textNameId = undefined;
@@ -619,7 +646,7 @@ export class FormView {
       return 0;
     }
 
-    const str = templateChain.join(',');
+    const str = templateChain.join(",");
 
     if (this.leveledBaseId === 0) {
       // @ts-ignore
@@ -635,31 +662,28 @@ export class FormView {
 
   private getDefaultEquipState() {
     return { lastNumChanges: 0, lastEqMoment: 0 };
-  };
+  }
 
   private getDefaultAppearanceState() {
-    return { lastNumChanges: 0, appearance: null as (null | Appearance) };
-  };
+    return { lastNumChanges: 0, appearance: null as null | Appearance };
+  }
 
   private getDefaultAnimState() {
     return { lastNumChanges: 0, useAnimOverrides: true };
-  };
+  }
 
   private tryHostIfNeed(ac: Actor, remoteId: number) {
     const last = lastTryHost[remoteId];
     if (!last || Date.now() - last >= 1000) {
       lastTryHost[remoteId] = Date.now();
 
-      if (
-        getMovement(ac).worldOrCell ===
-        getMovement(Game.getPlayer() as Actor).worldOrCell
-      ) {
+      if (getMovement(ac).worldOrCell === getMovement(Game.getPlayer() as Actor).worldOrCell) {
         tryHost(remoteId);
         return true;
       }
     }
     return false;
-  };
+  }
 
   getLocalRefrId(): number {
     return this.refrId;
@@ -690,7 +714,6 @@ export class FormView {
   private state = {};
   private localImmortal = false;
   private textNameId: number | undefined = undefined;
-
 
   public static isDisplayingNicknames: boolean = true;
 }

@@ -1,6 +1,7 @@
+import { WeaponType } from "skyrimPlatform";
+
 import { logTrace, logError } from "../logging";
 import { ClientListener, Sp, CombinedController } from "./clientListener";
-import { WeaponType } from "skyrimPlatform";
 
 // TODO: move to service
 let playerLastStaminaValue = 0;
@@ -38,7 +39,10 @@ const staminaAttackMap = new Map<AttackType, number>([
 // TODO: consider splitting this service (separate stamina and timer management)
 // TODO: subscribe events/hooks in constructor
 export class SweetTaffyPlayerCombatService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     if (!this.hasSweetPie()) {
@@ -66,82 +70,117 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
       playerLastIsSprintingValue = player.isSprinting();
     });
 
-    for (const pattern of ['SprintStart']) {
+    for (const pattern of ["SprintStart"]) {
       const sp = this.sp;
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastStaminaValue < 7.5) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastStaminaValue < 7.5) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['blockStart']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastIsSprintingValue) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["blockStart"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastIsSprintingValue) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['attackStart*', 'AttackStart*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastStaminaValue < (staminaAttackMap.get("Std") ?? 0)) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["attackStart*", "AttackStart*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastStaminaValue < (staminaAttackMap.get("Std") ?? 0)) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['attackPowerStart*', 'AttackPowerStart*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastStaminaValue < (staminaAttackMap.get("Power") ?? 0)) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["attackPowerStart*", "AttackPowerStart*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastStaminaValue < (staminaAttackMap.get("Power") ?? 0)) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['JumpDirectionalStart*', 'JumpStandingStart*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastStaminaValue < (staminaAttackMap.get("Jump") ?? 0)) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["JumpDirectionalStart*", "JumpStandingStart*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastStaminaValue < (staminaAttackMap.get("Jump") ?? 0)) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['bowAttackStart*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastStaminaValue < (staminaAttackMap.get("Bow") ?? 0)) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["bowAttackStart*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastStaminaValue < (staminaAttackMap.get("Bow") ?? 0)) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['crossbowAttackStart*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: ((ctx) => {
-          if (playerLastStaminaValue < (staminaAttackMap.get("Crossbow") ?? 0)) {
-            ctx.animEventName = "";
-          }
-        }),
-        leave: (() => { }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["crossbowAttackStart*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: (ctx) => {
+            if (playerLastStaminaValue < (staminaAttackMap.get("Crossbow") ?? 0)) {
+              ctx.animEventName = "";
+            }
+          },
+          leave: () => {},
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
   }
 
@@ -152,25 +191,39 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
       return;
     }
 
-    for (const pattern of ['attackStart*', 'AttackStart*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: (() => { }),
-        leave: ((ctx) => self.blockPlayerAttack(ctx.animEventName.toLowerCase().includes('lefthand'))),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["attackStart*", "AttackStart*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: () => {},
+          leave: (ctx) =>
+            self.blockPlayerAttack(ctx.animEventName.toLowerCase().includes("lefthand")),
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
-    for (const pattern of ['attackPowerStart*', 'AttackPowerStart*', 'Jump*']) {
-      this.sp.hooks.sendAnimationEvent.add({
-        enter: (() => { }),
-        leave: (() => {
-          playerAttackTimeout = 0;
-          activeTimers.clear();
-        }),
-      }, 0x14, 0x14, pattern);
+    for (const pattern of ["attackPowerStart*", "AttackPowerStart*", "Jump*"]) {
+      this.sp.hooks.sendAnimationEvent.add(
+        {
+          enter: () => {},
+          leave: () => {
+            playerAttackTimeout = 0;
+            activeTimers.clear();
+          },
+        },
+        0x14,
+        0x14,
+        pattern,
+      );
     }
 
     this.controller.on("update", () => {
-      if (isPlayerControlDisabled === true && Date.now() - blockPlayerControlTimeStamp >= playerAttackTimeout) {
+      if (
+        isPlayerControlDisabled === true &&
+        Date.now() - blockPlayerControlTimeStamp >= playerAttackTimeout
+      ) {
         this.sp.Game.getPlayer()!.setDontMove(false);
         isPlayerControlDisabled = false;
       }
@@ -183,7 +236,9 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
       if (player.getAnimationVariableBool("bInJumpState")) {
         return;
       }
-      const [delay, timeout] = this.getTimings(player.getEquippedWeapon(isLeftHand)?.getWeaponType());
+      const [delay, timeout] = this.getTimings(
+        player.getEquippedWeapon(isLeftHand)?.getWeaponType(),
+      );
       const rnd = Math.random().toString();
       activeTimers.add(rnd);
       this.sp.Utility.wait(delay / 1000).then(() => {
@@ -201,7 +256,10 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
     });
   }
 
-  private getAndValidateTimingsConfigKey(key: keyof WeaponTimings, weaponTimings: unknown): [number, number] {
+  private getAndValidateTimingsConfigKey(
+    key: keyof WeaponTimings,
+    weaponTimings: unknown,
+  ): [number, number] {
     const value = (weaponTimings as Record<string, unknown>)[key];
 
     if (value && Array.isArray(value) && value.length === 2) {
@@ -219,10 +277,11 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
     }
 
     return [0, 0];
-  };
+  }
 
   private getSettingsFromFile(): WeaponTimings | null {
-    const sweetTaffyPlayerCombatService = this.sp.settings["skymp5-client"]["sweetTaffyPlayerCombatService"];
+    const sweetTaffyPlayerCombatService =
+      this.sp.settings["skymp5-client"]["sweetTaffyPlayerCombatService"];
 
     if (!sweetTaffyPlayerCombatService || typeof sweetTaffyPlayerCombatService !== "object") {
       logError(this, `No sweetTaffyPlayerCombatService settings found`);
@@ -287,7 +346,10 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
     weaponTimingsResult.dagger = this.getAndValidateTimingsConfigKey("dagger", weaponTimings);
     weaponTimingsResult.warAxe = this.getAndValidateTimingsConfigKey("warAxe", weaponTimings);
     weaponTimingsResult.mace = this.getAndValidateTimingsConfigKey("mace", weaponTimings);
-    weaponTimingsResult.greatsword = this.getAndValidateTimingsConfigKey("greatsword", weaponTimings);
+    weaponTimingsResult.greatsword = this.getAndValidateTimingsConfigKey(
+      "greatsword",
+      weaponTimings,
+    );
     weaponTimingsResult.battleaxe = this.getAndValidateTimingsConfigKey("battleaxe", weaponTimings);
     weaponTimingsResult.warhammer = this.getAndValidateTimingsConfigKey("warhammer", weaponTimings);
     weaponTimingsResult.bow = this.getAndValidateTimingsConfigKey("bow", weaponTimings);
@@ -337,12 +399,12 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
     }
 
     return timingsFromConfig;
-  };
+  }
 
   private hasSweetPie(): boolean {
     const modCount = this.sp.Game.getModCount();
     for (let i = 0; i < modCount; ++i) {
-      if (this.sp.Game.getModName(i).toLowerCase().includes('sweetpie')) {
+      if (this.sp.Game.getModName(i).toLowerCase().includes("sweetpie")) {
         return true;
       }
     }

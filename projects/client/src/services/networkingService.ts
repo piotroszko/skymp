@@ -1,15 +1,18 @@
-import { logTrace, logError } from "../logging";
 import { NeverError } from "../lib/errors";
+import { logTrace, logError } from "../logging";
 import { MsgType } from "../messages";
 import { SendMessageEvent } from "../types/events/sendMessageEvent";
 import { SendMessageWithRefrIdEvent } from "../types/events/sendMessageWithRefrIdEvent";
+import { SendRawMessageEvent } from "../types/events/sendRawMessageEvent";
 import { AnyMessage } from "../types/messages/anyMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { RemoteServer } from "./remoteServer";
-import { SendRawMessageEvent } from "../types/events/sendRawMessageEvent";
 
 export class NetworkingService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
     this.controller.on("tick", () => this.onTick());
 
@@ -24,7 +27,11 @@ export class NetworkingService extends ClientListener {
 
   private onSendRawMessage(e: SendRawMessageEvent) {
     // @ts-expect-error
-    this.sp.mpClientPlugin.sendRaw(e.rawMessage, e.rawMessage.byteLength, this.isReliable(e.reliability));
+    this.sp.mpClientPlugin.sendRaw(
+      e.rawMessage,
+      e.rawMessage.byteLength,
+      this.isReliable(e.reliability),
+    );
   }
 
   private onSendMessageWithRefrId(e: SendMessageWithRefrIdEvent<AnyMessage>) {
@@ -88,16 +95,16 @@ export class NetworkingService extends ClientListener {
           // TODO: in theory can be empty jsonContent and non-empty error
 
           let msgAny: AnyMessage;
-          
+
           if (rawContent === null) {
             msgAny = {} as AnyMessage;
             logError(this, "null rawContent");
-          } else if ((new Uint8Array(rawContent as unknown as ArrayBuffer)[0]) === 0x7b) {
+          } else if (new Uint8Array(rawContent as unknown as ArrayBuffer)[0] === 0x7b) {
             // assume json
             msgAny = JSON.parse(this.sp.decodeUtf8(rawContent as unknown as ArrayBuffer));
           } else {
             // assume raw
-            const event = { rawContent: rawContent as unknown as ArrayBuffer};
+            const event = { rawContent: rawContent as unknown as ArrayBuffer };
             return this.controller.emitter.emit("anyRawMessage", event);
           }
 
@@ -107,7 +114,7 @@ export class NetworkingService extends ClientListener {
             this.controller.emitter.emit("anyMessage", event);
           } else if (msgAny.t === MsgType.UpdateMovement) {
             const event = { message: msgAny };
-            this.controller.emitter.emit("updateMovementMessage", event)
+            this.controller.emitter.emit("updateMovementMessage", event);
             this.controller.emitter.emit("anyMessage", event);
           } else if (msgAny.t === MsgType.UpdateAnimation) {
             const event = { message: msgAny };
@@ -206,10 +213,10 @@ export class NetworkingService extends ClientListener {
     }
   }
 
-  private get serverAddress(): { hostName: string, port: number } {
+  private get serverAddress(): { hostName: string; port: number } {
     const res: unknown = this.sp.storage["serverAddress"];
     if (typeof res === "object") {
-      const result = res as { hostName: string, port: number };
+      const result = res as { hostName: string; port: number };
       if (typeof result.hostName === "string" && typeof result.port === "number") {
         return result;
       }
@@ -217,7 +224,7 @@ export class NetworkingService extends ClientListener {
     return { hostName: "", port: 0 };
   }
 
-  private set serverAddress(newValue: { hostName: string, port: number }) {
+  private set serverAddress(newValue: { hostName: string; port: number }) {
     this.sp.storage["serverAddress"] = newValue;
   }
 
@@ -231,4 +238,4 @@ export class NetworkingService extends ClientListener {
         throw new NeverError(reliability);
     }
   }
-};
+}

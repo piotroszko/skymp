@@ -1,16 +1,24 @@
+import {
+  BrowserMessageEvent,
+  DxScanCode,
+  Menu,
+  MenuCloseEvent,
+  MenuOpenEvent,
+} from "skyrimPlatform";
 
+import { QueryKeyCodeBindings } from "../types/events/queryKeyCodeBindings";
 // TODO: send event instead of direct dependency on FormView class
 import { FormView } from "../view/formView";
-import { QueryKeyCodeBindings } from "../types/events/queryKeyCodeBindings";
-
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { BrowserMessageEvent, DxScanCode, Menu, MenuCloseEvent, MenuOpenEvent } from "skyrimPlatform";
 
 const unfocusEventString = `window.dispatchEvent(new CustomEvent('skymp5-client:browserUnfocused', {}))`;
 const focusEventString = `window.dispatchEvent(new CustomEvent('skymp5-client:browserFocused', {}))`;
 
 export class BrowserService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     this.sp.browser.setVisible(false);

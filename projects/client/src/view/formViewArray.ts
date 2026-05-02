@@ -1,8 +1,8 @@
+import { GamemodeUpdateService } from "../services/gamemodeUpdateService";
+import { SpApiInteractor } from "../services/spApiInteractor";
+import { NiPoint3 } from "../sync/movement";
 import { FormView } from "./formView";
 import { FormModel, WorldModel } from "./model";
-import { NiPoint3 } from "../sync/movement";
-import { SpApiInteractor } from "../services/spApiInteractor";
-import { GamemodeUpdateService } from "../services/gamemodeUpdateService";
 
 export class FormViewArray {
   updateForm(form: FormModel, i: number) {
@@ -32,7 +32,8 @@ export class FormViewArray {
   }
 
   updateAll(model: WorldModel, showMe: boolean, isCloneView: boolean) {
-    const gamemodeUpdateService = SpApiInteractor.getControllerInstance().lookupListener(GamemodeUpdateService);
+    const gamemodeUpdateService =
+      SpApiInteractor.getControllerInstance().lookupListener(GamemodeUpdateService);
     gamemodeUpdateService.setFormViewArray(this);
 
     const forms = model.forms;
@@ -50,11 +51,7 @@ export class FormViewArray {
 
       if (offset && form.movement) {
         realPos = form.movement.pos;
-        form.movement.pos = [
-          realPos[0] + 128,
-          realPos[1] + 128,
-          realPos[2],
-        ];
+        form.movement.pos = [realPos[0] + 128, realPos[1] + 128, realPos[2]];
       }
 
       if (isCloneView) {
@@ -77,7 +74,7 @@ export class FormViewArray {
     }
   }
 
-  syncFormView(model: WorldModel, showMe: boolean,) {
+  syncFormView(model: WorldModel, showMe: boolean) {
     for (let i = 0; i < model.forms.length; ++i) {
       if (!model.forms[i] || (model.playerCharacterFormIdx === i && !showMe)) {
         this.destroyForm(i);
@@ -87,8 +84,7 @@ export class FormViewArray {
   }
 
   getRemoteRefrId(clientsideRefrId: number): number {
-    if (clientsideRefrId < 0xff000000)
-      throw new Error("This function is only for 0xff forms");
+    if (clientsideRefrId < 0xff000000) throw new Error("This function is only for 0xff forms");
     const formView = this.formViews.find((formView?: FormView) => {
       return formView && formView.getLocalRefrId() === clientsideRefrId;
     });
@@ -96,8 +92,7 @@ export class FormViewArray {
   }
 
   getLocalRefrId(remoteRefrId: number): number {
-    if (remoteRefrId < 0xff000000)
-      throw new Error("This function is only for 0xff forms");
+    if (remoteRefrId < 0xff000000) throw new Error("This function is only for 0xff forms");
     const formView = this.formViews.find((formView?: FormView) => {
       return formView && formView.getRemoteRefrId() === remoteRefrId;
     });

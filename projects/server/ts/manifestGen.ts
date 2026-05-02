@@ -1,7 +1,8 @@
-import { Settings } from "./settings";
 import * as crc32 from "crc-32";
-import * as path from "path";
 import * as fs from "fs";
+import * as path from "path";
+
+import { Settings } from "./settings";
 
 interface ManifestModEntry {
   filename: string;
@@ -27,7 +28,7 @@ export const generateManifest = (settings: Settings): void => {
   const manifest: Manifest = {
     mods: [],
     versionMajor: 1,
-    loadOrder: settings.loadOrder.map(x => path.basename(x)),
+    loadOrder: settings.loadOrder.map((x) => path.basename(x)),
   };
 
   settings.loadOrder.forEach((loadOrderElement) => {

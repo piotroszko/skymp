@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 
-import { LoginLocale } from "./index";
 import { requestRegister } from "./authBridge";
+import { LoginLocale } from "./index";
 
 interface RegisterFormProps {
   locale: LoginLocale;
@@ -30,7 +30,8 @@ const RegisterForm = (props: RegisterFormProps) => {
   };
 
   const passwordsMatch = data.password.length > 0 && data.password === data.password_verify;
-  const canSubmit = !props.inFlight && data.email.length > 3 && data.password.length >= 1 && passwordsMatch;
+  const canSubmit =
+    !props.inFlight && data.email.length > 3 && data.password.length >= 1 && passwordsMatch;
 
   const handleSubmit = useCallback(() => {
     if (!canSubmit) return;
@@ -57,7 +58,9 @@ const RegisterForm = (props: RegisterFormProps) => {
     <div className={"login-form--content_main"}>
       <div className={"login-form--content_main__email"}>
         <div className={"login-form--content_main__label"}>
-          <span className={"login-form--content_main__label___text"}>{props.locale.LOGIN.EMAIL}</span>
+          <span className={"login-form--content_main__label___text"}>
+            {props.locale.LOGIN.EMAIL}
+          </span>
           <img src={require("@/assets/img/mail.svg").default} alt="" />
         </div>
         <SkyrimInput
@@ -71,7 +74,9 @@ const RegisterForm = (props: RegisterFormProps) => {
       </div>
       <div className={"login-form--content_main__password"}>
         <div className={"login-form--content_main__label"}>
-          <span className={"login-form--content_main__label___text"}>{props.locale.LOGIN.PASSWORD}</span>
+          <span className={"login-form--content_main__label___text"}>
+            {props.locale.LOGIN.PASSWORD}
+          </span>
           <img src={require("@/assets/img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
@@ -85,7 +90,9 @@ const RegisterForm = (props: RegisterFormProps) => {
       </div>
       <div className={"login-form--content_main__password"}>
         <div className={"login-form--content_main__label"}>
-          <span className={"login-form--content_main__label___text"}>{props.locale.LOGIN.PASSWORD_VERIFY}</span>
+          <span className={"login-form--content_main__label___text"}>
+            {props.locale.LOGIN.PASSWORD_VERIFY}
+          </span>
           <img src={require("@/assets/img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
@@ -98,7 +105,10 @@ const RegisterForm = (props: RegisterFormProps) => {
         />
       </div>
       {errorMessage ? (
-        <div className={"login-form--content_main__error"} style={{ color: "#ff8a8a", padding: "8px 0" }}>
+        <div
+          className={"login-form--content_main__error"}
+          style={{ color: "#ff8a8a", padding: "8px 0" }}
+        >
           {errorMessage}
         </div>
       ) : null}

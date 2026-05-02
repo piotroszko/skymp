@@ -1,5 +1,5 @@
-import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { logTrace } from "../logging";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 const eventNames = [
   "ipcMessage",
@@ -89,7 +89,10 @@ const eventNames = [
 ] as const;
 
 export class EventLoggerService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     const on = this.controller.on as (name: string, cb: (e?: unknown) => void) => void;

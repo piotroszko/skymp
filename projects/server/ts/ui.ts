@@ -3,29 +3,39 @@ const serve = require("koa-static");
 const proxy = require("koa-proxy");
 const Router = require("koa-router");
 const auth = require("koa-basic-auth");
-import * as koaBody from "koa-body";
-import * as http from "http";
-import { Settings } from "./settings";
 import Axios from "axios";
+import * as http from "http";
+import * as koaBody from "koa-body";
 import { AddressInfo } from "net";
-import { register, getAggregatedMetrics, rpcCallsCounter, rpcDurationHistogram } from "./systems/metricsSystem";
+
+import { Settings } from "./settings";
+import {
+  register,
+  getAggregatedMetrics,
+  rpcCallsCounter,
+  rpcDurationHistogram,
+} from "./systems/metricsSystem";
 
 let gScampServer: any = null;
 
 let metricsAuth: { user: string; password: string } | null = null;
 
 const metricsAuthParse = (settings: Settings): void => {
-  const authConfig = settings.allSettings?.metricsAuth as { user?: string; password?: string } | undefined;
+  const authConfig = settings.allSettings?.metricsAuth as
+    | { user?: string; password?: string }
+    | undefined;
   if (!authConfig) {
-    console.log('Metrics auth is not configured, so it will be inaccessible. Set metricsAuth setting to activate');
+    console.log(
+      "Metrics auth is not configured, so it will be inaccessible. Set metricsAuth setting to activate",
+    );
     return;
   }
   if (!authConfig.user || !authConfig.password) {
-    console.error('metricsAuth setting must contain user and password fields');
+    console.error("metricsAuth setting must contain user and password fields");
     return;
   }
   metricsAuth = { user: authConfig.user, password: authConfig.password };
-}
+};
 
 const createApp = (getOriginPort: () => number) => {
   const app = new Koa();
@@ -37,7 +47,7 @@ const createApp = (getOriginPort: () => number) => {
     } catch (err: any) {
       if (401 === err.status) {
         ctx.status = 401;
-        ctx.set("WWW-Authenticate", "Basic realm=\"metrics\"");
+        ctx.set("WWW-Authenticate", 'Basic realm="metrics"');
       } else {
         throw err;
       }
@@ -65,7 +75,7 @@ const createApp = (getOriginPort: () => number) => {
     }
   });
 
-  router.use('/metrics', (ctx: any, next: any) => {
+  router.use("/metrics", (ctx: any, next: any) => {
     console.log(`Metrics requested by ${ctx.request.ip}`);
     return next();
   });
@@ -81,7 +91,9 @@ const createApp = (getOriginPort: () => number) => {
   } else {
     router.get("/metrics", async (ctx: any) => {
       ctx.throw(401);
-      console.error("Metrics endpoint is protected by authentication, but no credentials are configured");
+      console.error(
+        "Metrics endpoint is protected by authentication, but no credentials are configured",
+      );
     });
   }
 
@@ -98,7 +110,7 @@ export const main = (settings: Settings): void => {
   metricsAuthParse(settings);
   const devServerPort = 1234;
 
-  const uiListenHost = settings.allSettings.uiListenHost as (string | undefined);
+  const uiListenHost = settings.allSettings.uiListenHost as string | undefined;
   const uiPort = settings.port === 7777 ? 3000 : settings.port + 1;
 
   Axios({
@@ -126,7 +138,7 @@ export const main = (settings: Settings): void => {
               console.log(`proxy ${path} => ${resultPath}`);
               return resultPath;
             },
-          })
+          }),
         );
         console.log(`Server resources folder is listening on ${uiPort}`);
         http.createServer(appProxy.callback()).listen(uiPort, uiListenHost);

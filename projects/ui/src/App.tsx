@@ -6,10 +6,10 @@ import AnimList from "./features/animList";
 import Constructor from "./features/constructor";
 import Chat from "./features/constructor/components/chat";
 import { Widget } from "./features/constructor/types";
-import SkillsMenu from "./features/skillsMenu";
-import TestMenu from "./features/testMenu";
 import LoginPage from "./features/login";
 import { useAuthVisibility } from "./features/login/authBridge";
+import SkillsMenu from "./features/skillsMenu";
+import TestMenu from "./features/testMenu";
 
 interface AppProps {
   elem?: Widget[];
@@ -91,7 +91,7 @@ function App({ elem, height, width }: AppProps) {
   }
 
   if (isLoggined) {
-    const noopSend = (_message: string) => { };
+    const noopSend = (_message: string) => {};
     return (
       <div className={`App ${!("skyrimPlatform" in window) ? "bg" : ""}`}>
         <AnimList />

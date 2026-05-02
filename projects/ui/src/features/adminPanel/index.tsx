@@ -16,9 +16,7 @@ interface CheatDef {
   label: string;
 }
 
-const tabs: Tab[] = [
-  { id: "cheat", label: "Cheat" },
-];
+const tabs: Tab[] = [{ id: "cheat", label: "Cheat" }];
 
 const cheats: CheatDef[] = [
   { id: "noclip", label: "Noclip" },
@@ -26,9 +24,7 @@ const cheats: CheatDef[] = [
 ];
 
 const sendCheat = (cheat: CheatName, enabled: boolean) => {
-  window.skyrimPlatform?.sendMessage?.(
-    JSON.stringify({ type: "adminPanel", cheat, enabled }),
-  );
+  window.skyrimPlatform?.sendMessage?.(JSON.stringify({ type: "adminPanel", cheat, enabled }));
 };
 
 interface CheatTabProps {

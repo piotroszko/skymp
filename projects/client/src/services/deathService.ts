@@ -1,12 +1,16 @@
 import { Actor } from "skyrimPlatform";
-import { ApplyDeathStateEvent } from "../types/events/applyDeathStateEvent";
-import { ClientListener, CombinedController, Sp } from "./clientListener";
+
 import { RespawnNeededError } from "../lib/errors";
 import { AnimationEventName } from "../sync/animation";
+import { ApplyDeathStateEvent } from "../types/events/applyDeathStateEvent";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { RagdollService } from "./ragdollService";
 
 export class DeathService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
     controller.once("update", () => this.onceUpdate());
     controller.emitter.on("applyDeathStateEvent", (e) => this.onApplyDeathState(e));
@@ -34,11 +38,11 @@ export class DeathService extends ClientListener {
         enter(ctx) {
           ctx.animEventName = "";
         },
-        leave() { },
+        leave() {},
       },
       0xff000000,
       0xffffffff,
-      "KillMove*"
+      "KillMove*",
     );
   }
 
@@ -48,11 +52,11 @@ export class DeathService extends ClientListener {
         enter(ctx) {
           ctx.animEventName = "";
         },
-        leave() { },
+        leave() {},
       },
       0xff000000,
       0xffffffff,
-      "staggerStart"
+      "staggerStart",
     );
   }
 
@@ -67,10 +71,10 @@ export class DeathService extends ClientListener {
             ctx.animEventName = "";
           }
         },
-        leave() { },
+        leave() {},
       },
       this.playerActorId,
-      this.playerActorId
+      this.playerActorId,
     );
   }
 

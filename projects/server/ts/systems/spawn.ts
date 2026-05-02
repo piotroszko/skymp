@@ -10,11 +10,16 @@ function randomInteger(min: number, max: number) {
 
 export class Spawn implements System {
   systemName = "Spawn";
-  constructor(private log: Log) { }
+  constructor(private log: Log) {}
 
   async initAsync(ctx: SystemContext): Promise<void> {
     const settingsObject = await Settings.get();
-    const listenerFn = (userId: number, userProfileId: number, discordRoleIds: string[], discordId?: string) => {
+    const listenerFn = (
+      userId: number,
+      userProfileId: number,
+      discordRoleIds: string[],
+      discordId?: string,
+    ) => {
       const { startPoints } = settingsObject;
       // TODO: Show race menu if character is not created after relogging
       let actorId = ctx.svr.getActorsByProfileId(userProfileId)[0];
@@ -29,7 +34,7 @@ export class Spawn implements System {
           startPoints[idx].pos,
           startPoints[idx].angleZ,
           +startPoints[idx].worldOrCell,
-          userProfileId
+          userProfileId,
         );
         this.log("Creating character", actorId.toString(16));
         ctx.svr.setUserActor(userId, actorId);
@@ -45,7 +50,10 @@ export class Spawn implements System {
           mp.set(actorId, "private.indexed.discordId", discordId);
         }
 
-        const forms = mp.findFormsByPropertyValue("private.indexed.discordId", discordId) as number[];
+        const forms = mp.findFormsByPropertyValue(
+          "private.indexed.discordId",
+          discordId,
+        ) as number[];
         console.log(`Found forms ${forms}`);
       }
     };

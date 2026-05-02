@@ -71,9 +71,7 @@ export const getAppearance = (actor: Actor): Appearance => {
   }
 
   const numTints =
-    (Game.getPlayer() as Actor).getFormID() === actor.getFormID()
-      ? Game.getNumTintMasks()
-      : 0;
+    (Game.getPlayer() as Actor).getFormID() === actor.getFormID() ? Game.getNumTintMasks() : 0;
   for (let i = 0; i < numTints; ++i) {
     const tint: Tint = {
       texturePath: Game.getNthTintMaskTexturePath(i),
@@ -98,10 +96,10 @@ export const applyTints = (actor: Actor | null, appearance: Appearance): void =>
   const raceWarPaintRegex = /.*Head.+WarPaint.*/;
   const uniWarPaintRegex = /.*HeadWarPaint.*/;
   const raceSpecificWarPaint = tints.filter(
-    (t) => isVisible(t.argb) && t.texturePath.match(raceWarPaintRegex)
+    (t) => isVisible(t.argb) && t.texturePath.match(raceWarPaintRegex),
   ).length; // MaleHeadNordWarPaint
   const uniWarPaint = tints.filter(
-    (t) => isVisible(t.argb) && t.texturePath.match(uniWarPaintRegex)
+    (t) => isVisible(t.argb) && t.texturePath.match(uniWarPaintRegex),
   ).length; // MaleHeadWarPaint
 
   if (raceSpecificWarPaint + uniWarPaint > 1) {
@@ -117,8 +115,7 @@ export const applyTints = (actor: Actor | null, appearance: Appearance): void =>
 
   const playerBaseId = ((Game.getPlayer() as Actor).getBaseObject() as ActorBase).getFormID();
 
-  if (actor)
-    TESModPlatform.setFormIdUnsafe(actor.getBaseObject(), playerBaseId);
+  if (actor) TESModPlatform.setFormIdUnsafe(actor.getBaseObject(), playerBaseId);
 };
 
 export const silentVoiceTypeId = 0x0002f7c3;

@@ -1,12 +1,16 @@
-import { Movement } from "../sync/movement";
+import {
+  CreateActorMessageMainProps,
+  CreateActorMessageAdditionalProps,
+} from "src/types/messages/createActorMessage";
+
 import { Animation } from "../sync/animation";
 import { Appearance } from "../sync/appearance";
 import { Equipment } from "../sync/equipment";
 import { Inventory } from "../sync/inventory";
-import { CreateActorMessageMainProps, CreateActorMessageAdditionalProps } from "src/types/messages/createActorMessage";
+import { Movement } from "../sync/movement";
 
 // Own properties (not inherited) are being assigned locally
-export interface FormModel extends CreateActorMessageAdditionalProps, CreateActorMessageMainProps{
+export interface FormModel extends CreateActorMessageAdditionalProps, CreateActorMessageMainProps {
   idx?: number;
   movement?: Movement;
   numMovementChanges?: number;

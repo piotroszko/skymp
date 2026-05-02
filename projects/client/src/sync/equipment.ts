@@ -1,14 +1,6 @@
-import {
-  Actor,
-  Ammo,
-  Game,
-  ObjectReference,
-  Spell,
-  Ui,
-  setInventory,
-} from 'skyrimPlatform';
+import { Actor, Ammo, Game, ObjectReference, Spell, Ui, setInventory } from "skyrimPlatform";
 
-import { Entry, Inventory, getInventory } from './inventory';
+import { Entry, Inventory, getInventory } from "./inventory";
 
 export const enum SpellType {
   Left,
@@ -17,10 +9,7 @@ export const enum SpellType {
   Instant,
 }
 
-export const getEquipedSpell = (
-  refr: ObjectReference,
-  spellType: SpellType,
-): number => {
+export const getEquipedSpell = (refr: ObjectReference, spellType: SpellType): number => {
   const actor = Actor.from(refr);
 
   if (!actor) {
@@ -127,10 +116,10 @@ export const applyEquipment = (ac: Actor, eq: Equipment): boolean => {
 
 export const isBadMenuShown = (): boolean => {
   return (
-    Ui.isMenuOpen('InventoryMenu') ||
-    Ui.isMenuOpen('FavoritesMenu') ||
-    Ui.isMenuOpen('MagicMenu') ||
-    Ui.isMenuOpen('ContainerMenu') ||
-    Ui.isMenuOpen('Crafting Menu') // Actually I don't think it causes crashes
+    Ui.isMenuOpen("InventoryMenu") ||
+    Ui.isMenuOpen("FavoritesMenu") ||
+    Ui.isMenuOpen("MagicMenu") ||
+    Ui.isMenuOpen("ContainerMenu") ||
+    Ui.isMenuOpen("Crafting Menu") // Actually I don't think it causes crashes
   );
 };

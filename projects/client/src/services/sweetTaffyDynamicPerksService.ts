@@ -1,13 +1,17 @@
-import { BasicEntry } from "../sync/inventory";
-import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { ContainerChangedEvent, Form } from "skyrimPlatform";
-import { CreateActorMessage } from "../types/messages/createActorMessage";
-import { ConnectionMessage } from "../types/events/connectionMessage";
-import { SetInventoryMessage } from "../types/messages/setInventoryMessage";
+
 import { logTrace } from "../logging";
+import { BasicEntry } from "../sync/inventory";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { CreateActorMessage } from "../types/messages/createActorMessage";
+import { SetInventoryMessage } from "../types/messages/setInventoryMessage";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class SweetTaffyDynamicPerksService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     if (!this.hasSweetPie()) {
@@ -16,7 +20,7 @@ export class SweetTaffyDynamicPerksService extends ClientListener {
       logTrace(this, "SweetTaffy features enabled");
     }
 
-    controller.on('containerChanged', (e) => this.onContainerChanged(e));
+    controller.on("containerChanged", (e) => this.onContainerChanged(e));
     controller.emitter.on("setInventoryMessage", (e) => this.onSetInventoryMessage(e));
     controller.emitter.on("createActorMessage", (e) => this.onCreateActorMessage(e));
   }
@@ -49,7 +53,7 @@ export class SweetTaffyDynamicPerksService extends ClientListener {
     }
 
     this.controller.once("update", () => {
-      entries.forEach(entry => this.handlePlayerInventoryChanged(entry));
+      entries.forEach((entry) => this.handlePlayerInventoryChanged(entry));
     });
   }
 
@@ -74,7 +78,7 @@ export class SweetTaffyDynamicPerksService extends ClientListener {
     }
 
     this.controller.once("update", () => {
-      entries.forEach(entry => this.handlePlayerInventoryChanged(entry));
+      entries.forEach((entry) => this.handlePlayerInventoryChanged(entry));
     });
   }
 
@@ -100,12 +104,16 @@ export class SweetTaffyDynamicPerksService extends ClientListener {
 
   private requestAddPerksToActors = (actorIds: number[], perkIds: number[]): void => {
     this.controller.once("update", () => {
-      const actors = actorIds.map(actorId => this.sp.Actor.from(this.sp.Game.getFormEx(actorId))).filter(actor => actor !== null);
-      const perks = perkIds.map(perkId => this.sp.Perk.from(this.sp.Game.getFormEx(perkId))).filter(perk => perk !== null);
+      const actors = actorIds
+        .map((actorId) => this.sp.Actor.from(this.sp.Game.getFormEx(actorId)))
+        .filter((actor) => actor !== null);
+      const perks = perkIds
+        .map((perkId) => this.sp.Perk.from(this.sp.Game.getFormEx(perkId)))
+        .filter((perk) => perk !== null);
 
-      actors.forEach(actor => perks.forEach(perk => actor?.addPerk(perk)));
+      actors.forEach((actor) => perks.forEach((perk) => actor?.addPerk(perk)));
     });
-  }
+  };
 
   private getPerkIdsByKeyword(item: Form): number[] | null {
     const result = new Array<number>();
@@ -123,46 +131,46 @@ export class SweetTaffyDynamicPerksService extends ClientListener {
   private getKeywordPerkMap() {
     return new Map<string, number>([
       // Archer
-      ["SweetPerkBow1", 0x1036F0],
-      ["SweetPerkBow2", 0x58F61],
-      ["SweetPerkBow3", 0x105F19],
-      ["SweetPerkBow4", 0x58F63],
+      ["SweetPerkBow1", 0x1036f0],
+      ["SweetPerkBow2", 0x58f61],
+      ["SweetPerkBow3", 0x105f19],
+      ["SweetPerkBow4", 0x58f63],
       // Assassin
       ["SweetPerkSneak1", 0x58210],
-      ["SweetPerkSneak2", 0x105F23],
+      ["SweetPerkSneak2", 0x105f23],
       ["SweetPerkSneak3", 0x58208],
       ["SweetPerkSneak4", 0x58211],
       // Infantryman
-      ["SweetPerkArmorLight1", 0x105F22],
-      ["SweetPerkArmorLight2", 0x51B1C],
+      ["SweetPerkArmorLight1", 0x105f22],
+      ["SweetPerkArmorLight2", 0x51b1c],
       // Enchanter
-      ["SweetPerkEnchant2", 0x108A44],
-      ["SweetPerkEnchant1", 0x58F7C],
+      ["SweetPerkEnchant2", 0x108a44],
+      ["SweetPerkEnchant1", 0x58f7c],
       // Man-at-arms
-      ["SweetPerkArmorHeavy1", 0xBCD2B],
-      ["SweetPerkArmorHeavy2", 0x58F6D],
+      ["SweetPerkArmorHeavy1", 0xbcd2b],
+      ["SweetPerkArmorHeavy2", 0x58f6d],
       // Shield-bearer
-      ["SweetPerkBlock1", 0x58F67],
+      ["SweetPerkBlock1", 0x58f67],
       ["SweetPerkBlock2", 0x106253],
-      ["SweetPerkBlock3", 0x58F6A],
-      ["SweetPerkBlock4", 0x58F69],
+      ["SweetPerkBlock3", 0x58f6a],
+      ["SweetPerkBlock4", 0x58f69],
       // Swordsman, blade, slasher, crusher, monk, spearman, guard (two-handed weapons)
-      ["SweetPerk1Hand2Hand1", 0x58F6F],
-      ["SweetPerk2Hand2", 0xCB407],
+      ["SweetPerk1Hand2Hand1", 0x58f6f],
+      ["SweetPerk2Hand2", 0xcb407],
       ["SweetPerk2Hand3", 0x96590],
-      ["SweetPerk2Hand4", 0x52D51],
+      ["SweetPerk2Hand4", 0x52d51],
       // Assassin, scout, spy, vanguard, knight, rogue, berserker, brawler (one-handed weapons)
-      ["SweetPerk1Hand2Hand1", 0x58F6F],
-      ["SweetPerk1Hand2", 0xCB406],
+      ["SweetPerk1Hand2Hand1", 0x58f6f],
+      ["SweetPerk1Hand2", 0xcb406],
       ["SweetPerk1Hand3", 0x106256],
-      ["SweetPerk1Hand4", 0x52D50],
+      ["SweetPerk1Hand4", 0x52d50],
     ]);
   }
 
   private hasSweetPie(): boolean {
     const modCount = this.sp.Game.getModCount();
     for (let i = 0; i < modCount; ++i) {
-      if (this.sp.Game.getModName(i).toLowerCase().includes('sweetpie')) {
+      if (this.sp.Game.getModName(i).toLowerCase().includes("sweetpie")) {
         return true;
       }
     }

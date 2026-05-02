@@ -1,25 +1,25 @@
-import {
-  printConsole,
-  settings,
-  storage,
-} from 'skyrimPlatform';
-import * as networking from './networkingService';
-import { setupHooks } from '../sync/animation';
-import { AuthGameData, authGameDataStorageKey } from '../features/authModel';
-import { ClientListener, CombinedController, Sp } from './clientListener';
-import { ConnectionFailed } from '../types/events/connectionFailed';
-import { ConnectionDenied } from '../types/events/connectionDenied';
-import { ConnectionMessage } from '../types/events/connectionMessage';
-import { CreateActorMessage } from '../types/messages/createActorMessage';
-import { AuthAttemptEvent } from '../types/events/authAttemptEvent';
-import { logTrace } from '../logging';
-import { SettingsService, TargetPeer } from './settingsService';
+import { printConsole, settings, storage } from "skyrimPlatform";
 
-printConsole('Hello Multiplayer!');
-printConsole('settings:', settings['skymp5-client']);
+import { AuthGameData, authGameDataStorageKey } from "../features/authModel";
+import { logTrace } from "../logging";
+import { setupHooks } from "../sync/animation";
+import { AuthAttemptEvent } from "../types/events/authAttemptEvent";
+import { ConnectionDenied } from "../types/events/connectionDenied";
+import { ConnectionFailed } from "../types/events/connectionFailed";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { CreateActorMessage } from "../types/messages/createActorMessage";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
+import * as networking from "./networkingService";
+import { SettingsService, TargetPeer } from "./settingsService";
+
+printConsole("Hello Multiplayer!");
+printConsole("settings:", settings["skymp5-client"]);
 
 export class SkympClient extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     this.controller.emitter.on("connectionFailed", (e) => this.onConnectionFailed(e));
@@ -67,24 +67,22 @@ export class SkympClient extends ClientListener {
     // TODO: refactor into service
     setupHooks();
 
-    this.sp.printConsole('SkympClient ctor');
+    this.sp.printConsole("SkympClient ctor");
   }
 
   private establishConnectionConditional() {
     const isConnected = this.controller.lookupListener(networking.NetworkingService).isConnected();
     if (isConnected) {
-      logTrace(this, 'Reconnect is not required');
+      logTrace(this, "Reconnect is not required");
       return;
     }
 
-    this.controller.lookupListener(SettingsService).getTargetPeer(
-      ({ host, port }: TargetPeer) => {
-        storage.targetIp = host;
-        storage.targetPort = port;
+    this.controller.lookupListener(SettingsService).getTargetPeer(({ host, port }: TargetPeer) => {
+      storage.targetIp = host;
+      storage.targetPort = port;
 
-        printConsole(`Connecting to ${host}:${port}`);
-        this.controller.lookupListener(networking.NetworkingService).connect(host, port);
-      },
-    );
+      printConsole(`Connecting to ${host}:${port}`);
+      this.controller.lookupListener(networking.NetworkingService).connect(host, port);
+    });
   }
 }

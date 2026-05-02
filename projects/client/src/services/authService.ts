@@ -1,14 +1,20 @@
-import { AccountCharacter, AuthGameData, RemoteAuthGameData, authGameDataStorageKey } from "../features/authModel";
-import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { BrowserMessageEvent } from "skyrimPlatform";
+
+import {
+  AccountCharacter,
+  AuthGameData,
+  RemoteAuthGameData,
+  authGameDataStorageKey,
+} from "../features/authModel";
+import { logTrace, logError } from "../logging";
+import { MsgType } from "../messages";
 import { AuthNeededEvent } from "../types/events/authNeededEvent";
 import { BrowserWindowLoadedEvent } from "../types/events/browserWindowLoadedEvent";
-import { logTrace, logError } from "../logging";
+import { ConnectionDenied } from "../types/events/connectionDenied";
 import { ConnectionMessage } from "../types/events/connectionMessage";
 import { CreateActorMessage } from "../types/messages/createActorMessage";
 import { CustomPacketMessage } from "../types/messages/customPacketMessage";
-import { MsgType } from "../messages";
-import { ConnectionDenied } from "../types/events/connectionDenied";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 const events = {
   registerAttempt: "authRegisterAttempt",
@@ -33,7 +39,10 @@ export class AuthService extends ClientListener {
   private playerEverSawActualGameplay = false;
   private playRequestInFlightProfileId: number | null = null;
 
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     this.controller.emitter.on("authNeeded", (e) => this.onAuthNeeded(e));
@@ -43,7 +52,9 @@ export class AuthService extends ClientListener {
     this.controller.emitter.on("connectionDenied", (e) => this.onConnectionDenied(e));
     this.controller.on("browserMessage", (e) => this.onBrowserMessage(e));
     this.controller.on("update", () => this.onUpdate());
-    this.controller.once("update", () => { this.playerEverSawActualGameplay = true; });
+    this.controller.once("update", () => {
+      this.playerEverSawActualGameplay = true;
+    });
   }
 
   private onUpdate() {
@@ -169,7 +180,9 @@ export class AuthService extends ClientListener {
   private handleRegisterAttempt(email: string, password: string) {
     if (typeof email !== "string" || typeof password !== "string") {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "registerResult", ok: false, error: "Email and password are required",
+        type: "registerResult",
+        ok: false,
+        error: "Email and password are required",
       });
       return;
     }
@@ -179,7 +192,9 @@ export class AuthService extends ClientListener {
   private handleLoginAttempt(email: string, password: string) {
     if (typeof email !== "string" || typeof password !== "string") {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "loginResult", ok: false, error: "Email and password are required",
+        type: "loginResult",
+        ok: false,
+        error: "Email and password are required",
       });
       return;
     }
@@ -190,7 +205,9 @@ export class AuthService extends ClientListener {
   private handleCreateCharacter() {
     if (!this.session) {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "createCharacterResult", ok: false, error: "Not logged in",
+        type: "createCharacterResult",
+        ok: false,
+        error: "Not logged in",
       });
       return;
     }
@@ -200,13 +217,17 @@ export class AuthService extends ClientListener {
   private handleDeleteCharacter(profileId: number) {
     if (!this.session) {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "deleteCharacterResult", ok: false, error: "Not logged in",
+        type: "deleteCharacterResult",
+        ok: false,
+        error: "Not logged in",
       });
       return;
     }
     if (typeof profileId !== "number") {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "deleteCharacterResult", ok: false, error: "profileId is required",
+        type: "deleteCharacterResult",
+        ok: false,
+        error: "profileId is required",
       });
       return;
     }
@@ -216,19 +237,25 @@ export class AuthService extends ClientListener {
   private handleRenameCharacter(profileId: number, name: string) {
     if (!this.session) {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "renameCharacterResult", ok: false, error: "Not logged in",
+        type: "renameCharacterResult",
+        ok: false,
+        error: "Not logged in",
       });
       return;
     }
     if (typeof profileId !== "number") {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "renameCharacterResult", ok: false, error: "profileId is required",
+        type: "renameCharacterResult",
+        ok: false,
+        error: "profileId is required",
       });
       return;
     }
     if (typeof name !== "string" || name.trim().length === 0) {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "renameCharacterResult", ok: false, error: "Character name is required",
+        type: "renameCharacterResult",
+        ok: false,
+        error: "Character name is required",
       });
       return;
     }
@@ -238,13 +265,17 @@ export class AuthService extends ClientListener {
   private handlePlay(profileId: number) {
     if (!this.session) {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "playResult", ok: false, error: "Not logged in",
+        type: "playResult",
+        ok: false,
+        error: "Not logged in",
       });
       return;
     }
     if (typeof profileId !== "number") {
       this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
-        type: "playResult", ok: false, error: "profileId is required",
+        type: "playResult",
+        ok: false,
+        error: "profileId is required",
       });
       return;
     }
@@ -293,8 +324,14 @@ export class AuthService extends ClientListener {
           this.session = typeof content.session === "string" ? content.session : null;
           const rawCharacters = Array.isArray(content.characters) ? content.characters : [];
           this.characters = rawCharacters
-            .filter((c): c is AccountCharacter => !!c && typeof (c as AccountCharacter).profileId === "number")
-            .map((c) => ({ profileId: (c as AccountCharacter).profileId, name: (c as AccountCharacter).name }));
+            .filter(
+              (c): c is AccountCharacter =>
+                !!c && typeof (c as AccountCharacter).profileId === "number",
+            )
+            .map((c) => ({
+              profileId: (c as AccountCharacter).profileId,
+              name: (c as AccountCharacter).name,
+            }));
         }
         this.dispatchToBrowser(SESSION_DETAIL_EVENT, {
           type: "loginResult",

@@ -1,14 +1,9 @@
-import {
-  ObjectReference,
-  Actor,
-  Game,
-  TESModPlatform,
-  Debug
-} from "skyrimPlatform";
-import { RespawnNeededError } from "../lib/errors";
-import { Movement, RunMode, AnimationVariables, Transform, NiPoint3 } from "./movement";
+import { ObjectReference, Actor, Game, TESModPlatform, Debug } from "skyrimPlatform";
+
 import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
+import { RespawnNeededError } from "../lib/errors";
 import { SpApiInteractor } from "../services/spApiInteractor";
+import { Movement, RunMode, AnimationVariables, Transform, NiPoint3 } from "./movement";
 
 const sqr = (x: number) => x * x;
 
@@ -23,7 +18,9 @@ export const applyMovement = (refr: ObjectReference, m: Movement, isMyClone?: bo
   const lagUnitsNoZ = Math.round(Math.sqrt(sqr(m.pos[0] - acX) + sqr(m.pos[1] - acY)));
 
   if (isMyClone === true) {
-    SpApiInteractor.getControllerInstance().emitter.emit("newLocalLagValueCalculated", { lagUnitsNoZ });
+    SpApiInteractor.getControllerInstance().emitter.emit("newLocalLagValueCalculated", {
+      lagUnitsNoZ,
+    });
   }
 
   translateTo(refr, m);
@@ -36,12 +33,7 @@ export const applyMovement = (refr: ObjectReference, m: Movement, isMyClone?: bo
   let lookAt = null;
   if (m.lookAt) {
     try {
-      lookAt = Game.findClosestActor(
-        m.lookAt[0],
-        m.lookAt[1],
-        m.lookAt[2],
-        128
-      );
+      lookAt = Game.findClosestActor(m.lookAt[0], m.lookAt[1], m.lookAt[2], 128);
     } catch (e) {
       lookAt = null;
     }
@@ -65,7 +57,10 @@ export const applyMovement = (refr: ObjectReference, m: Movement, isMyClone?: bo
   applyWeapDrawn(ac, m.isWeapDrawn);
   applyHealthPercentage(ac, m.healthPercentage);
 
-  SpApiInteractor.getControllerInstance().emitter.emit("applyDeathStateEvent", { actor: ac, isDead: m.isDead });
+  SpApiInteractor.getControllerInstance().emitter.emit("applyDeathStateEvent", {
+    actor: ac,
+    isDead: m.isDead,
+  });
 };
 
 const keepOffsetFromActor = (ac: Actor, m: Movement) => {
@@ -120,8 +115,7 @@ const applyBlocking = (ac: Actor, m: AnimationVariables) => {
 };
 
 const applySneaking = (ac: Actor, isSneaking: boolean) => {
-  const currentIsSneaking =
-    ac.isSneaking() || ac.getAnimationVariableBool("IsSneaking");
+  const currentIsSneaking = ac.isSneaking() || ac.getAnimationVariableBool("IsSneaking");
   if (currentIsSneaking != isSneaking) {
     Debug.sendAnimationEvent(ac, isSneaking ? "SneakStart" : "SneakStop");
   }
@@ -134,18 +128,18 @@ export const applyWeapDrawn = (ac: Actor, isWeapDrawn: boolean): void => {
 };
 
 const applyHealthPercentage = (ac: Actor, healthPercentage: number) => {
-  const currentPercentage = ac.getActorValuePercentage('health');
+  const currentPercentage = ac.getActorValuePercentage("health");
   if (currentPercentage === healthPercentage) {
     return;
   }
 
-  const currentMax = ac.getBaseActorValue('health');
+  const currentMax = ac.getBaseActorValue("health");
   const deltaPercentage = healthPercentage - currentPercentage;
   const k = 0.25;
   if (deltaPercentage > 0) {
-    ac.restoreActorValue('health', deltaPercentage * currentMax * k);
+    ac.restoreActorValue("health", deltaPercentage * currentMax * k);
   } else if (deltaPercentage < 0) {
-    ac.damageActorValue('health', deltaPercentage * currentMax * k);
+    ac.damageActorValue("health", deltaPercentage * currentMax * k);
   }
 };
 
@@ -168,8 +162,8 @@ const translateTo = (refr: ObjectReference, m: Movement) => {
 
   // We do not want to add pos in case of standing-jumping
   if (m.runMode !== "Standing") {
-    gTempTargetPos[0] += Math.sin(direction / 180 * Math.PI) * distanceAdd;
-    gTempTargetPos[1] += Math.cos(direction / 180 * Math.PI) * distanceAdd;
+    gTempTargetPos[0] += Math.sin((direction / 180) * Math.PI) * distanceAdd;
+    gTempTargetPos[1] += Math.cos((direction / 180) * Math.PI) * distanceAdd;
   }
 
   const refrRealPos = ObjectReferenceEx.getPos(refr);
@@ -199,7 +193,7 @@ const translateTo = (refr: ObjectReference, m: Movement) => {
         m.rot[1],
         m.rot[2],
         speed,
-        0
+        0,
       );
     }
   }
@@ -225,9 +219,6 @@ const isInDifferentExteriorCell = (refr: ObjectReference, pos: NiPoint3) => {
   return currentDistanceToPlayer > cellWidth && targetDistanceToPlayer <= cellWidth;
 };
 
-const isInDifferentWorldOrCell = (
-  refr: ObjectReference,
-  worldOrCell: number
-) => {
+const isInDifferentWorldOrCell = (refr: ObjectReference, worldOrCell: number) => {
   return worldOrCell !== ObjectReferenceEx.getWorldOrCell(refr);
 };

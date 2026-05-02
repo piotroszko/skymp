@@ -1,7 +1,8 @@
-import { FormModel } from '../view/model';
 import { ObjectReference, Actor, TESModPlatform } from "skyrimPlatform";
+
+import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
+import { FormModel } from "../view/model";
 import { NiPoint3, Movement, RunMode } from "./movement";
-import { ObjectReferenceEx } from '../extensions/objectReferenceEx';
 
 class PlayerCharacterSpeedCalculator {
   static savePosition(pos: NiPoint3, worldOrCell: number) {
@@ -80,9 +81,7 @@ export const getMovement = (refr: ObjectReference, form?: FormModel): Movement =
     pos,
     rot: [refr.getAngleX(), refr.getAngleY(), refr.getAngleZ()],
     runMode: runMode,
-    direction: runMode !== "Standing"
-      ? 360 * refr.getAnimationVariableFloat("Direction")
-      : 0,
+    direction: runMode !== "Standing" ? 360 * refr.getAnimationVariableFloat("Direction") : 0,
     isInJumpState: !!(ac && ac.getAnimationVariableBool("bInJumpState")),
     isSneaking: !!(ac && isSneaking(ac)),
     isBlocking: !!(ac && ac.getAnimationVariableBool("IsBlocking")),
@@ -90,12 +89,11 @@ export const getMovement = (refr: ObjectReference, form?: FormModel): Movement =
     isDead: (form?.isDead ?? false) || !!(ac && ac.isDead()),
     healthPercentage: healthPercentage || 0,
     lookAt,
-    speed
+    speed,
   };
-}
+};
 
-const isSneaking = (ac: Actor) =>
-  ac.isSneaking() || ac.getAnimationVariableBool("IsSneaking");
+const isSneaking = (ac: Actor) => ac.isSneaking() || ac.getAnimationVariableBool("IsSneaking");
 
 const getRunMode = (ac: Actor): RunMode => {
   if (ac.isSprinting()) {
@@ -112,8 +110,7 @@ const getRunMode = (ac: Actor): RunMode => {
 
   let isRunning = true;
   if (ac.getFormID() == 0x14) {
-    if (!TESModPlatform.isPlayerRunningEnabled() || speed < 150)
-      isRunning = false;
+    if (!TESModPlatform.isPlayerRunningEnabled() || speed < 150) isRunning = false;
   } else {
     if (!ac.isRunning() || speed < 150) {
       isRunning = false;

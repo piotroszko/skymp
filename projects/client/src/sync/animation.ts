@@ -9,15 +9,16 @@ import {
   Game,
   storage,
   // @ts-expect-error (TODO: Remove in 2.10.0)
-  setCollision
+  setCollision,
 } from "skyrimPlatform";
+
 import { Movement } from "./movement";
 import { applyWeapDrawn } from "./movementApply";
 
 export enum AnimationEventName {
   Ragdoll = "Ragdoll",
   GetUpBegin = "GetUpBegin",
-};
+}
 
 export interface Animation {
   animEventName: string;
@@ -34,65 +35,65 @@ const refsWithDefaultAnimsDisabled = new Set<number>();
 const allowedAnims = new Set<string>();
 
 const actorSitAnimsLowerCase = [
-  'idlestoolenterplayer',
-  'idlestoolenter',
-  'idlestoolenterinstant',
-  'idlechairrightenter',
-  'idlechairleftenter',
-  'idlechairfrontenter',
-  'idlechairenterinstant',
-  'idlejarlchairenter',
-  'idlejarlchairenterinstant',
-  'idlesnowelfprincechairdialogue',
-  'idlesnowelfprincechairenter',
-  'idlesnowelfprincechairenterinstant',
-  'idlechairchildenterinstant',
-  'idlechairchildfrontenter',
-  'idlechairchildleftenter',
-  'idlechairchildrightenter',
+  "idlestoolenterplayer",
+  "idlestoolenter",
+  "idlestoolenterinstant",
+  "idlechairrightenter",
+  "idlechairleftenter",
+  "idlechairfrontenter",
+  "idlechairenterinstant",
+  "idlejarlchairenter",
+  "idlejarlchairenterinstant",
+  "idlesnowelfprincechairdialogue",
+  "idlesnowelfprincechairenter",
+  "idlesnowelfprincechairenterinstant",
+  "idlechairchildenterinstant",
+  "idlechairchildfrontenter",
+  "idlechairchildleftenter",
+  "idlechairchildrightenter",
 ];
 
 const actorGetUpAnimsLowerCase = [
-  'idlestoolbackexit',
-  'idlechairrightexit',
-  'idlechairrightquickexit',
-  'idlechairleftexit',
-  'idlechairleftquickexit',
-  'idlechairfrontexit',
-  'idlechairfrontquickexit',
-  'idlechairchildfrontexit',
-  'idlechairchildleftexit',
-  'idlechairchildrightexit'
+  "idlestoolbackexit",
+  "idlechairrightexit",
+  "idlechairrightquickexit",
+  "idlechairleftexit",
+  "idlechairleftquickexit",
+  "idlechairfrontexit",
+  "idlechairfrontquickexit",
+  "idlechairchildfrontexit",
+  "idlechairchildleftexit",
+  "idlechairchildrightexit",
 ];
 
 // It's critical for values to be the correct case, not just lowercase, otherwise 'allowedIdles' check will break
 // We don't want to modify the check itself, because it'll be slower
 const animOverridesLowerCase: Record<string, string | undefined> = {
-  'idlechairbook_onepage': 'IdleChairEnterInstant',
-  'idlechairshoulderflex': 'IdleChairEnterInstant',
-  'idlechairwrite': 'IdleChairEnterInstant',
-  'idlechairarmscrossedvar1': 'IdleChairEnterInstant',
-  'chaireatingstart_vampiremeat': 'IdleChairEnterInstant',
-  'chairreadingstart': 'IdleChairEnterInstant',
-  'chairvampireeatingstart': 'IdleChairEnterInstant',
-  'chairdrinkingstart': 'IdleChairEnterInstant',
-  'chaireatingstart': 'IdleChairEnterInstant',
+  idlechairbook_onepage: "IdleChairEnterInstant",
+  idlechairshoulderflex: "IdleChairEnterInstant",
+  idlechairwrite: "IdleChairEnterInstant",
+  idlechairarmscrossedvar1: "IdleChairEnterInstant",
+  chaireatingstart_vampiremeat: "IdleChairEnterInstant",
+  chairreadingstart: "IdleChairEnterInstant",
+  chairvampireeatingstart: "IdleChairEnterInstant",
+  chairdrinkingstart: "IdleChairEnterInstant",
+  chaireatingstart: "IdleChairEnterInstant",
 
   // The only triple animation we know for now. One base anim to sit, then two to eat
-  'chaireatingsoupstart': 'IdleChairEnterInstant',
-  'idleeatsoup': 'IdleChairEnterInstant',
+  chaireatingsoupstart: "IdleChairEnterInstant",
+  idleeatsoup: "IdleChairEnterInstant",
 
   // No need to re-play the animation, use instant variant for spawning actors
   // This is not essential, but makes the sync feel more smooth. The list is not complete.
-  'idlechairrightenter': 'IdleChairEnterInstant',
-  'idlechairleftenter': 'IdleChairEnterInstant',
-  'idlechairfrontenter': 'IdleChairEnterInstant',
+  idlechairrightenter: "IdleChairEnterInstant",
+  idlechairleftenter: "IdleChairEnterInstant",
+  idlechairfrontenter: "IdleChairEnterInstant",
 
   // Untested yet looks correct
-  'idlesnowelfprincefireandforget': 'IdleSnowElfPrinceChairEnterInstant',
-  'idletablemugenter': 'IdleTableEnterInstant',
-  'idletabledrinkenter': 'IdleTableEnterInstant',
-  'idletabledrinkandmugenter': 'IdleTableEnterInstant'
+  idlesnowelfprincefireandforget: "IdleSnowElfPrinceChairEnterInstant",
+  idletablemugenter: "IdleTableEnterInstant",
+  idletabledrinkenter: "IdleTableEnterInstant",
+  idletabledrinkandmugenter: "IdleTableEnterInstant",
 };
 
 // unclassified:
@@ -122,7 +123,7 @@ const isIdle = (animEventName: string) => {
 export const applyAnimation = (
   refr: ObjectReference,
   anim: Animation,
-  state: AnimationApplyState
+  state: AnimationApplyState,
 ): void => {
   if (state.lastNumChanges === anim.numChanges) {
     return;
@@ -198,10 +199,7 @@ export const applyAnimation = (
   }
 };
 
-export const setDefaultAnimsDisabled = (
-  refrId: number,
-  disabled: boolean
-): void => {
+export const setDefaultAnimsDisabled = (refrId: number, disabled: boolean): void => {
   if (disabled) {
     refsWithDefaultAnimsDisabled.add(refrId);
   } else {
@@ -213,7 +211,7 @@ export class AnimationSource {
   constructor(refr: ObjectReference) {
     this.refrId = refr.getFormID();
     hooks.sendAnimationEvent.add({
-      enter: () => { },
+      enter: () => {},
       leave: (ctx) => {
         if (ctx.selfId !== this.refrId) {
           return;
@@ -334,6 +332,6 @@ export const setupHooks = (): void => {
         i === -1 ? (ctx.animEventName = "") : allowedIdles.splice(i, 1);
       }
     },
-    leave: () => { },
+    leave: () => {},
   });
 };

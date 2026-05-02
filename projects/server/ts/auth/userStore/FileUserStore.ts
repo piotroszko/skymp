@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+
 import { IUserStore, UserCharacter, UserRecord, normalizeEmail } from "./IUserStore";
 
 export class FileUserStore implements IUserStore {
@@ -37,10 +38,14 @@ export class FileUserStore implements IUserStore {
 
   private async rebuildIndex(): Promise<void> {
     this.emailIndex = new Map();
-    const files = fs.readdirSync(this.usersDir).filter((f) => f.endsWith(".json") && !f.startsWith("_"));
+    const files = fs
+      .readdirSync(this.usersDir)
+      .filter((f) => f.endsWith(".json") && !f.startsWith("_"));
     for (const file of files) {
       try {
-        const record: UserRecord = JSON.parse(fs.readFileSync(path.join(this.usersDir, file), "utf8"));
+        const record: UserRecord = JSON.parse(
+          fs.readFileSync(path.join(this.usersDir, file), "utf8"),
+        );
         this.emailIndex.set(record.email, record.userId);
       } catch (e) {
         console.error(`FileUserStore: failed to parse ${file}: ${e}`);
@@ -149,7 +154,11 @@ export class FileUserStore implements IUserStore {
     this.writeRecord(record);
   }
 
-  async renameCharacter(userId: number, profileId: number, newName: string): Promise<UserCharacter> {
+  async renameCharacter(
+    userId: number,
+    profileId: number,
+    newName: string,
+  ): Promise<UserCharacter> {
     const record = await this.getById(userId);
     if (!record) {
       throw new Error("User not found");

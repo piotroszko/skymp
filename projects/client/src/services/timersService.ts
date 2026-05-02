@@ -1,4 +1,5 @@
 import { EventHandle, Menu, MenuOpenEvent } from "skyrimPlatform";
+
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 interface Timer {
@@ -14,7 +15,10 @@ enum ProcessMethodType {
 }
 
 export class TimersService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     const storageProcessMethod = sp.storage[this.processMethodTypeStorageKey];
@@ -82,11 +86,15 @@ export class TimersService extends ClientListener {
     switch (method) {
       case ProcessMethodType.tick:
         this.sp.storage[this.processMethodTypeStorageKey] = ProcessMethodType.tick;
-        this.updateEventHandle = this.controller.on(ProcessMethodType.tick, () => this.processTimers());
+        this.updateEventHandle = this.controller.on(ProcessMethodType.tick, () =>
+          this.processTimers(),
+        );
         return;
       case ProcessMethodType.update:
         this.sp.storage[this.processMethodTypeStorageKey] = ProcessMethodType.update;
-        this.updateEventHandle = this.controller.on(ProcessMethodType.update, () => this.processTimers());
+        this.updateEventHandle = this.controller.on(ProcessMethodType.update, () =>
+          this.processTimers(),
+        );
         return;
       default:
         break;

@@ -1,18 +1,31 @@
+import {
+  ButtonEvent,
+  CameraStateChangedEvent,
+  DxScanCode,
+  Menu,
+  setTextSize,
+} from "skyrimPlatform";
+
 import { logTrace, logError } from "../logging";
 import { AnimDebugSettings } from "../types/messages_settings/animDebugSettings";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { ButtonEvent, CameraStateChangedEvent, DxScanCode, Menu, setTextSize } from "skyrimPlatform";
 
 const playerId = 0x14;
 
 export class AnimDebugService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     this.settings = this.sp.settings["skymp5-client"]["animDebug"] as AnimDebugSettings | undefined;
 
     // clear previous texts in case of hotreload
-    if (this.sp.storage[AnimQueueCollection.Name] && (this.sp.storage[AnimQueueCollection.Name] as AnimQueueCollection).clearSPText) {
+    if (
+      this.sp.storage[AnimQueueCollection.Name] &&
+      (this.sp.storage[AnimQueueCollection.Name] as AnimQueueCollection).clearSPText
+    ) {
       logTrace(this, `Destroying old AnimQueueCollection`);
       try {
         (this.sp.storage[AnimQueueCollection.Name] as AnimQueueCollection).clearSPText();
@@ -22,12 +35,16 @@ export class AnimDebugService extends ClientListener {
     }
 
     const self = this;
-    this.sp.hooks.sendAnimationEvent.add({
-      enter: (ctx) => { },
-      leave: (ctx) => {
-        self.onSendAnimationEventLeave(ctx);
-      }
-    }, playerId, playerId);
+    this.sp.hooks.sendAnimationEvent.add(
+      {
+        enter: (ctx) => {},
+        leave: (ctx) => {
+          self.onSendAnimationEventLeave(ctx);
+        },
+      },
+      playerId,
+      playerId,
+    );
 
     if (!this.settings || !this.settings.isActive) {
       return;
@@ -39,12 +56,15 @@ export class AnimDebugService extends ClientListener {
     }
   }
 
-  private onSendAnimationEventLeave(ctx: { animEventName: string, animationSucceeded: boolean }) {
+  private onSendAnimationEventLeave(ctx: { animEventName: string; animationSucceeded: boolean }) {
     if (this.queue === undefined) {
       return;
     }
 
-    this.queue.push(ctx.animEventName, ctx.animationSucceeded ? animationSucceededTextColor : animationNotSucceededTextColor);
+    this.queue.push(
+      ctx.animEventName,
+      ctx.animationSucceeded ? animationSucceededTextColor : animationNotSucceededTextColor,
+    );
   }
 
   private queue?: AnimQueueCollection;
@@ -52,10 +72,10 @@ export class AnimDebugService extends ClientListener {
 }
 
 type AnimListItem = {
-  name: string,
-  textId: number,
-  color: number[]
-}
+  name: string;
+  textId: number;
+  color: number[];
+};
 
 const animationSucceededTextColor = [255, 255, 255, 1];
 const animationNotSucceededTextColor = [255, 0, 0, 1];
@@ -63,16 +83,23 @@ const animationNotSucceededTextColor = [255, 0, 0, 1];
 class AnimQueueCollection {
   public static readonly Name = "AnimQueueCollection";
 
-  constructor(private sp: Sp, settings: AnimDebugSettings) {
+  constructor(
+    private sp: Sp,
+    settings: AnimDebugSettings,
+  ) {
     const arrayLength = settings?.textOutput?.itemCount ?? 5;
-    const startPos = settings?.textOutput?.startPos ?? { x: 650, y: 600 };;
+    const startPos = settings?.textOutput?.startPos ?? { x: 650, y: 600 };
     const yPosDelta = settings?.textOutput?.yPosDelta ?? 32;
 
     let y = startPos.y;
 
     this.list = new Array<AnimListItem>(arrayLength);
     for (let idx = 0; idx < arrayLength; ++idx) {
-      this.list[idx] = { name: "", textId: sp.createText(startPos.x, y, "", animationSucceededTextColor), color: animationSucceededTextColor };
+      this.list[idx] = {
+        name: "",
+        textId: sp.createText(startPos.x, y, "", animationSucceededTextColor),
+        color: animationSucceededTextColor,
+      };
       setTextSize(this.list[idx].textId, 0.5);
       y += yPosDelta;
     }
@@ -84,7 +111,7 @@ class AnimQueueCollection {
     if (this.list.length === 0) {
       return;
     }
-    this.list.forEach(item => this.sp.destroyText(item.textId));
+    this.list.forEach((item) => this.sp.destroyText(item.textId));
   }
 
   public push(animName: string, color: number[]): void {

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 
-import { LoginLocale } from "./index";
 import {
   AccountCharacter,
   requestCreateCharacter,
@@ -11,6 +10,7 @@ import {
   requestPlay,
   requestRenameCharacter,
 } from "./authBridge";
+import { LoginLocale } from "./index";
 
 interface CharacterSelectFormProps {
   locale: LoginLocale;
@@ -108,8 +108,7 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
     }
     const duplicate = props.characters.some(
       (other) =>
-        other.profileId !== c.profileId &&
-        other.name.trim().toLowerCase() === next.toLowerCase(),
+        other.profileId !== c.profileId && other.name.trim().toLowerCase() === next.toLowerCase(),
     );
     if (duplicate) return;
     requestRenameCharacter(c.profileId, next);
@@ -142,7 +141,10 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
             initialValue={c.name}
             width={ROW_WIDTH}
             onInput={(e) =>
-              setRenameDraft((prev) => ({ ...prev, [c.profileId]: (e.target as HTMLInputElement).value }))
+              setRenameDraft((prev) => ({
+                ...prev,
+                [c.profileId]: (e.target as HTMLInputElement).value,
+              }))
             }
             placeholder={props.locale.LOGIN.CHARACTER_NAME_PLACEHOLDER}
             type={"text"}
@@ -201,7 +203,9 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
 
     return (
       <div key={c.profileId} style={rowContainerStyle}>
-        <div style={nameLabelStyle} title={c.name}>{c.name}</div>
+        <div style={nameLabelStyle} title={c.name}>
+          {c.name}
+        </div>
         <SkyrimButton
           name=""
           disabled={props.inFlight}
@@ -249,7 +253,10 @@ const CharacterSelectForm = (props: CharacterSelectFormProps) => {
       </div>
 
       {props.errorMessage ? (
-        <div className={"login-form--content_main__error"} style={{ color: "#ff8a8a", padding: "8px 0" }}>
+        <div
+          className={"login-form--content_main__error"}
+          style={{ color: "#ff8a8a", padding: "8px 0" }}
+        >
           {props.errorMessage}
         </div>
       ) : null}

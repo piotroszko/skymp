@@ -1,4 +1,5 @@
 import { setTextSize } from "skyrimPlatform";
+
 import { logTrace, logError } from "../logging";
 import { ConnectionMessage } from "../types/events/connectionMessage";
 import { NewLocalLagValueCalculatedEvent } from "../types/events/newLocalLagValueCalculatedEvent";
@@ -8,11 +9,17 @@ import { AnyMessage } from "../types/messages/anyMessage";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class NetInfoService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     // clear previous texts in case of hotreload
-    if (this.sp.storage[NetInfoTexts.Name] && (this.sp.storage[NetInfoTexts.Name] as NetInfoTexts).clear) {
+    if (
+      this.sp.storage[NetInfoTexts.Name] &&
+      (this.sp.storage[NetInfoTexts.Name] as NetInfoTexts).clear
+    ) {
       logTrace(this, `Destroying old NetInfoTexts`);
       try {
         (this.sp.storage[NetInfoTexts.Name] as NetInfoTexts)?.clear();
@@ -32,7 +39,9 @@ export class NetInfoService extends ClientListener {
     this.controller.emitter.on("sendMessage", (e) => this.onSendMessage(e));
     this.controller.emitter.on("sendMessageWithRefrId", (e) => this.onSendMessageWithRefrId(e));
     this.controller.emitter.on("anyMessage", (e) => this.onAnyMessage(e));
-    this.controller.emitter.on("newLocalLagValueCalculated", (e) => this.onNewLocalLagValueCalculated(e));
+    this.controller.emitter.on("newLocalLagValueCalculated", (e) =>
+      this.onNewLocalLagValueCalculated(e),
+    );
     this.controller.on("update", () => this.onUpdate());
   }
 
@@ -62,21 +71,33 @@ export class NetInfoService extends ClientListener {
 
     const isConnected = this.sp.mpClientPlugin.isConnected();
     this.sp.setTextString(this.textIds.connectionStateTextId, `${isConnected ? "ON" : "OFF"}`);
-    this.sp.setTextColor(this.textIds.connectionStateTextId, isConnected ? this.greenARGB : this.redARGB);
+    this.sp.setTextColor(
+      this.textIds.connectionStateTextId,
+      isConnected ? this.greenARGB : this.redARGB,
+    );
 
     // https://www.creationkit.com/index.php?title=Unit
     const units = this.getLocalLagUnits();
     const unitsInMeter = 70.0218818381;
-    const meters = Math.round(units / unitsInMeter * 10) / 10;
+    const meters = Math.round((units / unitsInMeter) * 10) / 10;
 
-    this.sp.setTextString(this.textIds.localPositionLagAmountTextId, `${units} units (~${meters} m)`);
+    this.sp.setTextString(
+      this.textIds.localPositionLagAmountTextId,
+      `${units} units (~${meters} m)`,
+    );
 
     if (this.delayMs > this.dt) {
       return;
     }
 
-    this.sp.setTextString(this.textIds.receivedPacketAmountTextId, `${Math.round(this.getAndClearReceivedPacketCount())}`);
-    this.sp.setTextString(this.textIds.sentPacketAmountTextId, `${Math.round(this.getAndClearSentPacketCount())}`);
+    this.sp.setTextString(
+      this.textIds.receivedPacketAmountTextId,
+      `${Math.round(this.getAndClearReceivedPacketCount())}`,
+    );
+    this.sp.setTextString(
+      this.textIds.sentPacketAmountTextId,
+      `${Math.round(this.getAndClearSentPacketCount())}`,
+    );
     this.dt = 0;
   }
 
@@ -130,13 +151,33 @@ class NetInfoTexts {
 
   constructor(
     private readonly sp: Sp,
-    public readonly connectionStaticTextId = sp.createText(100, 350, "connection:", [255, 255, 255, 1]),
+    public readonly connectionStaticTextId = sp.createText(
+      100,
+      350,
+      "connection:",
+      [255, 255, 255, 1],
+    ),
     public readonly connectionStateTextId = sp.createText(220, 350, "", [255, 255, 255, 1]),
-    public readonly receivedPacketStaticTextId = sp.createText(120, 390, "incoming (p/s):", [255, 255, 255, 1]),
+    public readonly receivedPacketStaticTextId = sp.createText(
+      120,
+      390,
+      "incoming (p/s):",
+      [255, 255, 255, 1],
+    ),
     public readonly receivedPacketAmountTextId = sp.createText(250, 390, "", [255, 255, 255, 1]),
-    public readonly sentPacketStaticTextId = sp.createText(120, 430, "outgoing (p/s):", [255, 255, 255, 1]),
+    public readonly sentPacketStaticTextId = sp.createText(
+      120,
+      430,
+      "outgoing (p/s):",
+      [255, 255, 255, 1],
+    ),
     public readonly sentPacketAmountTextId = sp.createText(250, 430, "", [255, 255, 255, 1]),
-    public readonly localPositionLagStaticTextId = sp.createText(90, 470, "local lag:", [255, 255, 255, 1]),
+    public readonly localPositionLagStaticTextId = sp.createText(
+      90,
+      470,
+      "local lag:",
+      [255, 255, 255, 1],
+    ),
     public readonly localPositionLagAmountTextId = sp.createText(250, 470, "", [255, 255, 255, 1]),
   ) {
     setTextSize(this.connectionStaticTextId, 0.5);

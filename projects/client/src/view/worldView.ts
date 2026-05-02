@@ -1,15 +1,18 @@
 import { Form } from "skyrimPlatform";
 
-import { WorldModel } from './model';
-import { FormViewArray } from './formViewArray';
-import { PlayerCharacterDataHolder } from './playerCharacterDataHolder';
-import { ClientListener, CombinedController, Sp } from '../services/clientListener';
 import { logTrace } from "../logging";
-import { SinglePlayerService } from "../services/singlePlayerService";
+import { ClientListener, CombinedController, Sp } from "../services/clientListener";
 import { RemoteServer } from "../services/remoteServer";
+import { SinglePlayerService } from "../services/singlePlayerService";
+import { FormViewArray } from "./formViewArray";
+import { WorldModel } from "./model";
+import { PlayerCharacterDataHolder } from "./playerCharacterDataHolder";
 
 export class WorldView extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     controller.on("update", () => this.onUpdate());
@@ -20,7 +23,7 @@ export class WorldView extends ClientListener {
     const oldView = this.sp.storage["view"];
 
     // can't use instanceof here because each hot reload creates a new class
-    this.oldView = typeof oldView === "object" ? oldView as WorldView : undefined;
+    this.oldView = typeof oldView === "object" ? (oldView as WorldView) : undefined;
 
     this.sp.storage["view"] = this;
   }
@@ -35,7 +38,7 @@ export class WorldView extends ClientListener {
 
   syncFormArray(model: WorldModel) {
     const { settings } = this.sp;
-    const showMe = settings['skymp5-client']['show-me'];
+    const showMe = settings["skymp5-client"]["show-me"];
     this.state.formViews.syncFormView(model, !!showMe);
   }
 
@@ -63,7 +66,7 @@ export class WorldView extends ClientListener {
     if (this.oldView) {
       this.oldView.destroy();
       this.oldView = undefined;
-      logTrace(this, 'Previous View destroyed');
+      logTrace(this, "Previous View destroyed");
     }
     this.waitGameTimeAndAllowFormViewUpdate(1.0);
   }
@@ -71,12 +74,10 @@ export class WorldView extends ClientListener {
   private resetAllFormViewsIfPlayerChangedWorld() {
     const state = this.state;
     const pc = this.sp.Game.getPlayer()!;
-    const pcWorldOrCell = (
-      (pc.getWorldSpace() || pc.getParentCell()) as Form
-    ).getFormID();
+    const pcWorldOrCell = ((pc.getWorldSpace() || pc.getParentCell()) as Form).getFormID();
     if (state.pcWorldOrCell !== pcWorldOrCell) {
       if (state.pcWorldOrCell) {
-        logTrace(this, 'Reset all form views');
+        logTrace(this, "Reset all form views");
         state.formViews.resize(0);
         state.cloneFormViews.resize(0);
       }
@@ -92,13 +93,13 @@ export class WorldView extends ClientListener {
     // Wait 1s game time (time spent in Race Menu isn't counted)
     this.sp.Utility.wait(seconds).then(() => {
       this.state.allowUpdate = true;
-      logTrace(this, 'Update is now allowed');
+      logTrace(this, "Update is now allowed");
     });
   }
 
   public setFormViewUpdateAllowed(allowed: boolean) {
     this.state.allowUpdate = allowed;
-    logTrace(this, 'Update is now', allowed ? 'allowed' : 'disallowed');
+    logTrace(this, "Update is now", allowed ? "allowed" : "disallowed");
   }
 
   private updateWorld(model: WorldModel): void {
@@ -109,11 +110,11 @@ export class WorldView extends ClientListener {
       model = {
         forms: [],
         playerCharacterFormIdx: model.playerCharacterFormIdx,
-        playerCharacterRefrId: model.playerCharacterRefrId
-      }
+        playerCharacterRefrId: model.playerCharacterRefrId,
+      };
     }
 
-    const skipUpdates = settings['skymp5-client']['skipUpdates'];
+    const skipUpdates = settings["skymp5-client"]["skipUpdates"];
 
     // skip 50% of updates if specified in the settings
     state.counter = !state.counter;
@@ -123,8 +124,8 @@ export class WorldView extends ClientListener {
 
     state.formViews.resize(model.forms.length);
 
-    const showMe = settings['skymp5-client']['show-me'];
-    const showClones = settings['skymp5-client']['show-clones'];
+    const showMe = settings["skymp5-client"]["show-me"];
+    const showClones = settings["skymp5-client"]["show-clones"];
 
     PlayerCharacterDataHolder.updateData();
 
@@ -144,7 +145,7 @@ export class WorldView extends ClientListener {
       allowUpdate: false,
       pcWorldOrCell: 0,
       counter: false,
-    }
+    };
   }
 
   private state: {

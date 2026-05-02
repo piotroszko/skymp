@@ -1,4 +1,4 @@
-import { Actor, Game, Spell, printConsole } from 'skyrimPlatform';
+import { Actor, Game, Spell, printConsole } from "skyrimPlatform";
 
 export const removeAllSpells = (actor: Actor) => {
   let spellToRemove = new Array<Spell>();

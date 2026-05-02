@@ -1,5 +1,15 @@
 // @ts-expect-error (TODO: Remove in 2.10.0)
-import { Actor, Form, FormType, Menu, interruptCast, castSpellImmediate, printConsole, applyAnimationVariablesToActor, ActorAnimationVariables } from 'skyrimPlatform';
+import {
+  Actor,
+  Form,
+  FormType,
+  Menu,
+  interruptCast,
+  castSpellImmediate,
+  printConsole,
+  applyAnimationVariablesToActor,
+  ActorAnimationVariables,
+} from "skyrimPlatform";
 import {
   Armor,
   Cell,
@@ -12,72 +22,68 @@ import {
   on, // TODO: use this.controller.on instead
   once, // TODO: use this.controller.once instead
   storage, // TODO: use this.sp.storage instead
-} from 'skyrimPlatform';
-
-import * as messages from '../messages';
+} from "skyrimPlatform";
 
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { ObjectReferenceEx } from '../extensions/objectReferenceEx';
-import { IdManager } from '../lib/idManager';
-import { nameof } from '../lib/nameof';
-import { setActorValuePercentage } from '../sync/actorvalues';
-import { applyAppearanceToPlayer } from '../sync/appearance';
-import { applyEquipment, isBadMenuShown } from '../sync/equipment';
-import { Inventory, applyInventory } from '../sync/inventory';
-import { Movement } from '../sync/movement';
-import { learnSpells, removeAllSpells } from '../sync/spell';
-import { ModelApplyUtils } from '../view/modelApplyUtils';
-import { FormModel, WorldModel } from '../view/model';
-import { LoadGameService } from './loadGameService';
-import { UpdateMovementMessage } from '../types/messages/updateMovementMessage';
-import { ChangeValuesMessage } from '../types/messages/changeValuesMessage';
-import { UpdateAnimationMessage } from '../types/messages/updateAnimationMessage';
-import { UpdateEquipmentMessage } from '../types/messages/updateEquipmentMessage';
-import { RagdollService } from './ragdollService';
-import { UpdateAppearanceMessage } from '../types/messages/updateAppearanceMessage';
-import { TeleportMessage } from '../types/messages/teleportMessage';
-import { DeathStateContainerMessage } from '../types/messages/deathStateContainerMessage';
-import { RespawnNeededError } from '../lib/errors';
-import { OpenContainerMessage } from '../types/messages/openContainerMessage';
-import { ActivateMessage } from '../types/messages/activateMessage';
-import { ClientListener, CombinedController, Sp } from './clientListener';
-import { HostStartMessage } from '../types/messages/hostStartMessage';
-import { HostStopMessage } from '../types/messages/hostStopMessage';
-import { ConnectionMessage } from '../types/events/connectionMessage';
-import { SetInventoryMessage } from '../types/messages/setInventoryMessage';
-import { CreateActorMessage, CreateActorMessageAdditionalProps } from '../types/messages/createActorMessage';
-import { DestroyActorMessage } from '../types/messages/destroyActorMessage';
-import { SetRaceMenuOpenMessage } from '../types/messages/setRaceMenuOpenMessage';
-import { UpdatePropertyMessage } from '../types/messages/updatePropertyMessage';
-import { TeleportMessage2 } from '../types/messages/teleportMessage2';
-
-// TODO: refactor worldViewMisc into service
+import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
+import { RespawnNeededError } from "../lib/errors";
+import { IdManager } from "../lib/idManager";
+import { nameof } from "../lib/nameof";
+import { logTrace, logError } from "../logging";
+import * as messages from "../messages";
+import { MsgType } from "../messages";
+import { setActorValuePercentage } from "../sync/actorvalues";
+import { applyAppearanceToPlayer } from "../sync/appearance";
+import { applyEquipment, isBadMenuShown } from "../sync/equipment";
+import { Inventory, applyInventory } from "../sync/inventory";
+import { Movement } from "../sync/movement";
+import { learnSpells, removeAllSpells } from "../sync/spell";
+import { ConnectionMessage } from "../types/events/connectionMessage";
+import { ActivateMessage } from "../types/messages/activateMessage";
+import { ChangeValuesMessage } from "../types/messages/changeValuesMessage";
 import {
-  getObjectReference,
-  getViewFromStorage,
-  remoteIdToLocalId,
-} from '../view/worldViewMisc';
-import { TimeService } from './timeService';
-import { logTrace, logError } from '../logging';
-
-import { SpellCastMessage } from '../types/messages/spellCastMessage';
-import { UpdateAnimVariablesMessage } from '../types/messages/updateAnimVariablesMessage';
-import { MsgType } from '../messages';
+  CreateActorMessage,
+  CreateActorMessageAdditionalProps,
+} from "../types/messages/createActorMessage";
+import { DeathStateContainerMessage } from "../types/messages/deathStateContainerMessage";
+import { DestroyActorMessage } from "../types/messages/destroyActorMessage";
+import { HostStartMessage } from "../types/messages/hostStartMessage";
+import { HostStopMessage } from "../types/messages/hostStopMessage";
+import { OpenContainerMessage } from "../types/messages/openContainerMessage";
+import { SetInventoryMessage } from "../types/messages/setInventoryMessage";
+import { SetRaceMenuOpenMessage } from "../types/messages/setRaceMenuOpenMessage";
+import { SpellCastMessage } from "../types/messages/spellCastMessage";
+import { TeleportMessage } from "../types/messages/teleportMessage";
+import { TeleportMessage2 } from "../types/messages/teleportMessage2";
+import { UpdateAnimationMessage } from "../types/messages/updateAnimationMessage";
+import { UpdateAnimVariablesMessage } from "../types/messages/updateAnimVariablesMessage";
+import { UpdateAppearanceMessage } from "../types/messages/updateAppearanceMessage";
+import { UpdateEquipmentMessage } from "../types/messages/updateEquipmentMessage";
+import { UpdateMovementMessage } from "../types/messages/updateMovementMessage";
+import { UpdatePropertyMessage } from "../types/messages/updatePropertyMessage";
+import { FormModel, WorldModel } from "../view/model";
+import { ModelApplyUtils } from "../view/modelApplyUtils";
+// TODO: refactor worldViewMisc into service
+import { getObjectReference, getViewFromStorage, remoteIdToLocalId } from "../view/worldViewMisc";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
+import { LoadGameService } from "./loadGameService";
+import { RagdollService } from "./ragdollService";
+import { TimeService } from "./timeService";
 
 export const getPcInventory = (): Inventory | undefined => {
-  const res = storage['pcInv'];
-  if (typeof res === 'object' && (res as any)['entries']) {
+  const res = storage["pcInv"];
+  if (typeof res === "object" && (res as any)["entries"]) {
     return res as Inventory;
   }
   return undefined;
 };
 
 const setPcInventory = (inv: Inventory): void => {
-  storage['pcInv'] = inv;
+  storage["pcInv"] = inv;
 };
 
 let pcInvLastApply = 0;
-on('update', () => {
+on("update", () => {
   if (isBadMenuShown()) {
     return;
   }
@@ -99,7 +105,10 @@ const unequipIronHelmet = () => {
 };
 
 export class RemoteServer extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     this.controller.emitter.on("hostStartMessage", (e) => this.onHostStartMessage(e));
@@ -117,25 +126,28 @@ export class RemoteServer extends ClientListener {
     this.controller.emitter.on("destroyActorMessage", (e) => this.onDestroyActorMessage(e));
     this.controller.emitter.on("setRaceMenuOpenMessage", (e) => this.onSetRaceMenuOpenMessage(e));
     this.controller.emitter.on("updatePropertyMessage", (e) => this.onUpdatePropertyMessage(e));
-    this.controller.emitter.on("deathStateContainerMessage", (e) => this.onDeathStateContainerMessage(e));
+    this.controller.emitter.on("deathStateContainerMessage", (e) =>
+      this.onDeathStateContainerMessage(e),
+    );
 
     this.controller.emitter.on("connectionAccepted", () => this.handleConnectionAccepted());
 
     this.controller.emitter.on("spellCastMessage", (e) => this.onSpellCastMessage(e));
-    this.controller.emitter.on("updateAnimVariablesMessage", (e) => this.onUpdateAnimVariablesMessage(e));
-
+    this.controller.emitter.on("updateAnimVariablesMessage", (e) =>
+      this.onUpdateAnimVariablesMessage(e),
+    );
   }
 
   private onHostStartMessage(event: ConnectionMessage<HostStartMessage>) {
     const msg = event.message;
     const target = msg.target;
 
-    let hosted = storage['hosted'];
+    let hosted = storage["hosted"];
     if (typeof hosted !== typeof []) {
       // if you try to switch to Set please checkout .concat usage.
       // concat compiles but doesn't work as expected
       hosted = new Array<number>();
-      storage['hosted'] = hosted;
+      storage["hosted"] = hosted;
     }
 
     if (!(hosted as Array<unknown>).includes(target)) {
@@ -146,11 +158,11 @@ export class RemoteServer extends ClientListener {
   private onHostStopMessage(event: ConnectionMessage<HostStopMessage>) {
     const msg = event.message;
     const target = msg.target;
-    logTrace(this, 'hostStop ' + target.toString(16));
+    logTrace(this, "hostStop " + target.toString(16));
 
-    const hosted = storage['hosted'] as Array<number>;
+    const hosted = storage["hosted"] as Array<number>;
     if (typeof hosted === typeof []) {
-      storage['hosted'] = hosted.filter((x) => x !== target);
+      storage["hosted"] = hosted.filter((x) => x !== target);
     }
   }
 
@@ -158,13 +170,13 @@ export class RemoteServer extends ClientListener {
     this.numSetInventory++;
 
     const msg = event.message;
-    once('update', () => {
+    once("update", () => {
       setPcInventory(msg.inventory);
 
       let blocked = false;
 
-      this.controller.emitter.emit('queryBlockSetInventoryEvent', {
-        block: () => blocked = true
+      this.controller.emitter.emit("queryBlockSetInventoryEvent", {
+        block: () => (blocked = true),
       });
 
       if (!blocked) {
@@ -174,7 +186,7 @@ export class RemoteServer extends ClientListener {
   }
 
   private onOpenContainerMessage(event: ConnectionMessage<OpenContainerMessage>): void {
-    once('update', async () => {
+    once("update", async () => {
       await Utility.wait(0.1); // Give a chance to update inventory
 
       const remoteId = event.message.target;
@@ -182,7 +194,14 @@ export class RemoteServer extends ClientListener {
       const refr = ObjectReference.from(Game.getFormEx(localId));
 
       if (refr === null) {
-        logError(this, 'onOpenContainerMessage - refr not found', 'remoteId', remoteId.toString(16), 'localId', localId.toString(16));
+        logError(
+          this,
+          "onOpenContainerMessage - refr not found",
+          "remoteId",
+          remoteId.toString(16),
+          "localId",
+          localId.toString(16),
+        );
         return;
       }
 
@@ -224,16 +243,23 @@ export class RemoteServer extends ClientListener {
         const message: ActivateMessage = {
           t: messages.MsgType.Activate,
           data: {
-            caster: 0x14, target: event.message.target, isSecondActivation: true
-          }
+            caster: 0x14,
+            target: event.message.target,
+            isSecondActivation: true,
+          },
         };
 
-        logTrace(this, "onOpenContainerMesage - waiting", delaySeconds, "seconds before sending ActivateMessage");
+        logTrace(
+          this,
+          "onOpenContainerMesage - waiting",
+          delaySeconds,
+          "seconds before sending ActivateMessage",
+        );
 
         Utility.waitMenuMode(delaySeconds).then(() => {
           this.controller.emitter.emit("sendMessage", {
             message: message,
-            reliability: "reliable"
+            reliability: "reliable",
           });
 
           logTrace(this, "onOpenContainerMesage - sent ActivateMessage", message);
@@ -242,15 +268,25 @@ export class RemoteServer extends ClientListener {
     });
   }
 
-  private onTeleportMessage(event: ConnectionMessage<TeleportMessage> | ConnectionMessage<TeleportMessage2>): void {
+  private onTeleportMessage(
+    event: ConnectionMessage<TeleportMessage> | ConnectionMessage<TeleportMessage2>,
+  ): void {
     const msg = event.message;
-    once('update', () => {
-      const id = ("idx" in msg && typeof msg.idx === "number") ? this.getIdManager().getId(msg.idx) : this.getMyActorIndex();
+    once("update", () => {
+      const id =
+        "idx" in msg && typeof msg.idx === "number"
+          ? this.getIdManager().getId(msg.idx)
+          : this.getMyActorIndex();
       const refr = id === this.getMyActorIndex() ? Game.getPlayer() : getObjectReference(id);
-      logTrace(this,
-        `Teleporting id`, id, `refrId`, refr?.getFormID().toString(16), `...`,
+      logTrace(
+        this,
+        `Teleporting id`,
+        id,
+        `refrId`,
+        refr?.getFormID().toString(16),
+        `...`,
         msg.pos,
-        'cell/world is',
+        "cell/world is",
         msg.worldOrCell.toString(16),
       );
       const ragdollService = this.controller.lookupListener(RagdollService);
@@ -290,17 +326,14 @@ export class RemoteServer extends ClientListener {
             if (msg.props.inventory) {
               ModelApplyUtils.applyModelInventory(refr, msg.props.inventory);
             }
-            ModelApplyUtils.applyModelIsOpen(refr, !!msg.props['isOpen']);
-            ModelApplyUtils.applyModelIsHarvested(
-              refr,
-              !!msg.props['isHarvested'],
-            );
+            ModelApplyUtils.applyModelIsOpen(refr, !!msg.props["isOpen"]);
+            ModelApplyUtils.applyModelIsHarvested(refr, !!msg.props["isHarvested"]);
 
             ModelApplyUtils.applyModelNodeScale(refr, msg.props.setNodeScale);
 
             ModelApplyUtils.applyModelNodeTextureSet(refr, msg.props.setNodeTextureSet);
 
-            ModelApplyUtils.applyModelIsDisabled(refr, !!msg.props['disabled']);
+            ModelApplyUtils.applyModelIsDisabled(refr, !!msg.props["disabled"]);
 
             // TODO: move to a separate module
             const animation = msg.props.lastAnimation;
@@ -319,26 +352,34 @@ export class RemoteServer extends ClientListener {
               })();
             }
 
-
             let displayName = msg.props.displayName;
 
             // keep in sync with spSnippetService.ts
             if (typeof displayName === "string") {
-
               const replaceValue = refr.getBaseObject()?.getName();
 
               if (replaceValue !== undefined) {
                 displayName = displayName.replace(/%original_name%/g, replaceValue);
               } else {
-                logError(this, "Couldn't get a replaceValue for SetDisplayName, refr.getFormID() was", refr.getFormID().toString(16));
+                logError(
+                  this,
+                  "Couldn't get a replaceValue for SetDisplayName, refr.getFormID() was",
+                  refr.getFormID().toString(16),
+                );
               }
 
               refr.setDisplayName(displayName, true);
-              logTrace(this, `calling setDisplayName`, displayName, `for`, refr.getFormID().toString(16));
+              logTrace(
+                this,
+                `calling setDisplayName`,
+                displayName,
+                `for`,
+                refr.getFormID().toString(16),
+              );
             }
           }
         } else {
-          logError(this, 'Failed to apply model to', refrId.toString(16));
+          logError(this, "Failed to apply model to", refrId.toString(16));
         }
       });
       return;
@@ -358,7 +399,7 @@ export class RemoteServer extends ClientListener {
         pos: msg.transform.pos,
         rot: msg.transform.rot,
         worldOrCell: msg.transform.worldOrCell,
-        runMode: 'Standing',
+        runMode: "Standing",
         direction: 0,
         isInJumpState: false,
         isSneaking: false,
@@ -399,17 +440,26 @@ export class RemoteServer extends ClientListener {
 
     if (msg.props) {
       for (const propName in msg.props) {
-        (form as Record<string, unknown>)[propName] = msg.props[propName as keyof CreateActorMessageAdditionalProps];
+        (form as Record<string, unknown>)[propName] =
+          msg.props[propName as keyof CreateActorMessageAdditionalProps];
       }
     }
 
-    msg.customPropsJsonDumps.forEach(element => {
+    msg.customPropsJsonDumps.forEach((element) => {
       let parsed: unknown;
       try {
         parsed = JSON.parse(element.propValueJsonDump);
       } catch (e) {
         if (e instanceof SyntaxError) {
-          logError(this, "createActor", msg.refrId?.toString(16), "failed to parse custom prop", element.propName, element.propValueJsonDump, e.message);
+          logError(
+            this,
+            "createActor",
+            msg.refrId?.toString(16),
+            "failed to parse custom prop",
+            element.propName,
+            element.propValueJsonDump,
+            e.message,
+          );
         } else {
           throw e;
         }
@@ -435,11 +485,11 @@ export class RemoteServer extends ClientListener {
 
     const applyPcInv = () => {
       if (msg.equipment) {
-        applyEquipment(Game.getPlayer()!, msg.equipment)
+        applyEquipment(Game.getPlayer()!, msg.equipment);
       }
 
       if (numSetInventory !== this.numSetInventory) {
-        logTrace(this, 'Skipping inventory apply due to newer setInventory message');
+        logTrace(this, "Skipping inventory apply due to newer setInventory message");
         return;
       }
 
@@ -447,8 +497,8 @@ export class RemoteServer extends ClientListener {
         this.onSetInventoryMessage({
           message: {
             t: MsgType.SetInventory,
-            inventory: msg.props.inventory
-          }
+            inventory: msg.props.inventory,
+          },
         });
       }
     };
@@ -456,16 +506,14 @@ export class RemoteServer extends ClientListener {
     if (msg.isMe && msg.props && msg.props.learnedSpells) {
       const learnedSpells = msg.props.learnedSpells;
 
-      once('update', () => {
+      once("update", () => {
         Utility.wait(1).then(() => {
           const player = Game.getPlayer();
 
           if (player) {
             removeAllSpells(player);
             learnSpells(player, learnedSpells);
-            logTrace(this,
-              `player learnedSpells:`, JSON.stringify(learnedSpells),
-            );
+            logTrace(this, `player learnedSpells:`, JSON.stringify(learnedSpells));
           }
         });
       });
@@ -476,7 +524,7 @@ export class RemoteServer extends ClientListener {
         once("update", () => {
           this.controller.emitter.emit("applyDeathStateEvent", {
             actor: Game.getPlayer()!,
-            isDead: true
+            isDead: true,
           });
         });
       }
@@ -484,15 +532,15 @@ export class RemoteServer extends ClientListener {
 
     if (msg.isMe) {
       const spawnTask = { running: false };
-      once('update', () => {
+      once("update", () => {
         // Use MoveRefrToPosition to spawn if possible (not in main menu)
         // In case of connection lost this is essential
         if (!spawnTask.running) {
           spawnTask.running = true;
-          logTrace(this, 'Using moveRefrToPosition to spawn player');
+          logTrace(this, "Using moveRefrToPosition to spawn player");
           (async () => {
             while (true) {
-              logTrace(this, 'Spawning...');
+              logTrace(this, "Spawning...");
               TESModPlatform.moveRefrToPosition(
                 Game.getPlayer(),
                 Cell.from(Game.getFormEx(msg.transform.worldOrCell)),
@@ -509,15 +557,10 @@ export class RemoteServer extends ClientListener {
               if (!pl) {
                 break;
               }
-              const pos = [
-                pl.getPositionX(),
-                pl.getPositionY(),
-                pl.getPositionZ(),
-              ];
+              const pos = [pl.getPositionX(), pl.getPositionY(), pl.getPositionZ()];
               const sqr = (x: number) => x * x;
               const distance = Math.sqrt(
-                sqr(pos[0] - msg.transform.pos[0]) +
-                sqr(pos[1] - msg.transform.pos[1]),
+                sqr(pos[0] - msg.transform.pos[0]) + sqr(pos[1] - msg.transform.pos[1]),
               );
               if (distance < 256) {
                 break;
@@ -535,28 +578,28 @@ export class RemoteServer extends ClientListener {
 
         if (msg.props) {
           const baseActorValues = new Map<string, unknown>([
-            ['healRate', msg.props.healRate],
-            ['healRateMult', msg.props.healRateMult],
-            ['health', msg.props.health],
-            ['magickaRate', msg.props.magickaRate],
-            ['magickaRateMult', msg.props.magickaRateMult],
-            ['magicka', msg.props.magicka],
-            ['staminaRate', msg.props.staminaRate],
-            ['staminaRateMult', msg.props.staminaRateMult],
-            ['stamina', msg.props.stamina],
-            ['healthPercentage', msg.props.healthPercentage],
-            ['staminaPercentage', msg.props.staminaPercentage],
-            ['magickaPercentage', msg.props.magickaPercentage],
+            ["healRate", msg.props.healRate],
+            ["healRateMult", msg.props.healRateMult],
+            ["health", msg.props.health],
+            ["magickaRate", msg.props.magickaRate],
+            ["magickaRateMult", msg.props.magickaRateMult],
+            ["magicka", msg.props.magicka],
+            ["staminaRate", msg.props.staminaRate],
+            ["staminaRateMult", msg.props.staminaRateMult],
+            ["stamina", msg.props.stamina],
+            ["healthPercentage", msg.props.healthPercentage],
+            ["staminaPercentage", msg.props.staminaPercentage],
+            ["magickaPercentage", msg.props.magickaPercentage],
           ]);
 
           const player = Game.getPlayer();
           if (player) {
             baseActorValues.forEach((value, key) => {
-              if (typeof value === 'number') {
-                if (key.includes('Percentage')) {
-                  const subKey = key.replace('Percentage', '');
+              if (typeof value === "number") {
+                if (key.includes("Percentage")) {
+                  const subKey = key.replace("Percentage", "");
                   const subValue = baseActorValues.get(subKey);
-                  if (typeof subValue === 'number') {
+                  if (typeof subValue === "number") {
                     setActorValuePercentage(player, subKey, value);
                   }
                 } else {
@@ -567,8 +610,8 @@ export class RemoteServer extends ClientListener {
           }
         }
       });
-      once('tick', () => {
-        once('tick', () => {
+      once("tick", () => {
+        once("tick", () => {
           if (!spawnTask.running) {
             spawnTask.running = true;
 
@@ -585,26 +628,30 @@ export class RemoteServer extends ClientListener {
               msg.transform.worldOrCell,
               msg.appearance
                 ? {
-                  name: msg.appearance.name,
-                  raceId: msg.appearance.raceId,
+                    name: msg.appearance.name,
+                    raceId: msg.appearance.raceId,
 
-                  // TODO: In types, isFemale is under face, but in the reality SP expects it here. Fix required.
-                  // @ts-expect-error
-                  isFemale: msg.appearance.isFemale,
+                    // TODO: In types, isFemale is under face, but in the reality SP expects it here. Fix required.
+                    // @ts-expect-error
+                    isFemale: msg.appearance.isFemale,
 
-                  face: {
-                    hairColor: msg.appearance.hairColor,
-                    bodySkinColor: msg.appearance.skinColor,
-                    headTextureSetId: msg.appearance.headTextureSetId,
-                    headPartIds: msg.appearance.headpartIds,
-                    presets: msg.appearance.presets
-                  },
-                }
+                    face: {
+                      hairColor: msg.appearance.hairColor,
+                      bodySkinColor: msg.appearance.skinColor,
+                      headTextureSetId: msg.appearance.headTextureSetId,
+                      headPartIds: msg.appearance.headpartIds,
+                      presets: msg.appearance.presets,
+                    },
+                  }
                 : undefined,
               loadOrder,
-              { minutes: 0, seconds: 0, hours: this.controller.lookupListener(TimeService).getTime().newGameHourValue }
+              {
+                minutes: 0,
+                seconds: 0,
+                hours: this.controller.lookupListener(TimeService).getTime().newGameHourValue,
+              },
             );
-            once('update', () => {
+            once("update", () => {
               applyPcInv();
               Utility.wait(0.3).then(applyPcInv);
               // Note: appearance part was copy-pasted
@@ -642,7 +689,7 @@ export class RemoteServer extends ClientListener {
       this.worldModel.playerCharacterRefrId = 0;
 
       // TODO: move to a separate module
-      once('update', () => Game.quitToMainMenu());
+      once("update", () => Game.quitToMainMenu());
     }
 
     this.getIdManager().freeIdFor(msg.idx);
@@ -731,19 +778,19 @@ export class RemoteServer extends ClientListener {
 
     if (this.skipFormViewCreation(msg)) {
       const refrId = msg.refrId;
-      once('update', () => {
+      once("update", () => {
         const refr = ObjectReference.from(Game.getFormEx(refrId));
         if (!refr) {
-          logError(this, 'UpdateProperty: refr not found');
+          logError(this, "UpdateProperty: refr not found");
           return;
         }
-        if (msg.propName === 'inventory') {
+        if (msg.propName === "inventory") {
           ModelApplyUtils.applyModelInventory(refr, msgData as Inventory);
-        } else if (msg.propName === 'isOpen') {
+        } else if (msg.propName === "isOpen") {
           ModelApplyUtils.applyModelIsOpen(refr, !!msgData);
-        } else if (msg.propName === 'isHarvested') {
+        } else if (msg.propName === "isHarvested") {
           ModelApplyUtils.applyModelIsHarvested(refr, !!msgData);
-        } else if (msg.propName === 'disabled') {
+        } else if (msg.propName === "disabled") {
           ModelApplyUtils.applyModelIsDisabled(refr, !!msgData);
         }
       });
@@ -767,13 +814,13 @@ export class RemoteServer extends ClientListener {
       return;
     }
 
-    if (msg.tIsDead.propName !== nameof<FormModel>('isDead')) {
+    if (msg.tIsDead.propName !== nameof<FormModel>("isDead")) {
       logError(this, `onDeathStateContainerMessage - Invalid propName`, msg.tIsDead.propName);
       return;
     }
 
     const msgData = this.extractUpdatePropertyMessageData(msg.tIsDead);
-    if (typeof msgData !== 'boolean') {
+    if (typeof msgData !== "boolean") {
       logError(this, `onDeathStateContainerMessage - Invalid data`, msgData);
       return;
     }
@@ -781,13 +828,13 @@ export class RemoteServer extends ClientListener {
     if (msg.tChangeValues) {
       this.onChangeValuesMessage({ message: msg.tChangeValues });
     }
-    once('update', () => this.onUpdatePropertyMessage({ message: msg.tIsDead }));
+    once("update", () => this.onUpdatePropertyMessage({ message: msg.tIsDead }));
 
     if (msg.tTeleport) {
       this.onTeleportMessage({ message: msg.tTeleport });
     }
 
-    once('update', () => {
+    once("update", () => {
       const actor =
         id === this.getWorldModel().playerCharacterFormIdx
           ? Game.getPlayer()!
@@ -796,7 +843,7 @@ export class RemoteServer extends ClientListener {
         try {
           this.controller.emitter.emit("applyDeathStateEvent", {
             actor: actor,
-            isDead: msgData
+            isDead: msgData,
           });
         } catch (e) {
           if (e instanceof RespawnNeededError) {
@@ -821,7 +868,7 @@ export class RemoteServer extends ClientListener {
   private onChangeValuesMessage(event: ConnectionMessage<ChangeValuesMessage>): void {
     const msg = event.message;
 
-    once('update', () => {
+    once("update", () => {
       const id = this.getIdManager().getId(msg.idx);
       const refr = id === this.getMyActorIndex() ? Game.getPlayer() : getObjectReference(id);
       const ac = Actor.from(refr);
@@ -831,13 +878,13 @@ export class RemoteServer extends ClientListener {
 
       const { health, stamina, magicka } = msg.data;
       if (typeof health === "number") {
-        setActorValuePercentage(ac, 'health', health);
+        setActorValuePercentage(ac, "health", health);
       }
       if (typeof stamina === "number") {
-        setActorValuePercentage(ac, 'stamina', stamina);
+        setActorValuePercentage(ac, "stamina", stamina);
       }
       if (typeof magicka === "number") {
-        setActorValuePercentage(ac, 'magicka', magicka);
+        setActorValuePercentage(ac, "magicka", magicka);
       }
     });
   }
@@ -848,7 +895,7 @@ export class RemoteServer extends ClientListener {
     if (msg.open) {
       // wait 0.3s cause we can see visual bugs when teleporting
       // and showing this menu at the same time in onConnect
-      once('update', () =>
+      once("update", () =>
         Utility.wait(0.3).then(() => {
           unequipIronHelmet();
           Game.showRaceMenu();
@@ -897,27 +944,25 @@ export class RemoteServer extends ClientListener {
     callback: (refr: ObjectReference) => void,
     maxAttempts: number = 120,
   ) {
-    once('update', () => {
+    once("update", () => {
       const refr = ObjectReference.from(Game.getFormEx(refrId));
       if (refr) {
         callback(refr);
       } else {
         maxAttempts--;
         if (maxAttempts > 0) {
-          once('update', () => this.onceLoad(refrId, callback, maxAttempts));
+          once("update", () => this.onceLoad(refrId, callback, maxAttempts));
         } else {
-          logError(this, 'Failed to load object reference ' + refrId.toString(16));
+          logError(this, "Failed to load object reference " + refrId.toString(16));
         }
       }
     });
-  };
+  }
 
-  private skipFormViewCreation(
-    msg: UpdatePropertyMessage | CreateActorMessage,
-  ) {
+  private skipFormViewCreation(msg: UpdatePropertyMessage | CreateActorMessage) {
     // Optimization added in #1186, however it doesn't work for doors for some reason
-    return msg.refrId && msg.refrId < 0xff000000 && msg.baseRecordType !== 'DOOR';
-  };
+    return msg.refrId && msg.refrId < 0xff000000 && msg.baseRecordType !== "DOOR";
+  }
 
   private extractUpdatePropertyMessageData(updatePropertyMessage: UpdatePropertyMessage) {
     let msgData: unknown = updatePropertyMessage.data;
@@ -927,7 +972,11 @@ export class RemoteServer extends ClientListener {
         msgData = JSON.parse(updatePropertyMessage.dataDump);
       } catch (e) {
         if (e instanceof SyntaxError) {
-          logError(this, 'extractUpdatePropertyMessageData - Failed to parse dataDump', updatePropertyMessage.dataDump);
+          logError(
+            this,
+            "extractUpdatePropertyMessageData - Failed to parse dataDump",
+            updatePropertyMessage.dataDump,
+          );
           return;
         } else {
           throw e;
@@ -941,7 +990,7 @@ export class RemoteServer extends ClientListener {
   private onSpellCastMessage(event: ConnectionMessage<SpellCastMessage>): void {
     const msg = event.message;
 
-    once('update', () => {
+    once("update", () => {
       const ac = Actor.from(Game.getFormEx(remoteIdToLocalId(msg.data.caster)));
       if (!ac) {
         return;
@@ -950,7 +999,7 @@ export class RemoteServer extends ClientListener {
       const actorAnimationVariables: ActorAnimationVariables = {
         booleans: new Uint8Array(msg.data.actorAnimationVariables.booleans),
         floats: new Uint8Array(msg.data.actorAnimationVariables.floats),
-        integers: new Uint8Array(msg.data.actorAnimationVariables.integers)
+        integers: new Uint8Array(msg.data.actorAnimationVariables.integers),
       };
 
       if (msg.data.interruptCast) {
@@ -960,8 +1009,15 @@ export class RemoteServer extends ClientListener {
 
       const spell = ac.getEquippedSpell(msg.data.castingSource);
       if (spell) {
-        castSpellImmediate(ac.getFormID(), msg.data.castingSource, spell.getFormID(), remoteIdToLocalId(msg.data.target),
-          msg.data.aimAngle, msg.data.aimHeading, actorAnimationVariables);
+        castSpellImmediate(
+          ac.getFormID(),
+          msg.data.castingSource,
+          spell.getFormID(),
+          remoteIdToLocalId(msg.data.target),
+          msg.data.aimAngle,
+          msg.data.aimHeading,
+          actorAnimationVariables,
+        );
       }
     });
   }
@@ -969,7 +1025,7 @@ export class RemoteServer extends ClientListener {
   private onUpdateAnimVariablesMessage(event: ConnectionMessage<UpdateAnimVariablesMessage>): void {
     const msg = event.message;
 
-    once('update', () => {
+    once("update", () => {
       const ac = Actor.from(Game.getFormEx(remoteIdToLocalId(msg.data.actorRemoteId)));
       if (!ac) {
         return;
@@ -978,13 +1034,16 @@ export class RemoteServer extends ClientListener {
       const actorAnimationVariables: ActorAnimationVariables = {
         booleans: new Uint8Array(msg.data.actorAnimationVariables.booleans),
         floats: new Uint8Array(msg.data.actorAnimationVariables.floats),
-        integers: new Uint8Array(msg.data.actorAnimationVariables.integers)
+        integers: new Uint8Array(msg.data.actorAnimationVariables.integers),
       };
 
       const isApplyed = applyAnimationVariablesToActor(ac.getFormID(), actorAnimationVariables);
 
       if (!isApplyed) {
-        logError(this, 'Failed apply AnimationVariables to actor with id: ' + ac.getFormID().toString(16));
+        logError(
+          this,
+          "Failed apply AnimationVariables to actor with id: " + ac.getFormID().toString(16),
+        );
       }
     });
   }

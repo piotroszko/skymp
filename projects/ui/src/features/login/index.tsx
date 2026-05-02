@@ -5,10 +5,10 @@ import * as en from "@/assets/locales/en.json";
 import * as ru from "@/assets/locales/ru.json";
 import { SkyrimFrame } from "@/components/SkyrimFrame/SkyrimFrame";
 
+import { AccountCharacter, useAuthResult } from "./authBridge";
+import CharacterSelectForm from "./CharacterSelectForm";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import CharacterSelectForm from "./CharacterSelectForm";
-import { AccountCharacter, useAuthResult } from "./authBridge";
 
 export type LoginLocale = typeof en;
 
@@ -94,7 +94,12 @@ const LoginPage = () => {
         <div className={"login-form--content"}>
           <div className={"login-form--content_header"}>{headerText}</div>
           {phase === "register" ? (
-            <RegisterForm locale={locale} setRegister={setRegister} inFlight={inFlight} errorMessage={errorMessage} />
+            <RegisterForm
+              locale={locale}
+              setRegister={setRegister}
+              inFlight={inFlight}
+              errorMessage={errorMessage}
+            />
           ) : phase === "characters" ? (
             <CharacterSelectForm
               locale={locale}
@@ -103,7 +108,12 @@ const LoginPage = () => {
               errorMessage={errorMessage}
             />
           ) : (
-            <LoginForm locale={locale} setRegister={setRegister} inFlight={inFlight} errorMessage={errorMessage} />
+            <LoginForm
+              locale={locale}
+              setRegister={setRegister}
+              inFlight={inFlight}
+              errorMessage={errorMessage}
+            />
           )}
         </div>
         <SkyrimFrame name="" />

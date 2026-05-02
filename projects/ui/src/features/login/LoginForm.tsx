@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { SkyrimButton } from "@/components/SkyrimButton/SkyrimButton";
 import { SkyrimInput } from "@/components/SkyrimInput/SkyrimInput";
 
-import { LoginLocale } from "./index";
 import { requestLogin } from "./authBridge";
+import { LoginLocale } from "./index";
 
 interface LoginFormProps {
   locale: LoginLocale;
@@ -69,7 +69,9 @@ const LoginForm = (props: LoginFormProps) => {
     <div className={"login-form--content_main"}>
       <div className={"login-form--content_main__email"}>
         <div className={"login-form--content_main__label"}>
-          <span className={"login-form--content_main__label___text"}>{props.locale.LOGIN.EMAIL}</span>
+          <span className={"login-form--content_main__label___text"}>
+            {props.locale.LOGIN.EMAIL}
+          </span>
           <img src={require("@/assets/img/mail.svg").default} alt="" />
         </div>
         <SkyrimInput
@@ -83,7 +85,9 @@ const LoginForm = (props: LoginFormProps) => {
       </div>
       <div className={"login-form--content_main__password"}>
         <div className={"login-form--content_main__label"}>
-          <span className={"login-form--content_main__label___text"}>{props.locale.LOGIN.PASSWORD}</span>
+          <span className={"login-form--content_main__label___text"}>
+            {props.locale.LOGIN.PASSWORD}
+          </span>
           <img src={require("@/assets/img/password.svg").default} alt="" />
         </div>
         <SkyrimInput
@@ -106,15 +110,15 @@ const LoginForm = (props: LoginFormProps) => {
             onClick={() => setRemember((v) => !v)}
           />
         </div>
-        <div
-          className={`skymp-input button`}
-          onClick={() => props.setRegister(true)}
-        >
+        <div className={`skymp-input button`} onClick={() => props.setRegister(true)}>
           <span className={"skymp-input_text"}>{props.locale.LOGIN.REGISTER_BUTTON}</span>
         </div>
       </div>
       {props.errorMessage ? (
-        <div className={"login-form--content_main__error"} style={{ color: "#ff8a8a", padding: "8px 0" }}>
+        <div
+          className={"login-form--content_main__error"}
+          style={{ color: "#ff8a8a", padding: "8px 0" }}
+        >
           {props.errorMessage}
         </div>
       ) : null}

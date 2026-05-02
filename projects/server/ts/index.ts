@@ -1,47 +1,47 @@
-import * as ui from "./ui";
-
 // @ts-ignore
 import * as sourceMapSupport from "source-map-support";
+
+import * as ui from "./ui";
 sourceMapSupport.install({
   retrieveSourceMap: function (source: string) {
-    if (source.endsWith('skymp5-server.js')) {
+    if (source.endsWith("skymp5-server.js")) {
       return {
-        url: 'original.js',
-        map: require('fs').readFileSync('dist_back/skymp5-server.js.map', 'utf8')
+        url: "original.js",
+        map: require("fs").readFileSync("dist_back/skymp5-server.js.map", "utf8"),
       };
     }
     return null;
-  }
+  },
 });
 
-import * as scampNative from "./scampNative";
-import { Settings } from "./settings";
-import { System } from "./systems/system";
-import { Spawn } from "./systems/spawn";
-import { AuthService, defaultAuthOptions } from "./systems/authService";
-import { createUserStore } from "./auth/userStore/UserStoreFactory";
-import { EventEmitter } from "events";
-import { pid } from "process";
-import * as fs from "fs";
 import * as chokidar from "chokidar";
-import * as path from "path";
+import { EventEmitter } from "events";
+import * as fs from "fs";
 import * as os from "os";
+import * as path from "path";
+import { pid } from "process";
 
+import { createUserStore } from "./auth/userStore/UserStoreFactory";
 import * as manifestGen from "./manifestGen";
+import * as scampNative from "./scampNative";
 import { createScampServer } from "./scampNative";
+import { Settings } from "./settings";
+import { AuthService, defaultAuthOptions } from "./systems/authService";
 import { MetricsSystem, tickDurationHistogram, tickDurationSummary } from "./systems/metricsSystem";
+import { Spawn } from "./systems/spawn";
+import { System } from "./systems/system";
 
 const gamemodeCache = new Map<string, string>();
 
 function requireTemp(module: string) {
   // https://blog.mastykarz.nl/create-temp-directory-app-node-js/
   let tmpDir;
-  const appPrefix = 'skymp5-server';
+  const appPrefix = "skymp5-server";
   try {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), appPrefix));
 
-    const contents = fs.readFileSync(module, 'utf8');
-    const tempPath = path.join(tmpDir, Math.random() + '-' + Date.now() + '.js');
+    const contents = fs.readFileSync(module, "utf8");
+    const tempPath = path.join(tmpDir, Math.random() + "-" + Date.now() + ".js");
     fs.writeFileSync(tempPath, contents);
 
     require(tempPath);
@@ -53,16 +53,14 @@ function requireTemp(module: string) {
         fs.rmSync(tmpDir, { recursive: true });
       }
     } catch (e) {
-      console.error(`An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`);
+      console.error(
+        `An error has occurred while removing the temp folder at ${tmpDir}. Please remove it manually. Error: ${e}`,
+      );
     }
   }
 }
 
-function requireUncached(
-  module: string,
-  clear: () => void,
-  server: scampNative.ScampServer
-): void {
+function requireUncached(module: string, clear: () => void, server: scampNative.ScampServer): void {
   let gamemodeContents = fs.readFileSync(require.resolve(module), "utf8");
 
   // Reload gamemode.js only if there are real changes
@@ -95,8 +93,7 @@ function requireUncached(
 
 const setupStreams = (scampNative: any) => {
   class LogsStream {
-    constructor(private logLevel: string) {
-    }
+    constructor(private logLevel: string) {}
 
     write(chunk: Buffer, encoding: string, callback: () => void) {
       // @ts-ignore
@@ -108,8 +105,8 @@ const setupStreams = (scampNative: any) => {
     }
   }
 
-  const infoStream = new LogsStream('info');
-  const errorStream = new LogsStream('error');
+  const infoStream = new LogsStream("info");
+  const errorStream = new LogsStream("error");
   // @ts-ignore
   process.stdout.write = (chunk: Buffer, encoding: string, callback: () => void) => {
     infoStream.write(chunk, encoding, callback);
@@ -165,10 +162,7 @@ const setupGamemode = (server: any, gamemodePath: string) => {
 
   const reloadGamemodeTimeout = function () {
     const n = numReloads.n;
-    setTimeout(
-      () => (n === numReloads.n ? reloadGamemode() : undefined),
-      1000,
-    );
+    setTimeout(() => (n === numReloads.n ? reloadGamemode() : undefined), 1000);
   };
 
   watcher.on("add", reloadGamemodeTimeout);
@@ -182,9 +176,7 @@ const setupGamemode = (server: any, gamemodePath: string) => {
 
 const main = async () => {
   const settingsObject = await Settings.get();
-  const {
-    offlineMode, gamemodePath, dataDir, databaseUri, databaseName, auth
-  } = settingsObject;
+  const { offlineMode, gamemodePath, dataDir, databaseUri, databaseName, auth } = settingsObject;
 
   const log = console.log;
 
@@ -198,15 +190,12 @@ const main = async () => {
   const authOptions = {
     passwordMinLength: auth?.passwordMinLength ?? defaultAuthOptions.passwordMinLength,
     sessionTtlMs: auth?.sessionTtlMs ?? defaultAuthOptions.sessionTtlMs,
-    maxCharactersPerAccount: auth?.maxCharactersPerAccount ?? defaultAuthOptions.maxCharactersPerAccount,
+    maxCharactersPerAccount:
+      auth?.maxCharactersPerAccount ?? defaultAuthOptions.maxCharactersPerAccount,
   };
 
   const systems = new Array<System>();
-  systems.push(
-    new MetricsSystem(),
-    new Spawn(log),
-    new AuthService(log, userStore, authOptions),
-  );
+  systems.push(new MetricsSystem(), new Spawn(log), new AuthService(log, userStore, authOptions));
 
   setupStreams(scampNative.getScampNative());
 
@@ -295,8 +284,7 @@ const main = async () => {
 
     for (const system of systems) {
       try {
-        if (system.customPacket)
-          system.customPacket(userId, type, content, ctx);
+        if (system.customPacket) system.customPacket(userId, type, content, ctx);
       } catch (e) {
         console.error(e);
       }
@@ -323,13 +311,13 @@ main();
 
 // TODO: implement alerts
 process.on("unhandledRejection", (...args) => {
-  console.error("[!!!] unhandledRejection")
+  console.error("[!!!] unhandledRejection");
   console.error(...args);
 });
 
 // setTimeout on gamemode should not be able to kill the entire server
 // TODO: implement alerts
 process.on("uncaughtException", (...args) => {
-  console.error("[!!!] uncaughtException")
+  console.error("[!!!] uncaughtException");
   console.error(...args);
 });

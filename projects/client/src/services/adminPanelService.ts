@@ -1,4 +1,5 @@
 import { BrowserMessageEvent, DxScanCode } from "skyrimPlatform";
+
 import { logError, logTrace } from "../logging";
 import { QueryKeyCodeBindings } from "../types/events/queryKeyCodeBindings";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
@@ -18,7 +19,10 @@ interface AdminPanelMessage {
 }
 
 export class AdminPanelService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
 
     this.controller.emitter.on("queryKeyCodeBindings", (e) => this.onQueryKeyCodeBindings(e));

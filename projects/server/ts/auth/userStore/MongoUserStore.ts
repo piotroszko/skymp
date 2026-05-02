@@ -1,4 +1,5 @@
 import { Collection, MongoClient } from "mongodb";
+
 import { IUserStore, UserCharacter, UserRecord, normalizeEmail } from "./IUserStore";
 
 interface CounterDoc {
@@ -89,10 +90,7 @@ export class MongoUserStore implements IUserStore {
       name,
       createdAt: Date.now(),
     };
-    const result = await this.users.updateOne(
-      { userId },
-      { $push: { characters: character } },
-    );
+    const result = await this.users.updateOne({ userId }, { $push: { characters: character } });
     if (result.matchedCount === 0) {
       throw new Error("User not found");
     }
@@ -103,10 +101,7 @@ export class MongoUserStore implements IUserStore {
     if (!this.users) {
       throw new Error("MongoUserStore not initialized");
     }
-    const result = await this.users.updateOne(
-      { userId },
-      { $pull: { characters: { profileId } } },
-    );
+    const result = await this.users.updateOne({ userId }, { $pull: { characters: { profileId } } });
     if (result.matchedCount === 0) {
       throw new Error("User not found");
     }
@@ -115,7 +110,11 @@ export class MongoUserStore implements IUserStore {
     }
   }
 
-  async renameCharacter(userId: number, profileId: number, newName: string): Promise<UserCharacter> {
+  async renameCharacter(
+    userId: number,
+    profileId: number,
+    newName: string,
+  ): Promise<UserCharacter> {
     if (!this.users) {
       throw new Error("MongoUserStore not initialized");
     }

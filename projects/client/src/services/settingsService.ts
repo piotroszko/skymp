@@ -1,14 +1,22 @@
 import { HttpClient, HttpHeaders, HttpResponse, printConsole, Utility } from "skyrimPlatform";
-import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { Mod, ServerManifest } from "../types/messages_http/serverManifest";
-import { TimersService } from "./timersService";
+
 import { logTrace } from "../logging";
+import { Mod, ServerManifest } from "../types/messages_http/serverManifest";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
+import { TimersService } from "./timersService";
 
 interface IHttpClientWithCallback {
   get(path: string, options?: { headers?: HttpHeaders }): Promise<HttpResponse>;
-  post(path: string, options: { body: string, contentType: string, headers?: HttpHeaders }): Promise<HttpResponse>;
+  post(
+    path: string,
+    options: { body: string; contentType: string; headers?: HttpHeaders },
+  ): Promise<HttpResponse>;
 
-  get(path: string, options: { headers?: HttpHeaders } | undefined, callback: (response: HttpResponse) => void): void;
+  get(
+    path: string,
+    options: { headers?: HttpHeaders } | undefined,
+    callback: (response: HttpResponse) => void,
+  ): void;
 }
 
 export interface TargetPeer {
@@ -20,7 +28,10 @@ export interface TargetPeer {
 export type TargetPeerCallback = (targetPeer: TargetPeer) => void;
 
 export class SettingsService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
   }
 
@@ -30,13 +41,18 @@ export class SettingsService extends ClientListener {
       masterKey = this.sp.settings["skymp5-client"]["master-key"];
     }
     if (!masterKey) {
-      masterKey = this.sp.settings["skymp5-client"]["server-ip"] + ":" + this.sp.settings["skymp5-client"]["server-port"];
+      masterKey =
+        this.sp.settings["skymp5-client"]["server-ip"] +
+        ":" +
+        this.sp.settings["skymp5-client"]["server-port"];
     }
     return masterKey;
   }
 
   public getMasterUrl() {
-    return this.normalizeUrl((this.sp.settings["skymp5-client"]["master"] as string) || "https://gateway.skymp.net");
+    return this.normalizeUrl(
+      (this.sp.settings["skymp5-client"]["master"] as string) || "https://gateway.skymp.net",
+    );
   }
 
   public makeMasterApiClient(): IHttpClientWithCallback {
@@ -63,9 +79,11 @@ export class SettingsService extends ClientListener {
 
     const serverInfoRequestTimeoutMs = 5000;
     const defaultPeer: TargetPeer = {
-      host: this.sp.settings['skymp5-client']['server-ip'] as string,
-      port: this.sp.settings['skymp5-client']['server-port'] as number,
-      publicKeys: this.sp.settings['skymp5-client']['server-public-keys'] as Record<string, string | undefined> | undefined,
+      host: this.sp.settings["skymp5-client"]["server-ip"] as string,
+      port: this.sp.settings["skymp5-client"]["server-port"] as number,
+      publicKeys: this.sp.settings["skymp5-client"]["server-public-keys"] as
+        | Record<string, string | undefined>
+        | undefined,
     };
 
     let resolved = false;
@@ -73,18 +91,21 @@ export class SettingsService extends ClientListener {
     const states = {
       start: () => {
         try {
-          if (this.sp.settings['skymp5-client']['server-info-ignore'] as boolean) {
-            logTrace(this, 'Skipping serverinfo request due to server-info-ignore in config');
+          if (this.sp.settings["skymp5-client"]["server-info-ignore"] as boolean) {
+            logTrace(this, "Skipping serverinfo request due to server-info-ignore in config");
             states.resolve(defaultPeer);
             return;
           }
-          this.controller.lookupListener(TimersService).setTimeout(
-            () => states.reject(new Error('getTargetPeer: serverinfo request timed out')),
-            serverInfoRequestTimeoutMs,
-          );
+          this.controller
+            .lookupListener(TimersService)
+            .setTimeout(
+              () => states.reject(new Error("getTargetPeer: serverinfo request timed out")),
+              serverInfoRequestTimeoutMs,
+            );
 
           masterApiClient.get(
-            `/api/servers/${masterKey}/serverinfo`, { headers: {} as HttpHeaders },
+            `/api/servers/${masterKey}/serverinfo`,
+            { headers: {} as HttpHeaders },
             states.handleResponse,
           );
         } catch (e) {
@@ -157,14 +178,14 @@ export class SettingsService extends ClientListener {
     }
 
     return [];
-  };
+  }
 
   private normalizeUrl(url: string) {
-    if (url.endsWith('/')) {
+    if (url.endsWith("/")) {
       return url.slice(0, url.length - 1);
     }
     return url;
-  };
+  }
 
   private targetPeerCache: TargetPeer | null = null;
 }

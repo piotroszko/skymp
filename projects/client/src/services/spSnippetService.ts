@@ -1,16 +1,18 @@
+import { logError, logTrace } from "../logging";
 import { MsgType } from "../messages";
 import { ConnectionMessage } from "../types/events/connectionMessage";
 import { FinishSpSnippetMessage } from "../types/messages/finishSpSnippetMessage";
 import { SpSnippetMessage } from "../types/messages/spSnippetMessage";
+import { WorldView } from "../view/worldView";
+// TODO: refactor worldViewMisc into service
+import { remoteIdToLocalId } from "../view/worldViewMisc";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 
-// TODO: refactor worldViewMisc into service
-import { remoteIdToLocalId } from '../view/worldViewMisc';
-import { logError, logTrace } from "../logging";
-import { WorldView } from "../view/worldView";
-
 export class SpSnippetService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
     this.controller.emitter.on("spSnippetMessage", (e) => this.onSpSnippetMessage(e));
     this.spAny = sp as Record<string, any>;
@@ -19,7 +21,7 @@ export class SpSnippetService extends ClientListener {
   private onSpSnippetMessage(event: ConnectionMessage<SpSnippetMessage>): void {
     const msg = event.message;
 
-    this.controller.once('update', async () => {
+    this.controller.once("update", async () => {
       this.run(msg)
         .then((res) => {
           const isNoResultSnippet = msg.snippetIdx === 0xffffffff;
@@ -31,31 +33,35 @@ export class SpSnippetService extends ClientListener {
             res = null;
           }
 
-          if (res !== null
-            && typeof res !== "number"
-            && typeof res !== "string"
-            && typeof res !== "boolean") {
-            logError(this, `Unsupported SpSnippet result type '${typeof res}'`)
+          if (
+            res !== null &&
+            typeof res !== "number" &&
+            typeof res !== "string" &&
+            typeof res !== "boolean"
+          ) {
+            logError(this, `Unsupported SpSnippet result type '${typeof res}'`);
             return;
           }
 
-          const message: FinishSpSnippetMessage = res === null ? {
-            t: MsgType.FinishSpSnippet,
-            snippetIdx: msg.snippetIdx
-          }
-            : {
-              t: MsgType.FinishSpSnippet,
-              returnValue: res,
-              snippetIdx: msg.snippetIdx,
-            }
+          const message: FinishSpSnippetMessage =
+            res === null
+              ? {
+                  t: MsgType.FinishSpSnippet,
+                  snippetIdx: msg.snippetIdx,
+                }
+              : {
+                  t: MsgType.FinishSpSnippet,
+                  returnValue: res,
+                  snippetIdx: msg.snippetIdx,
+                };
 
           this.controller.emitter.emit("sendMessage", {
             message: message,
-            reliability: "reliable"
+            reliability: "reliable",
           });
         })
         .catch((e) => {
-          logError(this, 'SpSnippet ' + msg.class + ' ' + msg.function + ' failed ' + e);
+          logError(this, "SpSnippet " + msg.class + " " + msg.function + " failed " + e);
         });
     });
   }
@@ -78,7 +84,11 @@ export class SpSnippetService extends ClientListener {
             newName = newName.replace(/%original_name%/g, replaceValue);
             snippet.arguments[0] = newName;
           } else {
-            logError(this, "Couldn't get a replaceValue for SetDisplayName, snippet.selfId was", snippet.selfId.toString(16));
+            logError(
+              this,
+              "Couldn't get a replaceValue for SetDisplayName, snippet.selfId was",
+              snippet.selfId.toString(16),
+            );
           }
         } else {
           logError(this, "Encountered SetDisplayName with non-string argument", newName);
@@ -121,7 +131,7 @@ export class SpSnippetService extends ClientListener {
         if (sound !== null) {
           const name = form.getName();
           if (name.trim() === "") {
-            logTrace(this, "Sound will not be played because item has no name")
+            logTrace(this, "Sound will not be played because item has no name");
           } else {
             sound.play(this.sp.Game.getPlayer());
           }
@@ -134,7 +144,7 @@ export class SpSnippetService extends ClientListener {
         } else {
           const name = form.getName();
           if (name.trim() === "") {
-            logTrace(this, "Notification will not be shown because item has no name")
+            logTrace(this, "Notification will not be shown because item has no name");
           } else {
             this.sp.Debug.notification(sign + " " + name + " (" + count + ")");
           }
@@ -144,7 +154,7 @@ export class SpSnippetService extends ClientListener {
       return;
     }
     return snippet.selfId ? this.runMethod(snippet) : this.runStatic(snippet);
-  };
+  }
 
   private deserializeArg(arg: any) {
     if (typeof arg === "object") {
@@ -166,15 +176,12 @@ export class SpSnippetService extends ClientListener {
       return gameObject;
     }
     return arg;
-  };
+  }
 
   private async runMethod(snippet: SpSnippetMessage): Promise<unknown> {
     const selfId = remoteIdToLocalId(snippet.selfId);
     const self = this.sp.Game.getFormEx(selfId);
-    if (!self)
-      throw new Error(
-        `Unable to find form with id ${selfId.toString(16)}`,
-      );
+    if (!self) throw new Error(`Unable to find form with id ${selfId.toString(16)}`);
     let cl = this.spAny[snippet.class];
     if (!cl) {
       const matchingKey = Object.keys(this.spAny).find((key) => {
@@ -198,14 +205,14 @@ export class SpSnippetService extends ClientListener {
       selfCasted,
       snippet.arguments.map((arg) => this.deserializeArg(arg)),
     );
-  };
+  }
 
   private async runStatic(snippet: SpSnippetMessage): Promise<unknown> {
     const papyrusClass = this.spAny[snippet.class];
     return await papyrusClass[snippet.function](
       ...snippet.arguments.map((arg) => this.deserializeArg(arg)),
     );
-  };
+  }
 
   private spAny: Record<string, any>;
-};
+}

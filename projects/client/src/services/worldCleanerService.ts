@@ -1,11 +1,15 @@
-import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { NiPoint3 } from "../sync/movement";
-import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
 import { Actor } from "skyrimPlatform";
+
+import { ObjectReferenceEx } from "../extensions/objectReferenceEx";
 import { logTrace } from "../logging";
+import { NiPoint3 } from "../sync/movement";
+import { ClientListener, CombinedController, Sp } from "./clientListener";
 
 export class WorldCleanerService extends ClientListener {
-  constructor(private sp: Sp, private controller: CombinedController) {
+  constructor(
+    private sp: Sp,
+    private controller: CombinedController,
+  ) {
     super();
     this.controller.on("update", () => this.onUpdate());
     this.controller.emitter.on("gameLoad", () => this.onGameLoad());
@@ -44,7 +48,7 @@ export class WorldCleanerService extends ClientListener {
       pc.getPositionX(),
       pc.getPositionY(),
       pc.getPositionZ(),
-      8192
+      8192,
     );
     if (actor === null) {
       return;
