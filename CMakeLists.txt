@@ -172,10 +172,12 @@ set(CMAKEPROJ_PROJECTS_DEPENDENCIES)  # Dependencies for each project
 set(CMAKEPROJ_PROJECTS_PRIORITY)      # Priority for each project
 
 # Group dirs whose direct children may carry a cmakeproj.cmake.
-# Phase 2 introduces projects/. Phase 3 will add libs/ and tests/.
 set(CMAKEPROJ_GROUP_DIRS
-  "${CMAKE_SOURCE_DIR}"           # legacy: C++ libs and tests still at repo root until Phase 3
-  "${CMAKE_SOURCE_DIR}/projects"  # Phase 2
+  "${CMAKE_SOURCE_DIR}"           # legacy: empty after Phase 3; removed in Phase 4
+  "${CMAKE_SOURCE_DIR}/projects"  # Phase 2: TS + dual-nature projects
+  "${CMAKE_SOURCE_DIR}/libs"      # Phase 3: C++ libraries
+  "${CMAKE_SOURCE_DIR}/tests"     # Phase 3: unit + integration tests
+  "${CMAKE_SOURCE_DIR}/assets"    # Phase 3: Skyrim Data overlays + compiled Papyrus
 )
 
 set(CMAKEPROJ_CANDIDATE_DIRS)
@@ -273,19 +275,19 @@ if(INSTALL_CLIENT_DIST)
   add_dependencies(install_client_dist skymp5-client skyrim-platform)
 endif()
 
-# Integration tests from misc/tests
-file(GLOB INTEGRATION_TESTS "${CMAKE_SOURCE_DIR}/misc/tests/test_*.js")
+# Integration tests from tests/integration
+file(GLOB INTEGRATION_TESTS "${CMAKE_SOURCE_DIR}/tests/integration/test_*.js")
 foreach(TEST_SCRIPT ${INTEGRATION_TESTS})
   get_filename_component(TEST_NAME "${TEST_SCRIPT}" NAME_WE)
 
   # Check for satellite DB folder (same name as test file without .js)
-  set(TEST_DB_DIR "${CMAKE_SOURCE_DIR}/misc/tests/${TEST_NAME}")
+  set(TEST_DB_DIR "${CMAKE_SOURCE_DIR}/tests/integration/${TEST_NAME}")
   if(NOT IS_DIRECTORY "${TEST_DB_DIR}")
     unset(TEST_DB_DIR)
   endif()
 
   # Check for test-specific server settings patch (same name as test file with .settings.json)
-  set(TEST_SETTINGS_JSON "${CMAKE_SOURCE_DIR}/misc/tests/${TEST_NAME}.settings.json")
+  set(TEST_SETTINGS_JSON "${CMAKE_SOURCE_DIR}/tests/integration/${TEST_NAME}.settings.json")
   if(NOT EXISTS "${TEST_SETTINGS_JSON}")
     unset(TEST_SETTINGS_JSON)
   endif()

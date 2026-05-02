@@ -16,7 +16,7 @@ Build system is CMake-based. If you work with the whole project, CMake would aut
 
 ## Project Commons
 
-TypeScript / dual-nature projects (the things that ship to users) live under `<repo_root>/projects/<project_name>`. C++ libraries (`libespm`, `papyrus-vm`, `savefile`, `serialization`, `viet`) currently still live at `<repo_root>/<project_name>` and will move to `<repo_root>/libs/<project_name>` in a later phase.
+TypeScript / dual-nature projects (the things that ship to users) live under `<repo_root>/projects/<project_name>`. C++ libraries (`espm`, `papyrus-vm`, `savefile`, `serialization`, `viet`) live under `<repo_root>/libs/<project_name>`. Tests live under `<repo_root>/tests/<unit|integration>`. Static and build-output asset trees (Skyrim `Data/` overlays and compiled Papyrus) live under `<repo_root>/assets/<client|papyrus>`.
 
 Regardless of language, we use kebab-case for folder names. It's a snake-case variant that uses a hyphen instead of an underscore. (i.e. `skyrim-platform` instead of `skyrim_platform` or `skyrimPlatform`).
 

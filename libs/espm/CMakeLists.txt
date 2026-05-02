@@ -1,4 +1,4 @@
-project(libespm)
+project(espm)
 include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
 
 file(GLOB ESPM_SRC "include/*.h" "src/*.cpp" "src/*.h")

@@ -1,0 +1,2 @@
+list(APPEND CMAKEPROJ_PROJECTS papyrus)
+set(CMAKEPROJ_PRIORITY_papyrus 2)

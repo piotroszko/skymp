@@ -44,7 +44,7 @@ skymp/
 │   └── viet/
 │
 ├── assets/                        # static & build-output asset trees
-│   ├── client/                    # was client-deps (Skyrim Data/ overlay: fonts, .swf, .pex)
+│   ├── skyrim-data/               # was client-deps (Skyrim Data/ overlay: fonts, .swf, .pex). Phase 3 used this name instead of `client/` to avoid a discovery-loop key collision with `projects/client/` (leaf dir names are project keys).
 │   └── papyrus/                   # was skymp5-scripts (compiled .pex + .psc sources)
 │
 ├── tests/
@@ -256,33 +256,68 @@ skymp/
       Live server bundle starts and resolves bcrypt/mongodb from
       hoisted `node_modules`. Linux/CI verification pending push.)
 
-## Phase 3 — Move C++ libs, tests, and assets
+## Phase 3 — Move C++ libs, tests, and assets ✅ DONE
 
 **Risk:** medium. **Goal:** finish the role-based grouping.
 
-- [ ] `git mv libespm         libs/espm`
-- [ ] `git mv papyrus-vm      libs/papyrus-vm`
-- [ ] `git mv savefile        libs/savefile`
-- [ ] `git mv serialization   libs/serialization`
-- [ ] `git mv viet            libs/viet`
-- [ ] `git mv unit            tests/unit`
-- [ ] `git mv misc/tests      tests/integration`
-- [ ] `git mv client-deps     assets/client`
-- [ ] `git mv skymp5-scripts  assets/papyrus`
-- [ ] Optional: rename CMake project IDs where the directory rename made
-      them inconsistent (e.g. `project(libespm)` → `project(espm)`).
-- [ ] Update path references:
-  - [ ] `cmakeproj.cmake` files in the moved dirs
-  - [ ] Root `CMakeLists.txt` if any explicit paths remain
-  - [ ] `cmake/run_test_unit.cmake`, `cmake/run_integration_test.cmake`,
-        `cmake/run_test_functions_lib.cmake`, etc.
-  - [ ] `client-deps/CMakeLists.txt` — copies into
-        `${CMAKE_BINARY_DIR}/dist/client/data`; verify its
-        `add_dependencies(... skyrim-platform)` still resolves after the
-        Phase 2 rename.
-  - [ ] `.github/workflows/*`
-  - [ ] `docs/` references
+- [x] `git mv libespm         libs/espm`
+- [x] `git mv papyrus-vm      libs/papyrus-vm`
+- [x] `git mv savefile        libs/savefile`
+- [x] `git mv serialization   libs/serialization`
+- [x] `git mv viet            libs/viet`
+- [x] `git mv unit            tests/unit`
+- [x] `git mv misc/tests      tests/integration`
+- [x] `git mv client-deps     assets/skyrim-data` (deviation from target
+      layout: `assets/client/` would collide with `projects/client/` in
+      the leaf-name keyed discovery loop; renamed to `skyrim-data` —
+      descriptive of its Skyrim `Data/` overlay role)
+- [x] `git mv skymp5-scripts  assets/papyrus`
+- [x] Renamed `project(libespm)` → `project(espm)` in `libs/espm/CMakeLists.txt`.
+      `add_library(libespm ALIAS espm)` kept so external refs continue to resolve.
+      Other `project(...)` IDs (`client-deps`, `skymp5-scripts`) left as-is —
+      their CMake target names are referenced from root `CMakeLists.txt` and
+      stay stable per the cross-cutting reminder.
+- [x] Update path references:
+  - [x] `cmakeproj.cmake` files in the moved dirs — keys rekeyed to match
+        new leaf dir names: `libespm` → `espm`, `client-deps` → `client`,
+        `skymp5-scripts` → `papyrus`. The discovery loop in root
+        `CMakeLists.txt:198` derives `<key>` from leaf dir name, so each
+        cmakeproj's `CMAKEPROJ_PRIORITY_<key>` had to track. `papyrus-vm`,
+        `savefile`, `serialization`, `viet`, `unit` cmakeproj.cmake files
+        unchanged (leaf name preserved).
+  - [x] Root `CMakeLists.txt`:
+        - Extended `CMAKEPROJ_GROUP_DIRS` with `libs/`, `tests/`, `assets/`.
+        - Updated three `${CMAKE_SOURCE_DIR}/misc/tests/...` refs in the
+          integration-test glob (lines 277, 282, 288) to `tests/integration/...`.
+        - `add_dependencies(prepare_nexus_archives skyrim-platform papyrus-vm)`
+          (line 238) and the `TARGETS_ADDITIONAL` lists (lines 240-244,
+          254-259) untouched — target names are stable.
+  - [x] `cmake/run_test_unit.cmake`, `cmake/run_integration_test.cmake` —
+        confirmed no source-path refs (only build-output filenames like
+        `skymp5-server.js`, which stay stable per cross-cutting reminder).
+  - [x] `cmake/run_test_functions_lib.cmake` — deleted (dead code; flagged
+        in Phase 2's notes for Phase 3 cleanup).
+  - [x] `assets/client/CMakeLists.txt` (was `client-deps/CMakeLists.txt`) —
+        unchanged; `add_dependencies(client-deps skyrim-platform)` resolves
+        because both target names are unaltered by Phase 2/3.
+  - [x] `.github/workflows/*` — verified zero refs to moved dirs; no edits.
+  - [x] `build.sh` — verified zero refs; no edits.
+  - [x] `docs/docs_repository_structure.md` — rewritten to describe the
+        finished `libs/`, `tests/`, `assets/` layout.
 - [ ] Verify `ctest --verbose` runs all unit + integration tests.
+
+### Additional work executed (not in original Phase 3 list)
+
+- [x] `linter-config.json` (lines 27, 36): `/skymp5-scripts/` →
+      `/assets/papyrus/` in CRLF + Linelint excludePaths.
+- [x] `.linelint.yml` (line 4): `'skymp5-scripts/'` → `'assets/papyrus/'`.
+- [x] `tests/unit/DistContentsExpected.json` — initial audit flagged
+      `papyrus-vm/papyrus-vm[.exe]` as needing `libs/` prefix; **verified
+      no change required**. The path is the dist-subdir name, hardcoded in
+      `libs/papyrus-vm/CMakeLists.txt:20` (`COMMAND copy
+      $<TARGET_FILE:papyrus-vm> ${CMAKE_BINARY_DIR}/dist/papyrus-vm/...`).
+      The dist layout is independent of source location and stays stable
+      per the cross-cutting reminder on deliverable filenames/paths.
 
 ## Phase 4 — Tooling and third-party cleanup
 
