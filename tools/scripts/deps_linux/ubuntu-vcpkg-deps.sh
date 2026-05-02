@@ -3,7 +3,7 @@
 set -e
 
 if [[ "$1" == "--get-image-uri" ]]; then
-  . misc/github_env_linux && echo "$SKYMP_VCPKG_DEPS_IMAGE"
+  . tools/scripts/github_env_linux && echo "$SKYMP_VCPKG_DEPS_IMAGE"
   exit
 fi
 

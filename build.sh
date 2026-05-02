@@ -68,10 +68,10 @@ elif [ "$1" = "--clean-node" ]; then
   read
   find -name node_modules -type d -prune -print0 | xargs --verbose -0 rm -rf
 elif [ "$1" = "--clean-vcpkg" ]; then
-  (cd vcpkg && git clean -xfd --dry-run)
+  (cd third_party/vcpkg && git clean -xfd --dry-run)
   echo -n Ctrl-C to abort, Return/Enter to proceed
   read
-  (cd vcpkg && git clean -xfd)
+  (cd third_party/vcpkg && git clean -xfd)
 elif [ "$1" = "--print-env" ]; then
   env
 else

@@ -14,8 +14,8 @@ if("${VCPKG_TARGET_TRIPLET}" STREQUAL "")
   endif()
 endif()
 
-set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/overlay_triplets")
-set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/overlay_ports")
+set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_CURRENT_LIST_DIR}/third_party/overlay_triplets")
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/third_party/overlay_ports")
 
 option(NO_CLEAN_AFTER_BUILD "Don't clean vcpkg temporary folders after build" OFF)
 
@@ -31,7 +31,7 @@ if("$ENV{CI}" STREQUAL "true" AND WIN32)
   # - https://github.com/skyrim-multiplayer/skymp/blob/main/.github/workflows/pr-windows-ae.yml
   set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
 else()
-  set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
+  set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/third_party/vcpkg/scripts/buildsystems/vcpkg.cmake")
 endif()
 
 # File from vcpkg submodule. This indicates inability to find this file or checkout submodules.
@@ -124,7 +124,7 @@ if(UNIT_DATA_DIR AND NOT IS_ABSOLUTE "${UNIT_DATA_DIR}")
 endif()
 
 if(DOWNLOAD_SKYRIM_DATA)
-  include(${CMAKE_SOURCE_DIR}/cmake/download_skyrim_data.cmake)
+  include(${CMAKE_SOURCE_DIR}/tools/cmake/download_skyrim_data.cmake)
   download_skyrim_data("${UNIT_DATA_DIR}")
 endif()
 
@@ -154,11 +154,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/tools/cmake/modules)
 
 # Yarn workspaces install (root). Hoists deps for all workspace packages
 # so per-package CMake targets don't each invoke yarn install.
-include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/yarn.cmake)
 if(NOT SKYMP_SKIP_YARN_INSTALL)
   yarn_execute_command(
     COMMAND install --frozen-lockfile
@@ -173,7 +173,6 @@ set(CMAKEPROJ_PROJECTS_PRIORITY)      # Priority for each project
 
 # Group dirs whose direct children may carry a cmakeproj.cmake.
 set(CMAKEPROJ_GROUP_DIRS
-  "${CMAKE_SOURCE_DIR}"           # legacy: empty after Phase 3; removed in Phase 4
   "${CMAKE_SOURCE_DIR}/projects"  # Phase 2: TS + dual-nature projects
   "${CMAKE_SOURCE_DIR}/libs"      # Phase 3: C++ libraries
   "${CMAKE_SOURCE_DIR}/tests"     # Phase 3: unit + integration tests
@@ -233,7 +232,7 @@ endforeach()
 if(PREPARE_NEXUS_ARCHIVES)
   add_custom_target(
     prepare_nexus_archives ALL
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/cmake/prepare_nexus_archives.cmake
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/tools/cmake/prepare_nexus_archives.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 
@@ -307,7 +306,7 @@ foreach(TEST_SCRIPT ${INTEGRATION_TESTS})
   add_test(
     NAME integration_${TEST_NAME}
     COMMAND ${CMAKE_COMMAND} ${ADD_TEST_ARGS}
-      -P ${CMAKE_SOURCE_DIR}/cmake/run_integration_test.cmake
+      -P ${CMAKE_SOURCE_DIR}/tools/cmake/run_integration_test.cmake
   )
 
   set_tests_properties(integration_${TEST_NAME} PROPERTIES

@@ -1,6 +1,6 @@
 project(skymp5-scripts)
 
-include(${CMAKE_SOURCE_DIR}/cmake/add_papyrus_library_ck.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/add_papyrus_library_ck.cmake)
 
 if(BUILD_SCRIPTS)
     add_papyrus_library_ck(

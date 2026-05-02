@@ -1,8 +1,8 @@
 # TODO: enable for Emscripten once stabilize
 if(BUILD_UNIT_TESTS AND NOT EMSCRIPTEN)
 
-  include(${CMAKE_SOURCE_DIR}/cmake/add_papyrus_library_ck.cmake)
-  include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
+  include(${CMAKE_SOURCE_DIR}/tools/cmake/add_papyrus_library_ck.cmake)
+  include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
 
   #
   # papyrus_test_files
@@ -72,7 +72,7 @@ if(BUILD_UNIT_TESTS AND NOT EMSCRIPTEN)
       -DCPPCOV=OFF
       -DCPPCOV_PATH=${CPPCOV_PATH}
       -DUNIT_WORKING_DIRECTORY=${CMAKE_BINARY_DIR}
-      -P ${CMAKE_SOURCE_DIR}/cmake/run_test_unit.cmake
+      -P ${CMAKE_SOURCE_DIR}/tools/cmake/run_test_unit.cmake
   )
   set_tests_properties(test_unit PROPERTIES
     FIXTURES_SETUP unit_passed
@@ -87,7 +87,7 @@ if(BUILD_UNIT_TESTS AND NOT EMSCRIPTEN)
         -DCOVERAGE_HTML_OUT_DIR=${CMAKE_BINARY_DIR}/__coverage
         -DCPPCOV=ON
         -DCPPCOV_PATH=${CPPCOV_PATH}
-        -P ${CMAKE_SOURCE_DIR}/cmake/run_test_unit.cmake
+        -P ${CMAKE_SOURCE_DIR}/tools/cmake/run_test_unit.cmake
     )
   endif()
 endif()

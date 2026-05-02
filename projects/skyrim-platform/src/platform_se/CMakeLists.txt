@@ -2,10 +2,10 @@ project(platform_se VERSION 2.9.0 LANGUAGES CXX)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/Version.h @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.rc.in ${CMAKE_CURRENT_BINARY_DIR}/version.rc @ONLY)
 
-include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
 
 if(MSVC)
-  include(${CMAKE_SOURCE_DIR}/cmake/add_papyrus_library_ck.cmake)
+  include(${CMAKE_SOURCE_DIR}/tools/cmake/add_papyrus_library_ck.cmake)
 
   add_library(node-embedder-api INTERFACE)
   find_path(node_INCLUDE_DIR NAMES js_native_api.h PATH_SUFFIXES node-embedder-api node-embedder-api-prebuilt)
@@ -78,7 +78,7 @@ if(NOT "${SKIP_SKYRIM_PLATFORM_BUILDING}")
   )
   apply_default_settings(TARGETS skyrim_plugin_resources)
 
-  include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
+  include(${CMAKE_SOURCE_DIR}/tools/cmake/yarn.cmake)
   yarn_execute_command(
     WORKING_DIRECTORY "${SKYRIM_PLATFORM_SOURCE_DIR}/tools/dev_service"
     COMMAND install

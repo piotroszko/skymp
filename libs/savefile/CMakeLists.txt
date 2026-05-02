@@ -1,5 +1,5 @@
 project(savefile)
-include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
 
 file(GLOB_RECURSE savefile_src "${CMAKE_CURRENT_LIST_DIR}/src/*.cpp" "${CMAKE_CURRENT_LIST_DIR}/src/*.h" "${CMAKE_CURRENT_LIST_DIR}/include/*.h")
 

@@ -1,5 +1,5 @@
 project(papyrus-vm VERSION 1.0.0)
-include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
 
 file(GLOB src "${CMAKE_CURRENT_SOURCE_DIR}/src/papyrus-vm-lib/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/papyrus-vm-lib/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 list(APPEND src "${CMAKE_SOURCE_DIR}/.clang-format")

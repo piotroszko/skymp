@@ -34,9 +34,9 @@ jobs:
       - name: Install yarn packages
         uses: borales/actions-yarn@v4
         with:
-          cmd: --cwd=./misc/prettier install
+          cmd: --cwd=./tools/prettier install
       - name: Check prettier errors
         uses: borales/actions-yarn@v4
         with:
-          cmd: --cwd=./misc/prettier prettier-check
+          cmd: --cwd=./tools/prettier prettier-check
         continue-on-error: true

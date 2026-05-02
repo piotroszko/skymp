@@ -1,8 +1,8 @@
 # A utility script for Git Hooks installation
 # Usage:
-# cmake -P misc/install_git_hooks.cmake
+# cmake -P tools/scripts/install_git_hooks.cmake
 
-set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
+set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../..")
 get_filename_component(REPO_ROOT ${REPO_ROOT} REALPATH)
 
 file(MAKE_DIRECTORY ${REPO_ROOT}/.git/hooks)

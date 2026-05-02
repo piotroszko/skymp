@@ -3,8 +3,8 @@ enable_testing()
 
 set(SKYMP5_SERVER_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-include(${CMAKE_SOURCE_DIR}/cmake/apply_default_settings.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/apply_default_settings.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/yarn.cmake)
 
 find_package(CMakeRC CONFIG REQUIRED)
 
@@ -108,7 +108,7 @@ message(STATUS "esm_prefix is '${esm_prefix}'")
 if(TARGET ${PROJECT_NAME})
   add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -DESM_PREFIX=${esm_prefix} -DSERVER_SETTINGS_JSON_PATH=${CMAKE_BINARY_DIR}/dist/server/server-settings.json -DSERVER_SETTINGS_BASE_JSON_PATH=${CMAKE_BINARY_DIR}/server-settings-base.json -DOFFLINE_MODE=${OFFLINE_MODE} -P ${CMAKE_SOURCE_DIR}/cmake/scripts/generate_server_settings.cmake
+    COMMAND ${CMAKE_COMMAND} -DESM_PREFIX=${esm_prefix} -DSERVER_SETTINGS_JSON_PATH=${CMAKE_BINARY_DIR}/dist/server/server-settings.json -DSERVER_SETTINGS_BASE_JSON_PATH=${CMAKE_BINARY_DIR}/server-settings-base.json -DOFFLINE_MODE=${OFFLINE_MODE} -P ${CMAKE_SOURCE_DIR}/tools/cmake/scripts/generate_server_settings.cmake
   )
 
   add_custom_command(

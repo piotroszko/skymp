@@ -1,4 +1,4 @@
-include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
+include(${CMAKE_SOURCE_DIR}/tools/cmake/yarn.cmake)
 
 file(GLOB_RECURSE sources ${CMAKE_CURRENT_LIST_DIR}/*.ts)
 

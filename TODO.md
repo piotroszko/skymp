@@ -319,31 +319,87 @@ skymp/
       The dist layout is independent of source location and stays stable
       per the cross-cutting reminder on deliverable filenames/paths.
 
-## Phase 4 — Tooling and third-party cleanup
+## Phase 4 — Tooling and third-party cleanup ✅ DONE
 
 **Risk:** low. **Goal:** finish the layout; nothing functional changes.
 
-- [ ] `git mv cmake               tools/cmake`
-- [ ] `git mv misc/prettier       tools/prettier`
-- [ ] `git mv overlay_ports       third_party/overlay_ports`
-- [ ] `git mv overlay_triplets    third_party/overlay_triplets`
-- [ ] Move `vcpkg` submodule to `third_party/vcpkg`:
-  - [ ] Edit `.gitmodules` to update the path
-  - [ ] `git mv vcpkg third_party/vcpkg`
-  - [ ] `git submodule sync && git submodule update --init`
-  - [ ] Update any `CMAKE_TOOLCHAIN_FILE` path references in CI and
-        `build.sh`.
-- [ ] Move loose scripts: `misc/deps_linux`, `misc/github_env_linux`,
+- [x] `git mv cmake               tools/cmake`
+- [x] `git mv misc/prettier       tools/prettier`
+- [x] `git mv overlay_ports       third_party/overlay_ports`
+- [x] `git mv overlay_triplets    third_party/overlay_triplets`
+- [x] Move `vcpkg` submodule to `third_party/vcpkg`:
+  - [x] `git mv vcpkg third_party/vcpkg` (modern git auto-updates
+        `.gitmodules`, the gitlink, and `.git/modules/<name>/` atomically;
+        manual `.gitmodules` edit is unnecessary and unsafe)
+  - [x] `git submodule sync --recursive && git submodule update --init --recursive`
+  - [x] Update `CMAKE_TOOLCHAIN_FILE` in root `CMakeLists.txt:34`
+        (`${CMAKE_SOURCE_DIR}/vcpkg/...` → `${CMAKE_SOURCE_DIR}/third_party/vcpkg/...`).
+        Line 32 (`C:/vcpkg/...` Windows-CI absolute fallback) deliberately
+        unchanged — it points at the runner's disk, not the in-repo submodule.
+        Updated `build.sh` lines 71/74 (`cd vcpkg` → `cd third_party/vcpkg`)
+        and `.github/workflows/linux-build.yml:207` (artifact path).
+- [x] Move loose scripts: `misc/deps_linux`, `misc/github_env_linux`,
       `misc/install_git_hooks.cmake` → `tools/scripts/`.
-- [ ] Update path references:
-  - [ ] Root `CMakeLists.txt` `include()` calls referencing `cmake/...`
-  - [ ] All `*.cmake` files referencing sibling helpers
-  - [ ] `.github/workflows/*`
-  - [ ] `build.sh`
-  - [ ] `docs/`
-- [ ] Delete `misc/` if it's now empty.
-- [ ] Update `CLAUDE.md` build/test instructions and `docs/` to reflect
-      the new layout.
+- [x] Update path references:
+  - [x] Root `CMakeLists.txt`: lines 17, 18, 34, 127, 157, 161, 236, 310
+        (TODO line numbers 219/293 had drifted to 236/310 since the Phase 4
+        sketch was written).
+  - [x] All sub-project `CMakeLists.txt` files referencing
+        `${CMAKE_SOURCE_DIR}/cmake/...` — 14 files under `assets/`, `libs/`,
+        `projects/`, `tests/`. **Plus three sites missing from the original
+        Phase 4 inventory**: `projects/server/cpp/CMakeLists.txt:3`,
+        `projects/server/ts/CMakeLists.txt:1`, `projects/ui/build-local.cmake:1`,
+        `projects/gamemode/download-and-build-with-prs.cmake:1`.
+  - [x] Hardcoded data-file path in `tools/cmake/add_papyrus_library_ck.cmake:25`
+        (`${CMAKE_SOURCE_DIR}/cmake/TESV_Papyrus_Flags.flg` →
+        `${CMAKE_SOURCE_DIR}/tools/cmake/...`).
+  - [x] `.github/workflows/prettier.yml` (lines 37, 41) and
+        `.github/workflows/linux-build.yml` (lines 85 commented, 88, 101, 207).
+  - [x] `build.sh` (lines 71, 74).
+  - [x] `docs/docs_repository_structure.md` (lines 11, 13, 15 + added
+        entries for `tools/scripts/` and `third_party/vcpkg/`).
+- [x] Delete `misc/` if it's now empty. (Auto-removed by `git mv`; verified
+      gone with `ls misc` returning no such directory.)
+- [x] Update `CLAUDE.md` build/test instructions and `docs/` to reflect
+      the new layout. **CLAUDE.md required no edits** — its commands
+      (`mkdir build`, `cmake ..`, `cmake --build .`, `ctest --verbose`,
+      `./unit/unit [Respawn]`) are generic and reference only stable
+      build-output paths, not source paths. Doc updates landed in
+      `docs/docs_repository_structure.md`.
+
+### Additional work executed (not in original Phase 4 list)
+
+- [x] **Bug fix**: `tools/scripts/install_git_hooks.cmake:5` — `REPO_ROOT`
+      was computed as `${CMAKE_CURRENT_LIST_DIR}/..` (correct from the
+      old `misc/` location, one level deep). After move to `tools/scripts/`
+      it must be `${CMAKE_CURRENT_LIST_DIR}/../..` (two levels deep).
+      Without this fix the `.git/hooks` directory creation and pre-commit
+      install would target `tools/.git/hooks` instead of the repo root.
+- [x] Removed legacy `${CMAKE_SOURCE_DIR}` entry from `CMAKEPROJ_GROUP_DIRS`
+      in root `CMakeLists.txt:175` — it had been kept since Phase 3 with
+      a comment marking it for Phase 4 removal. Nothing at the repo root
+      carries a `cmakeproj.cmake` anymore (the discovery loop now walks
+      only `projects/`, `libs/`, `tests/`, `assets/`).
+- [x] `linter-config.json:45` (ClangFormat section) — `"/overlay_ports/"`
+      → `"/third_party/overlay_ports/"`. The CRLF and Linelint sections
+      (lines 27, 36) already had a `/third_party/` umbrella entry so the
+      sub-paths are technically subsumed; updated those for clarity.
+- [x] `.prettierignore:3` — bare token `vcpkg` → `third_party/vcpkg`. The
+      bare token would no longer match any tracked directory after the move.
+- [x] `tools/scripts/deps_linux/ubuntu-vcpkg-deps.sh:6` — internal path
+      `. misc/github_env_linux` → `. tools/scripts/github_env_linux`
+      (script runs from repo root inside the docker buildimage).
+- [x] `tools/scripts/install_git_hooks.cmake:3` — usage comment updated.
+- [x] `projects/skyrim-platform/tools/dev_service/index.js:5` — comment
+      `Keep this in sync with triplet file overlay_triplets\...` →
+      `third_party/overlay_triplets/...`.
+- [x] **Verified non-issue**: `third_party/overlay_ports/cef-prebuilt/CMakeLists.txt:4`
+      references `${CMAKE_SOURCE_DIR}/cmake` — this runs in vcpkg port
+      build context where `CMAKE_SOURCE_DIR` resolves inside the port's
+      extract dir, not the skymp repo. No edit required.
+- [x] **Verified non-issue**: `cmake/modules/` directory does not exist.
+      `CMAKE_MODULE_PATH` (line 157) was updated to `tools/cmake/modules`
+      for consistency, but the path is still reserved/empty.
 
 ---
 
