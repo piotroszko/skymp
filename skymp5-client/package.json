@@ -21,7 +21,7 @@
     "skyrim platform"
   ],
   "dependencies": {
-    "@skyrim-platform/skyrim-platform": "2.9.0",
+    "@skyrim-platform/skyrim-platform": "*",
     "eventemitter3": "^5.0.1"
   }
 }

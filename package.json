@@ -1,0 +1,26 @@
+{
+  "name": "skymp",
+  "private": true,
+  "workspaces": [
+    "skymp5-server",
+    "skymp5-client",
+    "skymp5-front",
+    "skyrim-platform"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck"
+  },
+  "packageManager": "yarn@1.22.22",
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "resolutions": {
+    "webpack-dev-server/webpack-dev-middleware/memfs": "^4.57.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "ts-loader": "^9.5.7"
+  }
+}

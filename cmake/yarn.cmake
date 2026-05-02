@@ -43,6 +43,18 @@ function(yarn_execute_command)
   set("${A_OUTPUT_VARIABLE}" "${yarn_output}" PARENT_SCOPE)
 endfunction()
 
+function(turbo_run_build)
+  cmake_parse_arguments(A "" "FILTER" "" ${ARGN})
+  if("${A_FILTER}" STREQUAL "")
+    message(FATAL_ERROR "Missing FILTER argument")
+  endif()
+
+  yarn_execute_command(
+    COMMAND turbo run build --filter=${A_FILTER}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+endfunction()
+
 function(yarn_set_script)
   cmake_parse_arguments(A "" "WORKING_DIRECTORY;NAME;RESULT_VARIABLE;OUTPUT_VARIABLE" "SCRIPT" ${ARGN})
   foreach(arg WORKING_DIRECTORY NAME SCRIPT RESULT_VARIABLE OUTPUT_VARIABLE)

@@ -1,5 +1,5 @@
 {
-  "name": "ui_webpack",
+  "name": "@skymp/ui",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -69,10 +69,5 @@
     "plugins": [
       "babel-plugin-react-compiler"
     ]
-  },
-  "resolutions": {
-    "webpack-dev-server/webpack-dev-middleware/memfs": "^4.57.2",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3"
   }
 }
