@@ -1,14 +1,5 @@
 include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
 
-message(STATUS "Installing yarn dependencies for frontend")
-
-yarn_execute_command(
-    WORKING_DIRECTORY ${FRONTEND_SOURCE_DIR}
-    COMMAND install
-)
-
-message(STATUS "Installed yarn dependencies for frontend")
-
 message(STATUS "Writing config.js for frontend")
 
 file(WRITE "${FRONTEND_SOURCE_DIR}/config.js" "")
@@ -20,8 +11,8 @@ file(APPEND "${FRONTEND_SOURCE_DIR}/config.js" "};\n")
 message(STATUS "Building frontend")
 
 yarn_execute_command(
-    WORKING_DIRECTORY ${FRONTEND_SOURCE_DIR}
-    COMMAND build
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND turbo run build --filter=@skymp/ui
 )
 
 message(STATUS "Built frontend")

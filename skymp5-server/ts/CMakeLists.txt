@@ -7,17 +7,19 @@ set(out
 )
 
 if(WIN32)
+  set(turbo_bat "${CMAKE_CURRENT_BINARY_DIR}/turbo_server.bat")
+  file(WRITE ${turbo_bat} "yarn turbo run build --filter=skymp5-server")
   add_custom_command(
     OUTPUT ${out}
-    COMMAND yarn --cwd "\"${SKYMP5_SERVER_SOURCE_DIR}\"" build-ts
+    COMMAND ${turbo_bat}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${sources}
   )
 else()
   add_custom_command(
     OUTPUT ${out}
-    COMMAND yarn
-    COMMAND yarn build-ts
-    WORKING_DIRECTORY ${SKYMP5_SERVER_SOURCE_DIR}
+    COMMAND yarn turbo run build --filter=skymp5-server
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${sources}
   )
 endif()

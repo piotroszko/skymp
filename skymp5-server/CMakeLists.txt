@@ -8,11 +8,6 @@ include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
 
 find_package(CMakeRC CONFIG REQUIRED)
 
-yarn_execute_command(
-  COMMAND install
-  WORKING_DIRECTORY ${SKYMP5_SERVER_SOURCE_DIR}
-)
-
 # Find node-addon-api
 if(NOT EMSCRIPTEN)
   find_package(unofficial-node-addon-api REQUIRED)
@@ -121,24 +116,19 @@ if(TARGET ${PROJECT_NAME})
     COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/package.json ${CMAKE_BINARY_DIR}/dist/server/package.json
   )
 
+  # The workspace root yarn.lock is the source of truth for all locked
+  # versions; copy it as the server's deployable lockfile.
   add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/yarn.lock ${CMAKE_BINARY_DIR}/dist/server/yarn.lock
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/yarn.lock ${CMAKE_BINARY_DIR}/dist/server/yarn.lock
   )
 
   # node dist_back/skymp5-server.js (the integration-test entry point)
-  # resolves modules walking up from build/dist/server/dist_back/, so
-  # external native deps like bcrypt must exist somewhere along that
-  # path. Install at ${CMAKE_BINARY_DIR}/node_modules so the resolver
-  # finds them there without polluting build/dist/, which is verified
-  # against DistContentsExpected.json by DistContentsTest.
-  add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/package.json ${CMAKE_BINARY_DIR}/package.json
-    COMMAND ${CMAKE_COMMAND} -E copy ${SKYMP5_SERVER_SOURCE_DIR}/yarn.lock ${CMAKE_BINARY_DIR}/yarn.lock
-    COMMAND yarn install --frozen-lockfile
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-  )
+  # resolves modules walking up from build/dist/server/dist_back/. Under
+  # yarn workspaces, runtime deps like bcrypt and mongodb are hoisted to
+  # ${CMAKE_SOURCE_DIR}/node_modules; the resolver walks past
+  # ${CMAKE_BINARY_DIR} (= ${CMAKE_SOURCE_DIR}/build) up to the workspace
+  # root and finds them there. No build-time install needed.
 endif()
 
 file(GLOB_RECURSE standard_scripts

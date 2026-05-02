@@ -4,6 +4,7 @@
   "description": "",
   "license": "AGPL-3.0",
   "scripts": {
+    "build": "yarn build-ts",
     "build-ts": "tsc --noEmit && esbuild ts/index.ts --loader:.node=copy --loader:.html=text --bundle --platform=node --target=node16 --keep-names --minify --sourcemap --target=es2022 --external:bcrypt --external:mongodb --outfile=../build/dist/server/dist_back/skymp5-server.js"
   },
   "author": "Leonid Pospelov <pospelovlm@yandex.ru>",

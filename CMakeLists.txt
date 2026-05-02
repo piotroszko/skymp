@@ -156,6 +156,16 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+# Yarn workspaces install (root). Hoists deps for all workspace packages
+# so per-package CMake targets don't each invoke yarn install.
+include(${CMAKE_SOURCE_DIR}/cmake/yarn.cmake)
+if(NOT SKYMP_SKIP_YARN_INSTALL)
+  yarn_execute_command(
+    COMMAND install --frozen-lockfile
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  )
+endif()
+
 # Initialize the CMAKEPROJ projects and their configurations
 list(APPEND CMAKEPROJ_PROJECTS_LIST)  # List of all projects
 set(CMAKEPROJ_PROJECTS_DEPENDENCIES)  # Dependencies for each project
