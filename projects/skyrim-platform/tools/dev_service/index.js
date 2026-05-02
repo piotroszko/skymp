@@ -36,7 +36,7 @@ const getSourceDir = () => path.resolve(__dirname, "../..");
 console.log(`Binary dir is '${getBinaryDir()}'`);
 console.log(`Source dir is '${getSourceDir()}'`);
 
-let bin = path.join(getBinaryDir(), "skyrim-platform/_platform_se");
+let bin = path.join(getBinaryDir(), "projects/skyrim-platform/_platform_se");
 let sourceDir = path.join(getSourceDir());
 let distDir = path.join(getBinaryDir(), "dist/client");
 
@@ -181,7 +181,7 @@ const watchCallback = (_eventType, fileName) => {
           path.join(distDir, "Data/Scripts")
         );
         cp(
-          `${getBinaryDir()}/skymp5-server/cpp/${buildCfg}/MpClientPlugin.dll`,
+          `${getBinaryDir()}/projects/server/cpp/${buildCfg}/MpClientPlugin.dll`,
           path.join(distDir, "Data/SKSE/Plugins")
         );
         cp(
