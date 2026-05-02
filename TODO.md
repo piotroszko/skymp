@@ -186,31 +186,75 @@ skymp/
       root `yarn.lock` is now the single source of truth.
 - [x] Add `.turbo` to `.gitignore`.
 
-## Phase 2 — Move TS projects into `projects/`
+## Phase 2 — Move TS projects into `projects/` ✅ DONE
 
 **Risk:** medium. **Goal:** lock in the TS layout.
 
-- [ ] `git mv skymp5-server         projects/server`
-- [ ] `git mv skymp5-client         projects/client`
-- [ ] `git mv skymp5-front          projects/ui`
-- [ ] `git mv skyrim-platform       projects/skyrim-platform`
-- [ ] `git mv skymp5-functions-lib  projects/gamemode` (rename in same
+- [x] `git mv skymp5-server         projects/server`
+- [x] `git mv skymp5-client         projects/client`
+- [x] `git mv skymp5-front          projects/ui`
+- [x] `git mv skyrim-platform       projects/skyrim-platform`
+- [x] `git mv skymp5-functions-lib  projects/gamemode` (rename in same
       step; the existing `index.ts` is kept as a placeholder for future
-      in-tree gamemode source). Add `projects/gamemode/package.json`
-      (name: `@skymp/gamemode`) and `tsconfig.json` at this point. The
-      CMake-driven external clone of `skyrim-multiplayer/skymp5-gamemode`
-      stays in place until the gamemode source is brought in-tree.
-- [ ] Update root `package.json` `workspaces` to `["projects/*"]` (no
+      in-tree gamemode source). Added `projects/gamemode/package.json`
+      (name: `@skymp/gamemode`) and `tsconfig.json` (non-emitting, excludes
+      `index.ts` since its imports resolve only inside the cloned external
+      gamemode repo). The CMake-driven external clone of
+      `skyrim-multiplayer/skymp5-gamemode` stays in place until the
+      gamemode source is brought in-tree.
+- [x] Update root `package.json` `workspaces` to `["projects/*"]` (no
       `packages/` until an internal-shared TS lib actually exists).
-- [ ] Update path references:
-  - [ ] `tsconfig.json` `outDir` paths (e.g. server's `../build/dist/server/...`)
-  - [ ] `cmakeproj.cmake` files inside the moved dirs (relative paths to siblings)
-  - [ ] `cmake/*.cmake` helper scripts that reference sibling project paths
-  - [ ] `.github/workflows/*` — any hardcoded `skymp5-*/` paths
-  - [ ] `build.sh` — any `cd <subdir>` or path-specific logic
-  - [ ] `.dockerignore`, `.prettierignore` patterns
-  - [ ] `docs/` references to old paths
-- [ ] Verify CI green on Windows + Linux.
+- [x] Update path references:
+  - [x] `tsconfig.json` `outDir` paths (server `../build/...` →
+        `../../build/...`); `paths` depth in client (`../node_modules` →
+        `../../node_modules`).
+  - [x] `cmakeproj.cmake` files inside the moved dirs — rewritten to use
+        new leaf-name keys (`server`, `client`, `ui`, `skyrim-platform`,
+        `gamemode`).
+  - [x] Root `CMakeLists.txt`: discovery loop redesigned to walk both
+        `${CMAKE_SOURCE_DIR}/*` and `${CMAKE_SOURCE_DIR}/projects/*`,
+        keying projects by leaf dir name and storing the relative path
+        in `CMAKEPROJ_RELPATH_<key>` for `add_subdirectory`. Forward-
+        compatible with Phase 3/4 by extending `CMAKEPROJ_GROUP_DIRS`.
+        Also renamed `skymp5-functions-lib` → `gamemode` in the two
+        `TARGETS_ADDITIONAL` lists (`prepare_nexus_archives`,
+        `RestartGame`). Other `skymp5-*` CMake target names left
+        unchanged per Phase 2 scope (Phase 3 may rename them).
+  - [x] `cmake/*.cmake` helpers — generic, parameterized; no edits
+        needed. Confirmed `cmake/run_test_functions_lib.cmake` is dead
+        code (its `${SKYMP5_FUNCTIONS_LIB_DIR}` is never set anywhere);
+        leave for Phase 3 cleanup.
+  - [x] `.github/workflows/*` — confirmed no refs to moved dirs; no
+        edits needed.
+  - [x] `build.sh` — confirmed no path-specific refs; no edits needed.
+  - [x] `.dockerignore`, `.prettierignore` patterns updated to new paths.
+  - [x] `docs/` references to old paths: `docs_onhit_and_damage.md`,
+        `docs_maintainer_rules.md`, `docs_repository_structure.md`,
+        contributing/{en,ru}/* (English + Russian), `TERMS.md`. Doc
+        filenames containing `skymp5-client` deliberately not renamed
+        to keep URLs stable.
+- [x] Additional path-depth fixes not in original Phase 2 list:
+  - [x] `turbo.json` `outputs` `../build/dist/**` → `../../build/dist/**`
+        (resolved per workspace; depth changed from 1 to 2).
+  - [x] `projects/server/package.json` esbuild `--outfile` depth.
+  - [x] `projects/client/webpack.config.js` `outputFolder` depth.
+  - [x] `projects/skyrim-platform/tools/dev_service/index.js`:
+        `getBinaryDir` depth, plus two hardcoded build subpaths
+        (`skyrim-platform/_platform_se` → `projects/skyrim-platform/_platform_se`,
+        `skymp5-server/cpp/...` → `projects/server/cpp/...` for
+        `MpClientPlugin.dll`) caught during local Release verification.
+  - [x] `projects/skyrim-platform/tools/const_enum_extractor/index.js`:
+        switched CWD-relative path strings to `__dirname`-relative
+        `path.resolve()` so the dev script is robust to launch CWD.
+  - [x] `linter-config.json` lines 54–55 (server messages /
+        client services messages paths).
+  - [x] `misc/prettier/package.json` `oxfmt`/`oxlint` paths
+        (`../../skymp5-front/src` → `../../projects/ui/src`).
+- [x] Verify CI green on Windows + Linux. (Local Windows: 13 projects
+      discovered, Release build green, ctest 12/12 pass, unit suite
+      255 cases / 477,522 assertions — matches Phase 1 baseline.
+      Live server bundle starts and resolves bcrypt/mongodb from
+      hoisted `node_modules`. Linux/CI verification pending push.)
 
 ## Phase 3 — Move C++ libs, tests, and assets
 
