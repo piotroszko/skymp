@@ -13,7 +13,6 @@ import {
   printConsole,
   setTextPos,
   setTextSize,
-  setTextString,
   storage,
   TESModPlatform,
   Utility,
@@ -196,7 +195,7 @@ export class FormView {
             appearance: Appearance | null,
             callback: () => void,
           ) {
-            new SpawnProcess(appearance, spawnPosition, spawningRefr.getFormID(), callback);
+            void new SpawnProcess(appearance, spawnPosition, spawningRefr.getFormID(), callback);
           },
         };
 
@@ -426,7 +425,7 @@ export class FormView {
         alreadyHosted = true;
       }
     }
-    setDefaultAnimsDisabled(this.refrId, alreadyHosted ? false : true);
+    setDefaultAnimsDisabled(this.refrId, !alreadyHosted);
 
     if (alreadyHosted) {
       Actor.from(refr)?.clearKeepOffsetFromActor();
@@ -478,16 +477,19 @@ export class FormView {
             ac.clearKeepOffsetFromActor();
 
             // TODO: make host service
-            const hosted = storage["hosted"];
-            let alreadyHosted = false;
-            if (Array.isArray(hosted)) {
-              const remoteId = localIdToRemoteId(ac.getFormID());
-              if (hosted.includes(remoteId) || hosted.includes(remoteId + 0x100000000)) {
-                alreadyHosted = true;
+            const hostedInner = storage["hosted"];
+            let alreadyHostedInner = false;
+            if (Array.isArray(hostedInner)) {
+              const remoteIdInner = localIdToRemoteId(ac.getFormID());
+              if (
+                hostedInner.includes(remoteIdInner) ||
+                hostedInner.includes(remoteIdInner + 0x100000000)
+              ) {
+                alreadyHostedInner = true;
               }
             }
 
-            if (!alreadyHosted) {
+            if (!alreadyHostedInner) {
               if (this.tryHostIfNeed(ac, remoteId)) {
                 // previously, we did this cleanup on each update
                 // but I guess it's too expensive and can possibly hurt FPS

@@ -47,13 +47,12 @@ export class SweetCameraEnforcementService extends ClientListener {
     this.settings = this.sp.settings["skymp5-client"]["animDebug"] as AnimDebugSettings | undefined;
 
     if (hasSweetPie) {
-      const self = this;
       this.sp.hooks.sendAnimationEvent.add(
         {
-          enter: (ctx) => {},
+          enter: (_ctx) => {},
           leave: (ctx) => {
-            self.onSendAnimationEventLeave(ctx);
-            self.onSendExitAnimationEventLeave(ctx); // Tracking the successful launch of the exit animation
+            this.onSendAnimationEventLeave(ctx);
+            this.onSendExitAnimationEventLeave(ctx); // Tracking the successful launch of the exit animation
           },
         },
         playerId,

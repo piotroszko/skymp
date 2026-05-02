@@ -1,10 +1,4 @@
-import {
-  ButtonEvent,
-  CameraStateChangedEvent,
-  DxScanCode,
-  Menu,
-  setTextSize,
-} from "skyrimPlatform";
+import { setTextSize } from "skyrimPlatform";
 
 import { logTrace, logError } from "../logging";
 import { AnimDebugSettings } from "../types/messages_settings/animDebugSettings";
@@ -34,12 +28,11 @@ export class AnimDebugService extends ClientListener {
       }
     }
 
-    const self = this;
     this.sp.hooks.sendAnimationEvent.add(
       {
-        enter: (ctx) => {},
+        enter: (_ctx) => {},
         leave: (ctx) => {
-          self.onSendAnimationEventLeave(ctx);
+          this.onSendAnimationEventLeave(ctx);
         },
       },
       playerId,

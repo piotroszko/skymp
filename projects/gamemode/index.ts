@@ -88,8 +88,8 @@ export const getBooleanArray = (args: PapyrusValue[], index: number): boolean[] 
 export const randomInt = (mp: Mp, self: null, args: PapyrusValue[]): number => {
   const min = getNumber(args, 0);
   const max = getNumber(args, 1);
-  const randomInRangeBothInclusive = (min: number, max: number) =>
-    Math.floor(Math.random() * (max - min + 1)) + min;
+  const randomInRangeBothInclusive = (lo: number, hi: number) =>
+    Math.floor(Math.random() * (hi - lo + 1)) + lo;
   return randomInRangeBothInclusive(min, max);
 };
 
@@ -114,14 +114,14 @@ export const getForm = (mp: Mp, self: null, args: PapyrusValue[]): PapyrusObject
       type: ["REFR", "ACHR"].includes(espm.record?.type) ? "form" : "espm",
     };
     return obj;
-  } catch (err) {
+  } catch (caught) {
     const regex = /Form with id.+doesn't exist/gm;
-    if (regex.exec(err as string) !== null) {
-      console.log(err);
+    if (regex.exec(caught as string) !== null) {
+      console.log(caught);
       return;
     }
-    console.log(err);
-    throw err;
+    console.log(caught);
+    throw caught;
   }
 };
 
@@ -168,7 +168,7 @@ export const moveTo = (
   return undefined;
 };
 
-export const isDead = (mp: Mp, self: PapyrusObject, args: PapyrusValue[]): boolean => {
+export const isDead = (mp: Mp, self: PapyrusObject, _args: PapyrusValue[]): boolean => {
   const selfId = mp.getIdFromDesc(self.desc);
   return mp.get(selfId, "isDead");
 };
@@ -326,7 +326,6 @@ export const getSPExchangeNumberField = (
   if (exchanges[licenseIndex]) {
     return exchanges[licenseIndex][field];
   }
-  return ret;
   return ret;
 };
 
@@ -687,13 +686,13 @@ const maps: Required<SweetPieMap>[] = [
 
 const createGameModeListener = (
   controller: PlayerController,
-  maps: SweetPieMap[],
+  mapList: SweetPieMap[],
   playersToStart: unknown,
 ): SweetPieGameModeListener => {
   if (typeof playersToStart === "number") {
-    return new SweetPieGameModeListener(controller, maps, playersToStart);
+    return new SweetPieGameModeListener(controller, mapList, playersToStart);
   } else {
-    return new SweetPieGameModeListener(controller, maps);
+    return new SweetPieGameModeListener(controller, mapList);
   }
 };
 

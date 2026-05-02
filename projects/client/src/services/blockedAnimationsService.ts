@@ -10,16 +10,14 @@ export class BlockedAnimationsService extends ClientListener {
 
     const blockedAnims: string[] = [];
 
-    const self = this;
-
     blockedAnims.forEach((blockedAnim) => {
       this.sp.hooks.sendAnimationEvent.add(
         {
-          enter(ctx) {
-            logTrace(self, `blocking animation event`, ctx.animEventName);
+          enter: (ctx) => {
+            logTrace(this, `blocking animation event`, ctx.animEventName);
             ctx.animEventName = "";
           },
-          leave() {},
+          leave: () => {},
         },
         0x14,
         0x14,

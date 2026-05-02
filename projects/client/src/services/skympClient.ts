@@ -1,6 +1,6 @@
 import { printConsole, settings, storage } from "skyrimPlatform";
 
-import { AuthGameData, authGameDataStorageKey } from "../features/authModel";
+import { authGameDataStorageKey } from "../features/authModel";
 import { logTrace } from "../logging";
 import { setupHooks } from "../sync/animation";
 import { AuthAttemptEvent } from "../types/events/authAttemptEvent";
@@ -49,7 +49,7 @@ export class SkympClient extends ClientListener {
     }
   }
 
-  private onConnectionFailed(e: ConnectionFailed) {
+  private onConnectionFailed(_e: ConnectionFailed) {
     logTrace(this, "Connection failed");
   }
 

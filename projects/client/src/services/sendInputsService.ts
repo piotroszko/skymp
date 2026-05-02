@@ -21,7 +21,6 @@ import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { DeathService } from "./deathService";
 import { RemoteServer } from "./remoteServer";
 import { SinglePlayerService } from "./singlePlayerService";
-import { SkympClient } from "./skympClient";
 
 const playerFormId = 0x14;
 

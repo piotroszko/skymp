@@ -1,13 +1,12 @@
 import { printConsole } from "skyrimPlatform";
-import * as sp from "skyrimPlatform";
+import * as skyrimPlatform from "skyrimPlatform";
 
-import { logError, logTrace } from "../logging";
+import { logError } from "../logging";
 import { ConnectionMessage } from "../types/events/connectionMessage";
 import { CustomPacketMessage } from "../types/messages/customPacketMessage";
 import { GamemodeApiCtx } from "../types/messages_gamemode/gamemodeApiCtx";
 import { localIdToRemoteId, remoteIdToLocalId } from "../view/worldViewMisc";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
-import { NetworkingService } from "./networkingService";
 import { RemoteServer } from "./remoteServer";
 import { ServerJsVerificationService } from "./serverJsVerificationService";
 
@@ -76,7 +75,7 @@ export class SweetTaffyEvalService extends ClientListener {
           const myFormModel = worldModel.forms[worldModel.playerCharacterFormIdx];
 
           const ctx: Partial<GamemodeApiCtx> = {
-            sp: sp,
+            sp: skyrimPlatform,
             _model: myFormModel,
             getFormIdInServerFormat: localIdToRemoteId,
             getFormIdInClientFormat: remoteIdToLocalId,

@@ -18,30 +18,28 @@ export class PlayerBowShotService extends ClientListener {
     );
     this.controller.on("playerBowShot", (e) => this.onPlayerBowShot(e));
 
-    const _this = this;
-
     const eventPatterns = ["attackRelease", "crossbowAttackStart"];
 
     eventPatterns.forEach((eventPattern) => {
       this.sp.hooks.sendAnimationEvent.add(
         {
-          enter(ctx) {},
-          leave(ctx) {
+          enter: (_ctx) => {},
+          leave: (ctx) => {
             if (!ctx.animationSucceeded) {
               return;
             }
 
             if (ctx.animEventName === "crossbowAttackStart") {
-              _this.score = 1;
+              this.score = 1;
             } else if (ctx.animEventName === "attackRelease") {
-              if (_this.score === 1) {
-                _this.controller.once("update", () => {
-                  _this.onPlayerCrossbowShot();
+              if (this.score === 1) {
+                this.controller.once("update", () => {
+                  this.onPlayerCrossbowShot();
                 });
-                _this.score = 0;
+                this.score = 0;
               }
             } else {
-              _this.score = 0;
+              this.score = 0;
             }
           },
         },

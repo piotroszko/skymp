@@ -40,11 +40,11 @@ let bin = path.join(getBinaryDir(), "projects/skyrim-platform/_platform_se");
 let sourceDir = path.join(getSourceDir());
 let distDir = path.join(getBinaryDir(), "dist/client");
 
-const createDirectory = (path) => {
-  if (!fs.existsSync(path)) {
+const createDirectory = (dir) => {
+  if (!fs.existsSync(dir)) {
     while (true)
       try {
-        fs.mkdirSync(path, { recursive: true });
+        fs.mkdirSync(dir, { recursive: true });
         break;
       } catch (e) {
         // Temporary EPERM errors encountered on Windows. They disappear if we retry.

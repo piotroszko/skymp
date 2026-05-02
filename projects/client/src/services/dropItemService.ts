@@ -58,14 +58,14 @@ export class DropItemService extends ClientListener {
       set.forEach((refrId) => {
         const ref = this.sp.ObjectReference.from(this.sp.Game.getFormEx(refrId));
         if (ref !== null && ref.isDeleted() === false) {
-          const refrId = ref.getFormID();
+          const actualRefrId = ref.getFormID();
 
-          if (worldCleanerService.getWcProtection(refrId) === 0) {
+          if (worldCleanerService.getWcProtection(actualRefrId) === 0) {
             ref.delete();
             ++numFound;
-            logTrace(this, "Found and deleted reference " + refrId.toString(16));
+            logTrace(this, "Found and deleted reference " + actualRefrId.toString(16));
           } else {
-            logTrace(this, "Found reference " + refrId.toString(16) + " but it's protected");
+            logTrace(this, "Found reference " + actualRefrId.toString(16) + " but it's protected");
           }
         }
       });

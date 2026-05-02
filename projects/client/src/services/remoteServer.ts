@@ -3,10 +3,8 @@ import {
   Actor,
   Form,
   FormType,
-  Menu,
   interruptCast,
   castSpellImmediate,
-  printConsole,
   applyAnimationVariablesToActor,
   ActorAnimationVariables,
 } from "skyrimPlatform";
@@ -341,7 +339,7 @@ export class RemoteServer extends ClientListener {
               const refrid = refr.getFormID();
 
               (async () => {
-                for (let i = 0; i < 5; i++) {
+                for (let attempt = 0; attempt < 5; attempt++) {
                   // retry. pillars in bleakfalls are not reliable for some reason
                   let res2 = ObjectReference.from(Game.getFormEx(refrid))?.playAnimation(animation);
                   if (res2) {
@@ -616,8 +614,8 @@ export class RemoteServer extends ClientListener {
             spawnTask.running = true;
 
             let loadOrder = new Array<string>();
-            for (let i = 0; i < this.sp.Game.getModCount(); ++i) {
-              loadOrder.push(this.sp.Game.getModName(i));
+            for (let modIdx = 0; modIdx < this.sp.Game.getModCount(); ++modIdx) {
+              loadOrder.push(this.sp.Game.getModName(modIdx));
             }
 
             logTrace(this, `loading game in world/cell`, msg.transform.worldOrCell.toString(16));
@@ -673,7 +671,7 @@ export class RemoteServer extends ClientListener {
     getViewFromStorage()?.syncFormArray(this.worldModel);
 
     // Shrink to fit
-    while (1) {
+    while (true) {
       const length = this.worldModel.forms.length;
       if (!length) {
         break;

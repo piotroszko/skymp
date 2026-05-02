@@ -125,6 +125,8 @@ export class TimersService extends ClientListener {
           if (typeof timer.handler === "function") {
             timer.handler.call(this, timer.args);
           } else {
+            // String-handler API parity with browser setTimeout
+            // eslint-disable-next-line no-eval
             eval(timer.handler);
           }
         }
@@ -144,6 +146,8 @@ export class TimersService extends ClientListener {
           if (typeof interval.handler === "function") {
             interval.handler.call(this, interval.args);
           } else {
+            // String-handler API parity with browser setInterval
+            // eslint-disable-next-line no-eval
             eval(interval.handler);
           }
         }

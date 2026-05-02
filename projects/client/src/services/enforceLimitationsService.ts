@@ -15,7 +15,7 @@ export class EnforceLimitationsService extends ClientListener {
     this.sp.Game.setInChargen(true, true, false);
   }
 
-  private onGameLoad(event: GameLoadEvent) {
+  private onGameLoad(_event: GameLoadEvent) {
     this.sp.Game.setInChargen(true, true, false);
   }
 }

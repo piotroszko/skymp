@@ -87,7 +87,7 @@ const checkIfNameIsGeneratedByGame = (aStr: string, bStr: string, formName: stri
   return false;
 };
 
-const namesEqual = (a: Entry, b: Entry): boolean => {
+const _namesEqual = (a: Entry, b: Entry): boolean => {
   const aStr = a.name || "";
   const bStr = b.name || "";
   if (cropName(getRealName(aStr)) === cropName(getRealName(bStr))) {
@@ -373,7 +373,7 @@ export const applyInventory = (
       }
     }
 
-    for (let i = 0; i < absCount; ++i) {
+    for (let step = 0; step < absCount; ++step) {
       if (worn || wornLeft) {
         TESModPlatform.pushWornState(!!worn, !!wornLeft);
         queueNiNodeUpdateNeeded = true;

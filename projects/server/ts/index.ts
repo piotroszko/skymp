@@ -68,7 +68,7 @@ function requireUncached(module: string, clear: () => void, server: scampNative.
   if (gamemodeContentsOld !== gamemodeContents) {
     gamemodeCache.set(module, gamemodeContents);
 
-    while (1) {
+    while (true) {
       try {
         clear();
 
@@ -91,7 +91,7 @@ function requireUncached(module: string, clear: () => void, server: scampNative.
   }
 }
 
-const setupStreams = (scampNative: any) => {
+const setupStreams = (nativeModule: any) => {
   class LogsStream {
     constructor(private logLevel: string) {}
 
@@ -99,7 +99,7 @@ const setupStreams = (scampNative: any) => {
       // @ts-ignore
       const str = chunk.toString(encoding);
       if (str.trim().length > 0) {
-        scampNative.writeLogs(this.logLevel, str);
+        nativeModule.writeLogs(this.logLevel, str);
       }
       callback();
     }
@@ -217,7 +217,7 @@ const main = async () => {
   console.log(`Current process ID is ${pid}`);
 
   (async () => {
-    while (1) {
+    while (true) {
       const endTimerHistogram = tickDurationHistogram.startTimer();
       const endTimerSummary = tickDurationSummary.startTimer();
       try {
@@ -239,7 +239,7 @@ const main = async () => {
     log(`Initialized ${system.systemName}`);
     if (system.updateAsync)
       (async () => {
-        while (1) {
+        while (true) {
           await new Promise((r) => setTimeout(r, 1));
           try {
             await system.updateAsync(ctx);
@@ -291,7 +291,7 @@ const main = async () => {
     }
   });
 
-  server.on("customPacket", (userId: number, content: string) => {
+  server.on("customPacket", (_userId: number, _content: string) => {
     // At this moment we don't have any custom packets
   });
 

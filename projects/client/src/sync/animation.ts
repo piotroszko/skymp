@@ -183,9 +183,9 @@ export const applyAnimation = (
   if (anim.animEventName === "GetUpBegin") {
     const refrId = refr.getFormID();
     Utility.wait(1).then(() => {
-      const ac = Actor.from(Game.getFormEx(refrId));
-      if (ac) {
-        ac.setActorValue("Variable10", 1000);
+      const actor = Actor.from(Game.getFormEx(refrId));
+      if (actor) {
+        actor.setActorValue("Variable10", 1000);
       }
     });
   }
@@ -326,10 +326,14 @@ export const setupHooks = (): void => {
         return;
       }
       if (isIdle(ctx.animEventName)) {
-        const i = allowedIdles.findIndex((pair) => {
+        const idx = allowedIdles.findIndex((pair) => {
           return pair[0] === ctx.selfId && pair[1] === ctx.animEventName;
         });
-        i === -1 ? (ctx.animEventName = "") : allowedIdles.splice(i, 1);
+        if (idx === -1) {
+          ctx.animEventName = "";
+        } else {
+          allowedIdles.splice(idx, 1);
+        }
       }
     },
     leave: () => {},

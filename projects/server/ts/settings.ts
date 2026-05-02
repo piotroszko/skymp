@@ -32,8 +32,6 @@ export class Settings {
 
   allSettings: Record<string, unknown> | null = null;
 
-  constructor() {}
-
   static async get(): Promise<Settings> {
     if (!Settings.cachedPromise) {
       Settings.cachedPromise = (async () => {

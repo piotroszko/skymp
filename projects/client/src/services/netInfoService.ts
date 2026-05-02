@@ -45,15 +45,15 @@ export class NetInfoService extends ClientListener {
     this.controller.on("update", () => this.onUpdate());
   }
 
-  private onSendMessage(e: SendMessageEvent<AnyMessage>) {
+  private onSendMessage(_e: SendMessageEvent<AnyMessage>) {
     this.addSentPacketCount(1);
   }
 
-  private onSendMessageWithRefrId(e: SendMessageWithRefrIdEvent<AnyMessage>) {
+  private onSendMessageWithRefrId(_e: SendMessageWithRefrIdEvent<AnyMessage>) {
     this.addSentPacketCount(1);
   }
 
-  private onAnyMessage(e: ConnectionMessage<AnyMessage>) {
+  private onAnyMessage(_e: ConnectionMessage<AnyMessage>) {
     this.addReceivedPacketCount(1);
   }
 

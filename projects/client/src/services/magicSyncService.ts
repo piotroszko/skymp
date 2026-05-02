@@ -2,7 +2,6 @@
 import {
   SpellCastEvent,
   Actor,
-  printConsole,
   Game,
   getAnimationVariablesFromActor,
   ActorAnimationVariables,
@@ -11,9 +10,8 @@ import {
   EquippedItemType,
 } from "skyrimPlatform";
 
-import { logTrace } from "../logging";
 import { MsgType } from "../messages";
-import { SpellCastMsgData, SpellCastMessage } from "../types/messages/spellCastMessage";
+import { SpellCastMsgData } from "../types/messages/spellCastMessage";
 import { UpdateAnimVariablesMessageMsgData } from "../types/messages/updateAnimVariablesMessage";
 // TODO: refactor this out
 import { localIdToRemoteId, remoteIdToLocalId } from "../view/worldViewMisc";
@@ -28,13 +26,11 @@ export class MagicSyncService extends ClientListener {
     this.controller.on("update", () => this.onUpdate());
     this.controller.on("spellCast", (e) => this.onSpellCast(e));
 
-    const self = this;
-
     this.sp.hooks.sendAnimationEvent.add(
       {
-        enter: (ctx) => {},
+        enter: (_ctx) => {},
         leave: (ctx) => {
-          self.onSendAnimationEventLeave(ctx);
+          this.onSendAnimationEventLeave(ctx);
         },
       },
       this.playerId,

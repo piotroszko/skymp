@@ -34,7 +34,7 @@ export const applyMovement = (refr: ObjectReference, m: Movement, isMyClone?: bo
   if (m.lookAt) {
     try {
       lookAt = Game.findClosestActor(m.lookAt[0], m.lookAt[1], m.lookAt[2], 128);
-    } catch (e) {
+    } catch {
       lookAt = null;
     }
   }

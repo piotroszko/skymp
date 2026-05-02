@@ -43,4 +43,3 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: lint
-        continue-on-error: true

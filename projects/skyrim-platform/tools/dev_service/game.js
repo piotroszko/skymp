@@ -14,7 +14,7 @@ module.exports = {
       }
       try {
         childProcess.execSync(`taskkill /im ${appName} /f`);
-      } catch(e) {
+      } catch {
         // ...
       }
     }
@@ -24,7 +24,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       let tmpFile = path.join(
         path.dirname(process.env.APPDATA), 'Local/Temp/launch_skse64.bat');
-      fs.writeFileSync(tmpFile, 'cd ' + folder + ' && ' + 'skse64_loader.exe');
+      fs.writeFileSync(tmpFile, 'cd ' + folder + ' && skse64_loader.exe');
 
       const p = childProcess.spawn(tmpFile, []);
       p.stderr.on('data', async data => {

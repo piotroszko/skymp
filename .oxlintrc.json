@@ -14,12 +14,19 @@
       "version": "18.0.0"
     }
   },
+  "rules": {
+    "no-underscore-dangle": "off",
+    "no-extraneous-class": "off"
+  },
   "ignorePatterns": [
     "node_modules",
     "dist",
     "build",
     ".cache",
     "third_party",
-    "**/codegen/convert-files/**"
+    "**/codegen/convert-files/**",
+    "projects/skyrim-platform/index.d.ts",
+    "projects/skyrim-platform/src/platform_se/skyrim_platform/assets/**",
+    "projects/skyrim-platform/tools/system_polyfill/**"
   ]
 }

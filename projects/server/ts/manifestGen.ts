@@ -50,11 +50,11 @@ export const generateManifest = (settings: Settings): void => {
     const bsaName = getBsaNameByEspmName(espmName);
     const bsaPath = path.join(settings.dataDir, bsaName);
     if (fs.existsSync(bsaPath)) {
-      const buf: Uint8Array = fs.readFileSync(bsaPath);
+      const bsaBuf: Uint8Array = fs.readFileSync(bsaPath);
       manifest.mods.push({
-        crc32: crc32.buf(buf),
+        crc32: crc32.buf(bsaBuf),
         filename: bsaName,
-        size: buf.length,
+        size: bsaBuf.length,
       });
     }
   });

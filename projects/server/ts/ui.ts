@@ -37,7 +37,7 @@ const metricsAuthParse = (settings: Settings): void => {
   metricsAuth = { user: authConfig.user, password: authConfig.password };
 };
 
-const createApp = (getOriginPort: () => number) => {
+const createApp = (_getOriginPort: () => number) => {
   const app = new Koa();
   app.use(koaBody.default({ multipart: true }));
 

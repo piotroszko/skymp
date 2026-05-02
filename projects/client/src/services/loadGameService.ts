@@ -22,7 +22,7 @@ export class LoadGameService extends ClientListener {
     try {
       // @ts-ignore
       this.sp.loadGame(pos, rot, worldOrCell, changeFormNpc, loadOrder, time);
-    } catch (e) {
+    } catch {
       // Hotfix non-vanilla headparts bug
       // @ts-ignore
       this.sp.loadGame(pos, rot, worldOrCell, undefined, loadOrder, time);

@@ -18,7 +18,6 @@ import { localIdToRemoteId, remoteIdToLocalId } from "../view/worldViewMisc";
 import { ClientListener, CombinedController, Sp } from "./clientListener";
 import { RemoteServer } from "./remoteServer";
 import { ServerJsVerificationService } from "./serverJsVerificationService";
-import { SettingsService } from "./settingsService";
 
 export class GamemodeUpdateService extends ClientListener {
   constructor(

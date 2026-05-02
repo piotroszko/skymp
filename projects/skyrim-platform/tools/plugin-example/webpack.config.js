@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const packageInfo = require('./package.json')
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
-const { getFips } = require('crypto');
 
 // Configure webpack output file folder and file name
 const outputFolder = path.resolve(__dirname, './build')

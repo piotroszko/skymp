@@ -71,7 +71,6 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
     });
 
     for (const pattern of ["SprintStart"]) {
-      const sp = this.sp;
       this.sp.hooks.sendAnimationEvent.add(
         {
           enter: (ctx) => {
@@ -185,8 +184,6 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
   }
 
   private registerHandlersIfNeeded(): void {
-    const self = this;
-
     if (!this.hasSweetPie()) {
       return;
     }
@@ -196,7 +193,7 @@ export class SweetTaffyPlayerCombatService extends ClientListener {
         {
           enter: () => {},
           leave: (ctx) =>
-            self.blockPlayerAttack(ctx.animEventName.toLowerCase().includes("lefthand")),
+            this.blockPlayerAttack(ctx.animEventName.toLowerCase().includes("lefthand")),
         },
         0x14,
         0x14,

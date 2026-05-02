@@ -85,16 +85,16 @@ export class FormViewArray {
 
   getRemoteRefrId(clientsideRefrId: number): number {
     if (clientsideRefrId < 0xff000000) throw new Error("This function is only for 0xff forms");
-    const formView = this.formViews.find((formView?: FormView) => {
-      return formView && formView.getLocalRefrId() === clientsideRefrId;
+    const formView = this.formViews.find((fv?: FormView) => {
+      return fv && fv.getLocalRefrId() === clientsideRefrId;
     });
     return formView ? formView.getRemoteRefrId() : 0;
   }
 
   getLocalRefrId(remoteRefrId: number): number {
     if (remoteRefrId < 0xff000000) throw new Error("This function is only for 0xff forms");
-    const formView = this.formViews.find((formView?: FormView) => {
-      return formView && formView.getRemoteRefrId() === remoteRefrId;
+    const formView = this.formViews.find((fv?: FormView) => {
+      return fv && fv.getRemoteRefrId() === remoteRefrId;
     });
     return formView ? formView.getLocalRefrId() : 0;
   }
