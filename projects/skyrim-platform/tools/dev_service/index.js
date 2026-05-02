@@ -83,7 +83,7 @@ const watchCallback = (_eventType, fileName) => {
         }
       });
       createDirectory(distDir);
-      let getFileName = (p) => p.replace(/^.*[\\\/]/, "");
+      let getFileName = (p) => p.replace(/^.*[\\/]/, "");
       let cp = (from, targetDir) =>
         writeFileSyncRecursive(
           path.join(targetDir, getFileName(from)),

@@ -12,13 +12,13 @@ class RegistrationResult {
   execute: () => void;
 }
 
-declare let System: Object;
+declare let System: object;
 declare var require: (name: string) => object;
 declare let addNativeExports: (name: string, existingExports: object) => object;
 declare let log: (...args: any[]) => void;
 type ExportFn = (name: string, value: any) => void;
 type ReigsterCallback = (exportFn: ExportFn, context: Context) => RegistrationResult;
-type Setter = (dependencyExports: Object) => void;
+type Setter = (dependencyExports: object) => void;
 
 let exports = {};
 let getParentDir = (modulePath: string) => modulePath.split('/').slice(0, -1).join('/');
