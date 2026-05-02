@@ -24,7 +24,7 @@
       "modes": ["gha", "manual"],
       "options": {
         "textOnly": true,
-        "excludePaths": ["/third_party/", "/skymp5-scripts/", "/overlay_ports/rsm-bsa/", "/overlay_ports/libxml2/"]
+        "excludePaths": ["/third_party/", "/assets/papyrus/", "/overlay_ports/rsm-bsa/", "/overlay_ports/libxml2/"]
       }
     },
     {
@@ -33,7 +33,7 @@
       "modes": ["hook", "gha", "manual"],
       "options": {
         "textOnly": true,
-        "excludePaths": ["/third_party/", "/skymp5-scripts/", "/overlay_ports/rsm-bsa/", "/overlay_ports/libxml2/"]
+        "excludePaths": ["/third_party/", "/assets/papyrus/", "/overlay_ports/rsm-bsa/", "/overlay_ports/libxml2/"]
       }
     },
     {
