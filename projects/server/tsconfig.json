@@ -8,7 +8,7 @@
     "target": "ES2022",
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "../build/dist/server/dist_back",
+    "outDir": "../../build/dist/server/dist_back",
     "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*", "src/types/*"]

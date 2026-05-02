@@ -30,7 +30,7 @@ let config = require("./config");
 
 console.log("Dev service started");
 
-const getBinaryDir = () => path.resolve(__dirname, "../../../build");
+const getBinaryDir = () => path.resolve(__dirname, "../../../../build");
 const getSourceDir = () => path.resolve(__dirname, "../..");
 
 console.log(`Binary dir is '${getBinaryDir()}'`);

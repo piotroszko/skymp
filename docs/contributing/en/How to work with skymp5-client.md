@@ -4,7 +4,7 @@
 4. Call `code .` at the root of the project. We will be working mainly with `skymp5-client`, but we may need to look in other folders as well, so open the whole project.
 5. `cd build/dist/server`, `launch_server.bat`
 6. Copy `build/dist/client` to the root of the game. Delete the contents of `Data/Platform/Plugins`. In our case, SP will not use this folder, but `build/dist/client/Data/Platform/Plugins`. This is required for hotreload to work.
-7. In VS Code go to `skymp5-client/package.json`. In the scripts section, RMB on watch -> RunScript. Now, for any of our changes, skymp5-client will be rebuilt and pulled into the game.
+7. In VS Code go to `projects/client/package.json`. In the scripts section, RMB on watch -> RunScript. Now, for any of our changes, skymp5-client will be rebuilt and pulled into the game.
 8. Run the game using `skse64_loader.exe`.
 9. You may need to see your clone to test synchro. To do this, write "show-me": true in `build/dist/client/skymp5-client-settings.txt`. Reboot is not required.
 10. You can also set "show-net-info": true to diagnose packages.

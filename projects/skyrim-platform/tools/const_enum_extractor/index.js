@@ -45,8 +45,8 @@ function extractConstEnums(sourceCode) {
     return constEnums;
 }
 
-const skyrimPlatformTsPath = "../../../skyrim-platform/src/platform_se/codegen/convert-files/skyrimPlatform.ts";
-const constEnumApiCppPath = "../../../skyrim-platform/src/platform_se/skyrim_platform/ConstEnumApi.cpp";
+const skyrimPlatformTsPath = path.resolve(__dirname, "../../src/platform_se/codegen/convert-files/skyrimPlatform.ts");
+const constEnumApiCppPath = path.resolve(__dirname, "../../src/platform_se/skyrim_platform/ConstEnumApi.cpp");
 
 const tsCode = fs.readFileSync(skyrimPlatformTsPath, "utf8");
 

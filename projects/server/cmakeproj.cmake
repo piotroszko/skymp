@@ -1,2 +1,2 @@
-list(APPEND CMAKEPROJ_PROJECTS skymp5-server)
-set(CMAKEPROJ_PRIORITY_skymp5-server 3)
+list(APPEND CMAKEPROJ_PROJECTS server)
+set(CMAKEPROJ_PRIORITY_server 3)

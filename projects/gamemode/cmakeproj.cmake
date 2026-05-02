@@ -1,2 +1,2 @@
-list(APPEND CMAKEPROJ_PROJECTS skymp5-functions-lib)
-set(CMAKEPROJ_PRIORITY_skymp5-functions-lib 2)
+list(APPEND CMAKEPROJ_PROJECTS gamemode)
+set(CMAKEPROJ_PRIORITY_gamemode 2)

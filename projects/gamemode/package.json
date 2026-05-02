@@ -1,0 +1,7 @@
+{
+  "name": "@skymp/gamemode",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Placeholder workspace for the in-tree gamemode. Real source lives in skyrim-multiplayer/skymp5-gamemode and is fetched at CMake configure time when BUILD_GAMEMODE=ON.",
+  "license": "GPL-3.0"
+}
