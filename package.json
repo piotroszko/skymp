@@ -2,10 +2,7 @@
   "name": "skymp",
   "private": true,
   "workspaces": [
-    "skymp5-server",
-    "skymp5-client",
-    "skymp5-front",
-    "skyrim-platform"
+    "projects/*"
   ],
   "scripts": {
     "build": "turbo run build",

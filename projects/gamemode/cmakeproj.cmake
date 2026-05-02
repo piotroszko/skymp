@@ -1,0 +1,2 @@
+list(APPEND CMAKEPROJ_PROJECTS gamemode)
+set(CMAKEPROJ_PRIORITY_gamemode 2)

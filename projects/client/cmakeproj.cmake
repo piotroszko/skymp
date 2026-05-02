@@ -1,0 +1,2 @@
+list(APPEND CMAKEPROJ_PROJECTS client)
+set(CMAKEPROJ_PRIORITY_client 2)

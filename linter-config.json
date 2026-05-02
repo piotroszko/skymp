@@ -51,8 +51,8 @@
       "modes": ["hook", "gha", "manual"],
       "options": {
         "dirs": [
-          { "path": "skymp5-server/cpp/messages", "ext": ".h" },
-          { "path": "skymp5-client/src/services/messages", "ext": ".ts" }
+          { "path": "projects/server/cpp/messages", "ext": ".h" },
+          { "path": "projects/client/src/services/messages", "ext": ".ts" }
         ],
         "exclude": [
           "anyMessage.ts",

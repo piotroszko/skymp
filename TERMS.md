@@ -2,7 +2,7 @@ SkyMP is a free software program that is primarily distributed under the GPLv3 a
 
 While you have wide latitude to use and distribute SkyMP, there is one key requirement that must be followed: when you distribute the software in any form, you must include the full source code or a reference to where it can be obtained. Additionally, any changes you make to the source code must also be made available under the GPL. This ensures that others can benefit from and contribute to the development of SkyMP.
 
-Each subproject within this repository has its own license, which can be found in the top-level folder for that subproject. For example, the license for the `skymp5-server` subproject can be found in the `skymp5-server/LICENSE.md` file. For full details, please be sure to read the appropriate license file for each subproject.
+Each subproject within this repository has its own license, which can be found in the top-level folder for that subproject. For example, the license for the `skymp5-server` subproject can be found in the `projects/server/LICENSE.md` file. For full details, please be sure to read the appropriate license file for each subproject.
 
 While it is technically possible to create a proprietary version of skymp5-client or skymp5-front that could be used with the GPL-licensed SkyMP components, this may not be the most ideal solution. Doing so may lead to compatibility issues and may disappoint users who are expecting a fully open source experience. It may be better to release any modified versions of these subprojects under a GPL-compatible license to ensure seamless integration with the rest of SkyMP.
 

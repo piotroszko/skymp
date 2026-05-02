@@ -16,11 +16,11 @@ Build system is CMake-based. If you work with the whole project, CMake would aut
 
 ## Project Commons
 
-Each project has its folder: `<repo_root>/<project_name>`
+TypeScript / dual-nature projects (the things that ship to users) live under `<repo_root>/projects/<project_name>`. C++ libraries (`libespm`, `papyrus-vm`, `savefile`, `serialization`, `viet`) currently still live at `<repo_root>/<project_name>` and will move to `<repo_root>/libs/<project_name>` in a later phase.
 
 Regardless of language, we use kebab-case for folder names. It's a snake-case variant that uses a hyphen instead of an underscore. (i.e. `skyrim-platform` instead of `skyrim_platform` or `skyrimPlatform`).
 
-Every project has `CMakeLists.txt`. 
+Every project has `CMakeLists.txt`.
 
 Project's `CMakeLists.txt` should define target with the same name as the project.
 

@@ -1,0 +1,2 @@
+list(APPEND CMAKEPROJ_PROJECTS server)
+set(CMAKEPROJ_PRIORITY_server 3)

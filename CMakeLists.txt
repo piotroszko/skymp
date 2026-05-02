@@ -171,31 +171,46 @@ list(APPEND CMAKEPROJ_PROJECTS_LIST)  # List of all projects
 set(CMAKEPROJ_PROJECTS_DEPENDENCIES)  # Dependencies for each project
 set(CMAKEPROJ_PROJECTS_PRIORITY)      # Priority for each project
 
-# Glob directories under source directory root
-file(GLOB ROOT_DIRS RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/*)
-foreach(dir ${ROOT_DIRS})
-  if(IS_DIRECTORY ${CMAKE_SOURCE_DIR}/${dir})
-    # Check if directory has a cmakeproj.cmake file
-    if(EXISTS ${CMAKE_SOURCE_DIR}/${dir}/cmakeproj.cmake)
-      include(${CMAKE_SOURCE_DIR}/${dir}/cmakeproj.cmake)
-      # Add project to the list if not already added
-      if(NOT "${CMAKEPROJ_PROJECTS_LIST}" MATCHES "${dir}")
-        list(APPEND CMAKEPROJ_PROJECTS_LIST ${dir})
-      endif()
-      # Set default priority if not set
-      if (NOT DEFINED CMAKEPROJ_PRIORITY_${dir})
-        set(CMAKEPROJ_PRIORITY_${dir} 0) # Default priority 0 if not defined
-      endif()
+# Group dirs whose direct children may carry a cmakeproj.cmake.
+# Phase 2 introduces projects/. Phase 3 will add libs/ and tests/.
+set(CMAKEPROJ_GROUP_DIRS
+  "${CMAKE_SOURCE_DIR}"           # legacy: C++ libs and tests still at repo root until Phase 3
+  "${CMAKE_SOURCE_DIR}/projects"  # Phase 2
+)
 
-      # Store dependencies and priorities for sorting
-      set(CMAKEPROJ_PROJECTS_DEPENDENCIES ${CMAKEPROJ_PROJECTS_DEPENDENCIES} "${CMAKEPROJ_DEPS_${dir}}")
-      set(CMAKEPROJ_PROJECTS_PRIORITY ${CMAKEPROJ_PROJECTS_PRIORITY} ${CMAKEPROJ_PRIORITY_${dir}})
+set(CMAKEPROJ_CANDIDATE_DIRS)
+foreach(group ${CMAKEPROJ_GROUP_DIRS})
+  if(IS_DIRECTORY "${group}")
+    file(GLOB children RELATIVE "${CMAKE_SOURCE_DIR}" "${group}/*")
+    foreach(child ${children})
+      if(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/${child}")
+        list(APPEND CMAKEPROJ_CANDIDATE_DIRS "${child}")
+      endif()
+    endforeach()
+  endif()
+endforeach()
+list(REMOVE_DUPLICATES CMAKEPROJ_CANDIDATE_DIRS)
+
+# Each project is keyed by its leaf directory name (e.g. "server", "gamemode").
+# CMAKEPROJ_RELPATH_<key> holds the path relative to CMAKE_SOURCE_DIR for add_subdirectory.
+foreach(rel ${CMAKEPROJ_CANDIDATE_DIRS})
+  if(EXISTS "${CMAKE_SOURCE_DIR}/${rel}/cmakeproj.cmake")
+    get_filename_component(key "${rel}" NAME)
+    set(CMAKEPROJ_RELPATH_${key} "${rel}")
+    include("${CMAKE_SOURCE_DIR}/${rel}/cmakeproj.cmake")
+    if(NOT "${CMAKEPROJ_PROJECTS_LIST}" MATCHES "(^|;)${key}(;|$)")
+      list(APPEND CMAKEPROJ_PROJECTS_LIST ${key})
     endif()
+    if(NOT DEFINED CMAKEPROJ_PRIORITY_${key})
+      set(CMAKEPROJ_PRIORITY_${key} 0)
+    endif()
+    set(CMAKEPROJ_PROJECTS_DEPENDENCIES ${CMAKEPROJ_PROJECTS_DEPENDENCIES} "${CMAKEPROJ_DEPS_${key}}")
+    set(CMAKEPROJ_PROJECTS_PRIORITY ${CMAKEPROJ_PROJECTS_PRIORITY} ${CMAKEPROJ_PRIORITY_${key}})
   endif()
 endforeach()
 
 foreach(proj ${CMAKEPROJ_PROJECTS_LIST})
-  list(APPEND priorities_list ${CMAKEPROJ_PRIORITY_${proj}})  
+  list(APPEND priorities_list ${CMAKEPROJ_PRIORITY_${proj}})
 endforeach()
 list(REMOVE_DUPLICATES priorities_list)
 list(SORT priorities_list COMPARE NATURAL)
@@ -209,8 +224,8 @@ foreach(priority ${priorities_list})
 endforeach()
 
 foreach(project ${sorted_projects})
-  message(STATUS "Adding project: ${project} with priority ${CMAKEPROJ_PRIORITY_${project}}")
-  add_subdirectory(${project})
+  message(STATUS "Adding project: ${CMAKEPROJ_RELPATH_${project}} (key=${project}) with priority ${CMAKEPROJ_PRIORITY_${project}}")
+  add_subdirectory(${CMAKEPROJ_RELPATH_${project}})
 endforeach()
 
 if(PREPARE_NEXUS_ARCHIVES)
@@ -224,7 +239,7 @@ if(PREPARE_NEXUS_ARCHIVES)
   set(TARGETS_ADDITIONAL
     skymp5-client
     skymp5-front
-    skymp5-functions-lib
+    gamemode
     skymp5-scripts
     skymp5-server
   )
@@ -239,7 +254,7 @@ endif()
 set(TARGETS_ADDITIONAL
     skymp5-client
     skymp5-front
-    skymp5-functions-lib
+    gamemode
     skymp5-scripts
     skymp5-server
   )
