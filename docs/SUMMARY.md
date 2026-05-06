@@ -28,6 +28,7 @@
 - [Properties System](docs_properties_system.md)
 - [Events System](docs_events_system.md)
 - [Server Data Directory](docs_server_data_directory.md)
+- [Rcon Service](docs_rcon.md)
 
 ## Game Mechanics
 
