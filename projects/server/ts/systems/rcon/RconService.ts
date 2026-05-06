@@ -4,35 +4,27 @@ import { BlockList } from "net";
 
 import { RconSettings } from "../../settings";
 import { Content, Log, System, SystemContext } from "../system";
-import { buildBlockList, ipAllowed, normalizeIp, verifyBearer, verifyTokenString } from "./RconAuth";
+import { buildBlockList, ipAllowed, normalizeIp, verifyTokenString } from "./RconAuth";
 import { RconAudit } from "./RconAudit";
-import { dispatch, RconRuntime } from "./RconCommands";
+import { RconRuntime } from "./RconCommands";
 import { RconEventBus } from "./RconEventBus";
 import {
   rconAuthFailuresCounter,
   rconClientsConnectedGauge,
-  rconExecCounter,
-  rconExecDurationHistogram,
   rconSocketDroppedCounter,
 } from "./RconMetrics";
+import { buildRconApp } from "./RconRouter";
 import {
   AuditEntry,
+  KNOWN_TOPICS,
   PlayerConnectPayload,
   PlayerCustomPacketPayload,
   PlayerDisconnectPayload,
-  RconError,
-  RconExecRequest,
-  RconExecResponse,
   TOPIC_AUDIT,
   TOPIC_PLAYER_CONNECT,
   TOPIC_PLAYER_CUSTOM_PACKET,
   TOPIC_PLAYER_DISCONNECT,
-  KNOWN_TOPICS,
 } from "./RconTypes";
-
-const Koa = require("koa");
-const Router = require("koa-router");
-const koaBody = require("koa-body");
 
 const DEFAULT_PORT = 7790;
 const DEFAULT_HOST = "127.0.0.1";
@@ -93,7 +85,15 @@ export class RconService implements System {
       Server: new (server: http.Server, opts?: any) => SocketIoServer;
     };
 
-    const app = this.buildKoaApp(ctx);
+    const app = buildRconApp({
+      log: this.log,
+      getSettings: () => this.settings,
+      getBlockList: () => this.blockList,
+      runtime: this.runtime,
+      ctx,
+      recordAudit: (entry) => this.recordAudit(entry),
+      getClientsConnected: () => this.clientsConnected,
+    });
     this.httpServer = http.createServer(app.callback());
     this.io = new SocketIoServerCtor(this.httpServer, {
       pingInterval: rconSettings.pingIntervalMs ?? DEFAULT_PING_INTERVAL_MS,
@@ -181,153 +181,6 @@ export class RconService implements System {
   async updateAsync(_ctx: SystemContext): Promise<void> {
     // Bus is also drained by flushTimer for liveness; this acts as a backup.
     this.bus?.flush(this.namespace);
-  }
-
-  private buildKoaApp(ctx: SystemContext): any {
-    const app = new Koa();
-    app.proxy = false;
-    const router = new Router();
-
-    app.use(async (kctx: any, next: () => Promise<void>) => {
-      try {
-        await next();
-      } catch (err) {
-        if (err instanceof RconError) {
-          kctx.status = errorCodeToStatus(err.code);
-          kctx.body = { ok: false, error: { code: err.code, message: err.message } };
-          return;
-        }
-        this.log(
-          `RconService unhandled error: ${(err as Error).message}\n${(err as Error).stack ?? ""}`,
-        );
-        kctx.status = 500;
-        kctx.body = {
-          ok: false,
-          error: { code: "internal", message: "internal error" },
-        };
-      }
-    });
-
-    app.use(async (kctx: any, next: () => Promise<void>) => {
-      const ip = normalizeIp(kctx.request.ip ?? "");
-      if (!this.blockList || !ipAllowed(this.blockList, ip)) {
-        rconAuthFailuresCounter.inc({ channel: "rest", reason: "bad_ip" });
-        kctx.status = 403;
-        kctx.body = { ok: false, error: { code: "bad_auth", message: "ip not allowed" } };
-        return;
-      }
-      await next();
-    });
-
-    app.use(async (kctx: any, next: () => Promise<void>) => {
-      const headerValue = kctx.request.get("authorization");
-      const authorization = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-      if (kctx.path === "/healthz") {
-        await next();
-        return;
-      }
-      if (!verifyBearer(authorization, this.settings?.key ?? "")) {
-        rconAuthFailuresCounter.inc({ channel: "rest", reason: "bad_key" });
-        kctx.status = 401;
-        kctx.set("WWW-Authenticate", 'Rcon realm="rcon"');
-        kctx.body = { ok: false, error: { code: "bad_auth", message: "invalid bearer" } };
-        return;
-      }
-      await next();
-    });
-
-    app.use(
-      koaBody.default
-        ? koaBody.default({ jsonLimit: this.settings?.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES })
-        : koaBody({ jsonLimit: this.settings?.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES }),
-    );
-
-    router.get("/healthz", (kctx: any) => {
-      kctx.body = {
-        ok: true,
-        uptime: process.uptime(),
-        clientsConnected: this.clientsConnected,
-      };
-    });
-
-    router.post("/exec", async (kctx: any) => {
-      const body = (kctx.request.body ?? {}) as Partial<RconExecRequest>;
-      const verb = typeof body.verb === "string" ? body.verb : "";
-      const args =
-        body.args && typeof body.args === "object" && !Array.isArray(body.args)
-          ? (body.args as Record<string, unknown>)
-          : {};
-      const requestId = typeof body.requestId === "string" ? body.requestId : undefined;
-      const actor = normalizeIp(kctx.request.ip ?? "");
-
-      if (!verb) {
-        rconExecCounter.inc({ verb: "<missing>", result: "bad_request" });
-        const response: RconExecResponse = {
-          ok: false,
-          requestId,
-          error: { code: "bad_request", message: "verb is required" },
-        };
-        kctx.status = 400;
-        kctx.body = response;
-        this.recordAudit({
-          ts: new Date().toISOString(),
-          actor,
-          verb,
-          args,
-          ok: false,
-          durationMs: 0,
-          requestId,
-          error: response.error,
-        });
-        return;
-      }
-
-      const endTimer = rconExecDurationHistogram.startTimer({ verb });
-      const startedAt = Date.now();
-      try {
-        const result = await dispatch(verb, args, ctx, this.runtime);
-        endTimer();
-        rconExecCounter.inc({ verb, result: "ok" });
-        const response: RconExecResponse = { ok: true, requestId, result };
-        kctx.body = response;
-        this.recordAudit({
-          ts: new Date().toISOString(),
-          actor,
-          verb,
-          args,
-          ok: true,
-          durationMs: Date.now() - startedAt,
-          requestId,
-        });
-      } catch (err) {
-        endTimer();
-        const rconErr =
-          err instanceof RconError
-            ? err
-            : new RconError("internal", err instanceof Error ? err.message : String(err));
-        rconExecCounter.inc({ verb, result: rconErr.code });
-        kctx.status = errorCodeToStatus(rconErr.code);
-        const response: RconExecResponse = {
-          ok: false,
-          requestId,
-          error: { code: rconErr.code, message: rconErr.message },
-        };
-        kctx.body = response;
-        this.recordAudit({
-          ts: new Date().toISOString(),
-          actor,
-          verb,
-          args,
-          ok: false,
-          durationMs: Date.now() - startedAt,
-          requestId,
-          error: response.error,
-        });
-      }
-    });
-
-    app.use(router.routes()).use(router.allowedMethods());
-    return app;
   }
 
   private attachSocketAuth(): void {
@@ -426,19 +279,5 @@ export class RconService implements System {
     };
     process.on("SIGTERM", () => shutdown("SIGTERM"));
     process.on("SIGINT", () => shutdown("SIGINT"));
-  }
-}
-
-function errorCodeToStatus(code: string): number {
-  switch (code) {
-    case "bad_auth":
-      return 401;
-    case "bad_request":
-      return 400;
-    case "not_connected":
-    case "not_found":
-      return 404;
-    default:
-      return 500;
   }
 }
