@@ -43,6 +43,12 @@ export interface ScampServer {
   clear(): void;
   writeLogs(logLevel: string, message: string): void;
   getPrometheusMetrics(): string;
+
+  get(formId: number, propertyName: string): unknown;
+  set(formId: number, propertyName: string, value: unknown): void;
+  getAllForms(): number[];
+  getDescFromId(formId: number): string;
+  getIdFromDesc(desc: string): number;
 }
 
 export const createScampServer = (serverSettings: Record<string, unknown>) => {

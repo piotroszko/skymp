@@ -11,6 +11,12 @@ export interface AuthSettings {
   maxCharactersPerAccount?: number;
 }
 
+export interface RconRateLimitSettings {
+  rps?: number;
+  burst?: number;
+  disable?: boolean;
+}
+
 export interface RconSettings {
   enabled?: boolean;
   port?: number;
@@ -22,6 +28,8 @@ export interface RconSettings {
   pingIntervalMs?: number;
   pingTimeoutMs?: number;
   enableCustomPacketTopic?: boolean;
+  rateLimit?: RconRateLimitSettings;
+  auditMaxBytesPerFile?: number;
 }
 
 export class Settings {

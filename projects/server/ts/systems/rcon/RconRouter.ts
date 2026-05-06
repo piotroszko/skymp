@@ -1,5 +1,6 @@
 import Koa from "koa";
 import koaBody from "koa-body";
+import ratelimit from "koa-ratelimit";
 import Router from "koa-router";
 import { BlockList } from "net";
 
@@ -11,6 +12,8 @@ import { rconAuthFailuresCounter, rconExecCounter, rconExecDurationHistogram } f
 import { AuditEntry, RconError, RconExecRequest, RconExecResponse } from "./RconTypes";
 
 const DEFAULT_MAX_BODY_BYTES = 65_536;
+const DEFAULT_RATE_LIMIT_BURST = 40;
+const RATE_LIMIT_DURATION_MS = 1000;
 
 export interface RconRouterDeps {
   log: Log;
@@ -28,6 +31,7 @@ export function buildRconApp(deps: RconRouterDeps): Koa {
 
   app.use(errorHandler(deps));
   app.use(ipAllowlistMiddleware(deps));
+  app.use(rateLimitMiddleware(deps));
   app.use(bearerAuthMiddleware(deps));
 
   const maxBodyBytes = deps.getSettings()?.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
@@ -67,6 +71,54 @@ function ipAllowlistMiddleware(deps: RconRouterDeps): Koa.Middleware {
       rconAuthFailuresCounter.inc({ channel: "rest", reason: "bad_ip" });
       kctx.status = 403;
       kctx.body = { ok: false, error: { code: "bad_auth", message: "ip not allowed" } };
+      return;
+    }
+    await next();
+  };
+}
+
+function rateLimitMiddleware(deps: RconRouterDeps): Koa.Middleware {
+  const settings = deps.getSettings();
+  const cfg = settings?.rateLimit;
+  if (cfg?.disable) {
+    return async (_kctx, next) => {
+      await next();
+    };
+  }
+  const max = cfg?.burst ?? DEFAULT_RATE_LIMIT_BURST;
+  const db = new Map<string, { count: number; reset: number }>();
+  const limiter = ratelimit({
+    driver: "memory",
+    db,
+    duration: RATE_LIMIT_DURATION_MS,
+    max,
+    id: (kctx) => normalizeIp(kctx.request.ip ?? ""),
+    headers: {
+      remaining: "X-RateLimit-Remaining",
+      reset: "X-RateLimit-Reset",
+      total: "X-RateLimit-Limit",
+    },
+    throw: false,
+  });
+  return async (kctx, next) => {
+    if (kctx.path === "/healthz") {
+      await next();
+      return;
+    }
+    let limited = false;
+    const innerNext = async () => {
+      // limiter does not call next() when over the limit; track via no-op chain
+    };
+    await limiter(kctx, innerNext);
+    if (kctx.status === 429) {
+      limited = true;
+    }
+    if (limited) {
+      rconAuthFailuresCounter.inc({ channel: "rest", reason: "rate_limited" });
+      kctx.body = {
+        ok: false,
+        error: { code: "rate_limited", message: "rate limit exceeded" },
+      };
       return;
     }
     await next();
@@ -189,6 +241,8 @@ function errorCodeToStatus(code: string): number {
     case "not_connected":
     case "not_found":
       return 404;
+    case "rate_limited":
+      return 429;
     default:
       return 500;
   }

@@ -1,7 +1,12 @@
 import type { ScampServer } from "../../scampNative";
 import { getAggregatedMetrics } from "../metricsSystem";
 import { SystemContext } from "../system";
-import { RconError } from "./RconTypes";
+import {
+  InventoryPayload,
+  RconError,
+  WorldSnapshot,
+  WorldSnapshotEntry,
+} from "./RconTypes";
 
 export interface RconRuntime {
   connectedUserIds: Set<number>;
@@ -16,6 +21,10 @@ export type RconHandler = (
 export const handlers: Record<string, RconHandler> = {
   "players.list": playersList,
   "player.kick": playerKick,
+  "player.teleport": playerTeleport,
+  "player.inventory.get": playerInventoryGet,
+  "player.inventory.set": playerInventorySet,
+  "world.snapshot": worldSnapshot,
   "mp.get": mpGet,
   "mp.set": mpSet,
   "chat.broadcast": chatBroadcast,
@@ -62,6 +71,31 @@ function getOptionalString(args: Record<string, unknown>, key: string): string |
   return value;
 }
 
+function getNumberTriple(args: Record<string, unknown>, key: string): [number, number, number] {
+  const value = args[key];
+  if (
+    !Array.isArray(value) ||
+    value.length !== 3 ||
+    !value.every((v) => typeof v === "number" && Number.isFinite(v))
+  ) {
+    throw new RconError(
+      "bad_request",
+      `Argument "${key}" must be an array of 3 finite numbers`,
+    );
+  }
+  return [value[0] as number, value[1] as number, value[2] as number];
+}
+
+function getOptionalNumberTriple(
+  args: Record<string, unknown>,
+  key: string,
+): [number, number, number] | undefined {
+  if (args[key] === undefined || args[key] === null) {
+    return undefined;
+  }
+  return getNumberTriple(args, key);
+}
+
 function remapNativeError(err: unknown): RconError {
   if (err instanceof RconError) {
     return err;
@@ -85,12 +119,26 @@ function safeCall<T>(fn: () => T): T {
   }
 }
 
+function resolveActorIdForUser(svr: ScampServer, userId: number): number {
+  let actorId: number;
+  try {
+    actorId = svr.getUserActor(userId);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new RconError("not_connected", `userId ${userId} has no associated actor: ${message}`);
+  }
+  if (!actorId || actorId === 0) {
+    throw new RconError("not_connected", `userId ${userId} has no associated actor`);
+  }
+  return actorId;
+}
+
 async function playersList(
   ctx: SystemContext,
   _args: Record<string, unknown>,
   runtime: RconRuntime,
 ): Promise<unknown> {
-  const svr = ctx.svr as ScampServer;
+  const svr = ctx.svr;
   const out: Array<{
     userId: number;
     actorId: number | null;
@@ -137,8 +185,143 @@ async function playerKick(
 ): Promise<unknown> {
   const userId = getNumber(args, "userId");
   const reason = getOptionalString(args, "reason");
-  safeCall(() => (ctx.svr as ScampServer).kick(userId));
+  safeCall(() => ctx.svr.kick(userId));
   return { kicked: true, userId, reason: reason ?? null };
+}
+
+async function playerTeleport(
+  ctx: SystemContext,
+  args: Record<string, unknown>,
+  _runtime: RconRuntime,
+): Promise<unknown> {
+  const userId = getNumber(args, "userId");
+  const pos = getNumberTriple(args, "pos");
+  const cellOrWorldDesc = getString(args, "cellOrWorldDesc");
+  const explicitRot = getOptionalNumberTriple(args, "rot");
+
+  const actorId = resolveActorIdForUser(ctx.svr, userId);
+
+  let rot: [number, number, number];
+  if (explicitRot) {
+    rot = explicitRot;
+  } else {
+    const current = safeCall(() => ctx.svr.get(actorId, "locationalData")) as
+      | { rot?: unknown }
+      | null
+      | undefined;
+    if (
+      current &&
+      typeof current === "object" &&
+      Array.isArray((current as { rot?: unknown }).rot) &&
+      (current as { rot: unknown[] }).rot.length === 3 &&
+      ((current as { rot: unknown[] }).rot as unknown[]).every(
+        (v) => typeof v === "number" && Number.isFinite(v),
+      )
+    ) {
+      const r = (current as { rot: number[] }).rot;
+      rot = [r[0], r[1], r[2]];
+    } else {
+      rot = [0, 0, 0];
+    }
+  }
+
+  const locationalData = { pos, rot, cellOrWorldDesc };
+  safeCall(() => ctx.svr.set(actorId, "locationalData", locationalData));
+  return { teleported: true, userId, actorId, pos, rot, cellOrWorldDesc };
+}
+
+async function playerInventoryGet(
+  ctx: SystemContext,
+  args: Record<string, unknown>,
+  _runtime: RconRuntime,
+): Promise<unknown> {
+  const userId = getNumber(args, "userId");
+  const actorId = resolveActorIdForUser(ctx.svr, userId);
+  const inventory = safeCall(() => ctx.svr.get(actorId, "inventory"));
+  return { userId, actorId, inventory };
+}
+
+async function playerInventorySet(
+  ctx: SystemContext,
+  args: Record<string, unknown>,
+  _runtime: RconRuntime,
+): Promise<unknown> {
+  const userId = getNumber(args, "userId");
+  const inventoryRaw = args["inventory"];
+  if (!inventoryRaw || typeof inventoryRaw !== "object" || Array.isArray(inventoryRaw)) {
+    throw new RconError("bad_request", `Argument "inventory" must be an object`);
+  }
+  const entries = (inventoryRaw as { entries?: unknown }).entries;
+  if (!Array.isArray(entries)) {
+    throw new RconError("bad_request", `Argument "inventory.entries" must be an array`);
+  }
+  const inventory = inventoryRaw as InventoryPayload;
+  const actorId = resolveActorIdForUser(ctx.svr, userId);
+  safeCall(() => ctx.svr.set(actorId, "inventory", inventory));
+  return { ok: true, userId, actorId, entryCount: entries.length };
+}
+
+async function worldSnapshot(
+  ctx: SystemContext,
+  _args: Record<string, unknown>,
+  runtime: RconRuntime,
+): Promise<unknown> {
+  const svr = ctx.svr;
+  const players: WorldSnapshotEntry[] = [];
+  for (const userId of runtime.connectedUserIds) {
+    let actorId: number | null = null;
+    let name: string | null = null;
+    let ip: string | null = null;
+    let guid: string | null = null;
+    let pos: number[] | null = null;
+    let cellOrWorldDesc: string | null = null;
+    try {
+      actorId = svr.getUserActor(userId);
+    } catch {
+      actorId = null;
+    }
+    if (actorId !== null && actorId !== 0) {
+      try {
+        name = svr.getActorName(actorId);
+      } catch {
+        // ignore
+      }
+      try {
+        const located = svr.get(actorId, "locationalData") as
+          | { pos?: unknown; cellOrWorldDesc?: unknown }
+          | null
+          | undefined;
+        if (located && typeof located === "object") {
+          if (Array.isArray((located as { pos?: unknown }).pos)) {
+            pos = (located as { pos: unknown[] }).pos.filter(
+              (v) => typeof v === "number" && Number.isFinite(v),
+            ) as number[];
+            if (pos.length !== 3) {
+              pos = null;
+            }
+          }
+          if (typeof (located as { cellOrWorldDesc?: unknown }).cellOrWorldDesc === "string") {
+            cellOrWorldDesc = (located as { cellOrWorldDesc: string }).cellOrWorldDesc;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    try {
+      ip = svr.getUserIp(userId);
+    } catch {
+      ip = null;
+    }
+    try {
+      guid = svr.getUserGuid(userId);
+    } catch {
+      guid = null;
+    }
+    players.push({ userId, actorId, name, ip, guid, pos, cellOrWorldDesc });
+  }
+  const snapshot: WorldSnapshot = { playerCount: players.length, players };
+  return snapshot;
 }
 
 async function mpGet(
@@ -148,12 +331,7 @@ async function mpGet(
 ): Promise<unknown> {
   const formId = getNumber(args, "formId");
   const propertyName = getString(args, "propertyName");
-  return safeCall(() =>
-    (ctx.svr as unknown as { get: (formId: number, name: string) => unknown }).get(
-      formId,
-      propertyName,
-    ),
-  );
+  return safeCall(() => ctx.svr.get(formId, propertyName));
 }
 
 async function mpSet(
@@ -164,13 +342,7 @@ async function mpSet(
   const formId = getNumber(args, "formId");
   const propertyName = getString(args, "propertyName");
   const value = args["value"];
-  safeCall(() =>
-    (
-      ctx.svr as unknown as {
-        set: (formId: number, name: string, value: unknown) => void;
-      }
-    ).set(formId, propertyName, value),
-  );
+  safeCall(() => ctx.svr.set(formId, propertyName, value));
   return { ok: true };
 }
 
@@ -189,7 +361,7 @@ async function chatBroadcast(
   let delivered = 0;
   for (const userId of runtime.connectedUserIds) {
     try {
-      (ctx.svr as ScampServer).sendCustomPacket(userId, payload);
+      ctx.svr.sendCustomPacket(userId, payload);
       delivered++;
     } catch {
       // skip recipient on per-user failure

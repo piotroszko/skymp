@@ -16,11 +16,15 @@ import {
 import { buildRconApp } from "./RconRouter";
 import {
   AuditEntry,
+  GamemodeErrorPayload,
   KNOWN_TOPICS,
+  PlayerChatPayload,
   PlayerConnectPayload,
   PlayerCustomPacketPayload,
   PlayerDisconnectPayload,
   TOPIC_AUDIT,
+  TOPIC_GAMEMODE_ERROR,
+  TOPIC_PLAYER_CHAT,
   TOPIC_PLAYER_CONNECT,
   TOPIC_PLAYER_CUSTOM_PACKET,
   TOPIC_PLAYER_DISCONNECT,
@@ -35,10 +39,6 @@ const DEFAULT_PING_TIMEOUT_MS = 20_000;
 const FLUSH_INTERVAL_MS = 10;
 
 type SocketIoServerCtor = new (server: http.Server, opts?: Partial<ServerOptions>) => SocketIoServer;
-
-interface SvrWithUserIp {
-  getUserIp(userId: number): string;
-}
 
 export class RconService implements System {
   systemName = "RconService";
@@ -56,6 +56,7 @@ export class RconService implements System {
   };
   private clientsConnected = 0;
   private signalsRegistered = false;
+  private processErrorHandlersRegistered = false;
 
   constructor(
     private readonly log: Log,
@@ -81,8 +82,11 @@ export class RconService implements System {
         : DEFAULT_ALLOWLIST;
     this.blockList = buildBlockList(allowlist);
     this.bus = new RconEventBus();
-    this.audit = new RconAudit(`${this.dataDir.replace(/\/+$/, "")}/rcon-audit`, 10_000, (msg) =>
-      this.log(msg),
+    this.audit = new RconAudit(
+      `${this.dataDir.replace(/\/+$/, "")}/rcon-audit`,
+      10_000,
+      (msg) => this.log(msg),
+      rconSettings.auditMaxBytesPerFile,
     );
 
     const { Server: SocketIoServerCtorRef } = require("socket.io") as {
@@ -132,6 +136,8 @@ export class RconService implements System {
       this.flushTimer.unref();
     }
 
+    this.attachGamemodeErrorHooks();
+    this.attachGamemodeChatHook(ctx);
     this.registerShutdownHooks();
   }
 
@@ -142,7 +148,7 @@ export class RconService implements System {
     this.runtime.connectedUserIds.add(userId);
     let ip = "";
     try {
-      ip = (ctx.svr as unknown as SvrWithUserIp).getUserIp(userId);
+      ip = ctx.svr.getUserIp(userId);
     } catch {
       ip = "";
     }
@@ -259,6 +265,57 @@ export class RconService implements System {
   private recordAudit(entry: AuditEntry): void {
     this.audit?.enqueue(entry);
     this.bus?.push(TOPIC_AUDIT, entry);
+  }
+
+  private attachGamemodeErrorHooks(): void {
+    if (this.processErrorHandlersRegistered) {
+      return;
+    }
+    this.processErrorHandlersRegistered = true;
+    const push = (kind: GamemodeErrorPayload["kind"], errOrReason: unknown) => {
+      if (!this.settings || !this.bus) {
+        return;
+      }
+      const err = errOrReason instanceof Error ? errOrReason : new Error(String(errOrReason));
+      const payload: GamemodeErrorPayload = {
+        kind,
+        message: err.message,
+        stack: err.stack ?? null,
+        ts: new Date().toISOString(),
+      };
+      this.bus.push(TOPIC_GAMEMODE_ERROR, payload);
+    };
+    process.on("uncaughtException", (err) => push("uncaughtException", err));
+    process.on("unhandledRejection", (reason) => push("unhandledRejection", reason));
+  }
+
+  private attachGamemodeChatHook(ctx: SystemContext): void {
+    ctx.gm.on("chat", (raw: unknown) => {
+      if (!this.settings || !this.bus) {
+        return;
+      }
+      const payload = this.normalizeChatPayload(raw);
+      if (!payload) {
+        return;
+      }
+      this.bus.push(TOPIC_PLAYER_CHAT, payload);
+    });
+  }
+
+  private normalizeChatPayload(raw: unknown): PlayerChatPayload | null {
+    if (!raw || typeof raw !== "object") {
+      return null;
+    }
+    const r = raw as { userId?: unknown; text?: unknown; channel?: unknown; ts?: unknown };
+    if (typeof r.userId !== "number" || typeof r.text !== "string") {
+      return null;
+    }
+    return {
+      userId: r.userId,
+      text: r.text,
+      channel: typeof r.channel === "string" ? r.channel : undefined,
+      ts: typeof r.ts === "string" ? r.ts : new Date().toISOString(),
+    };
   }
 
   private registerShutdownHooks(): void {
