@@ -17,7 +17,6 @@ import { DisableFastTravelService } from "./services/disableFastTravelService";
 import { DisableSkillAdvanceService } from "./services/disableSkillAdvanceService";
 import { DropItemService } from "./services/dropItemService";
 import { EnforceLimitationsService } from "./services/enforceLimitationsService";
-import { EventLoggerService } from "./services/eventLoggerService";
 import { FrontHotReloadService } from "./services/frontHotReloadService";
 import { GamemodeEventSourceService } from "./services/gamemodeEventSourceService";
 import { GamemodeUpdateService } from "./services/gamemodeUpdateService";
@@ -115,7 +114,7 @@ const main = () => {
     new SweetTaffyNicknamesService(sp, controller),
     new ServerJsVerificationService(sp, controller),
     new AdminPanelService(sp, controller),
-    new EventLoggerService(sp, controller),
+    // new EventLoggerService(sp, controller), # uncomment for testing purposes, will cause performance issues
   ];
   SpApiInteractor.setup(listeners);
 };
