@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as http from "http";
 import { BlockList } from "net";
+import type { Namespace, Server as SocketIoServer, ServerOptions, Socket } from "socket.io";
 
 import { RconSettings } from "../../settings";
 import { Content, Log, System, SystemContext } from "../system";
@@ -34,7 +34,11 @@ const DEFAULT_PING_INTERVAL_MS = 25_000;
 const DEFAULT_PING_TIMEOUT_MS = 20_000;
 const FLUSH_INTERVAL_MS = 10;
 
-type SocketIoServer = any;
+type SocketIoServerCtor = new (server: http.Server, opts?: Partial<ServerOptions>) => SocketIoServer;
+
+interface SvrWithUserIp {
+  getUserIp(userId: number): string;
+}
 
 export class RconService implements System {
   systemName = "RconService";
@@ -43,7 +47,7 @@ export class RconService implements System {
   private blockList: BlockList | null = null;
   private httpServer: http.Server | null = null;
   private io: SocketIoServer | null = null;
-  private namespace: any = null;
+  private namespace: Namespace | null = null;
   private audit: RconAudit | null = null;
   private bus: RconEventBus | null = null;
   private flushTimer: NodeJS.Timeout | null = null;
@@ -81,8 +85,8 @@ export class RconService implements System {
       this.log(msg),
     );
 
-    const { Server: SocketIoServerCtor } = require("socket.io") as {
-      Server: new (server: http.Server, opts?: any) => SocketIoServer;
+    const { Server: SocketIoServerCtorRef } = require("socket.io") as {
+      Server: SocketIoServerCtor;
     };
 
     const app = buildRconApp({
@@ -95,7 +99,7 @@ export class RconService implements System {
       getClientsConnected: () => this.clientsConnected,
     });
     this.httpServer = http.createServer(app.callback());
-    this.io = new SocketIoServerCtor(this.httpServer, {
+    this.io = new SocketIoServerCtorRef(this.httpServer, {
       pingInterval: rconSettings.pingIntervalMs ?? DEFAULT_PING_INTERVAL_MS,
       pingTimeout: rconSettings.pingTimeoutMs ?? DEFAULT_PING_TIMEOUT_MS,
       serveClient: false,
@@ -131,14 +135,14 @@ export class RconService implements System {
     this.registerShutdownHooks();
   }
 
-  connect(userId: number, _ctx: SystemContext): void {
+  connect(userId: number, ctx: SystemContext): void {
     if (!this.settings) {
       return;
     }
     this.runtime.connectedUserIds.add(userId);
     let ip = "";
     try {
-      ip = (_ctx.svr as unknown as { getUserIp: (u: number) => string }).getUserIp(userId);
+      ip = (ctx.svr as unknown as SvrWithUserIp).getUserIp(userId);
     } catch {
       ip = "";
     }
@@ -187,17 +191,16 @@ export class RconService implements System {
     if (!this.namespace) {
       return;
     }
-    this.namespace.use((socket: any, next: (err?: Error) => void) => {
-      const handshake = socket.handshake ?? {};
+    this.namespace.use((socket: Socket, next: (err?: Error) => void) => {
+      const handshake = socket.handshake;
       const ip = normalizeIp(handshake.address ?? "");
       if (!this.blockList || !ipAllowed(this.blockList, ip)) {
         rconAuthFailuresCounter.inc({ channel: "ws", reason: "bad_ip" });
         next(new Error("ip not allowed"));
         return;
       }
-      const auth = handshake.auth ?? {};
-      const token = auth.token;
-      if (!verifyTokenString(token, this.settings?.key ?? "")) {
+      const tokenRaw = (handshake.auth as { token?: unknown })?.token;
+      if (!verifyTokenString(tokenRaw, this.settings?.key ?? "")) {
         rconAuthFailuresCounter.inc({ channel: "ws", reason: "bad_key" });
         next(new Error("invalid token"));
         return;
@@ -210,7 +213,7 @@ export class RconService implements System {
     if (!this.namespace) {
       return;
     }
-    this.namespace.on("connection", (socket: any) => {
+    this.namespace.on("connection", (socket: Socket) => {
       this.clientsConnected++;
       rconClientsConnectedGauge.set(this.clientsConnected);
 

@@ -1,16 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BlockList } from "net";
 
 import { RconSettings } from "../../settings";
 import { Log, SystemContext } from "../system";
+import {
+  KoaApp,
+  KoaAppCtor,
+  KoaBodyModule,
+  KoaContext,
+  KoaMiddleware,
+  KoaNext,
+  KoaRouter,
+  KoaRouterCtor,
+} from "./KoaShims";
 import { ipAllowed, normalizeIp, verifyBearer } from "./RconAuth";
 import { dispatch, RconRuntime } from "./RconCommands";
 import { rconAuthFailuresCounter, rconExecCounter, rconExecDurationHistogram } from "./RconMetrics";
 import { AuditEntry, RconError, RconExecRequest, RconExecResponse } from "./RconTypes";
 
-const Koa = require("koa");
-const Router = require("koa-router");
-const koaBody = require("koa-body");
+const Koa = require("koa") as KoaAppCtor;
+const Router = require("koa-router") as KoaRouterCtor;
+const koaBody = require("koa-body") as KoaBodyModule;
 
 const DEFAULT_MAX_BODY_BYTES = 65_536;
 
@@ -24,7 +33,7 @@ export interface RconRouterDeps {
   getClientsConnected: () => number;
 }
 
-export function buildRconApp(deps: RconRouterDeps): any {
+export function buildRconApp(deps: RconRouterDeps): KoaApp {
   const app = new Koa();
   app.proxy = false;
 
@@ -33,11 +42,8 @@ export function buildRconApp(deps: RconRouterDeps): any {
   app.use(bearerAuthMiddleware(deps));
 
   const maxBodyBytes = deps.getSettings()?.maxBodyBytes ?? DEFAULT_MAX_BODY_BYTES;
-  app.use(
-    koaBody.default
-      ? koaBody.default({ jsonLimit: maxBodyBytes })
-      : koaBody({ jsonLimit: maxBodyBytes }),
-  );
+  const bodyFactory = koaBody.default ?? koaBody;
+  app.use(bodyFactory({ jsonLimit: maxBodyBytes }));
 
   const router = new Router();
   registerHealthRoute(router, deps);
@@ -47,8 +53,8 @@ export function buildRconApp(deps: RconRouterDeps): any {
   return app;
 }
 
-function errorHandler(deps: RconRouterDeps) {
-  return async (kctx: any, next: () => Promise<void>) => {
+function errorHandler(deps: RconRouterDeps): KoaMiddleware {
+  return async (kctx: KoaContext, next: KoaNext) => {
     try {
       await next();
     } catch (err) {
@@ -57,17 +63,16 @@ function errorHandler(deps: RconRouterDeps) {
         kctx.body = { ok: false, error: { code: err.code, message: err.message } };
         return;
       }
-      deps.log(
-        `RconService unhandled error: ${(err as Error).message}\n${(err as Error).stack ?? ""}`,
-      );
+      const error = err instanceof Error ? err : new Error(String(err));
+      deps.log(`RconService unhandled error: ${error.message}\n${error.stack ?? ""}`);
       kctx.status = 500;
       kctx.body = { ok: false, error: { code: "internal", message: "internal error" } };
     }
   };
 }
 
-function ipAllowlistMiddleware(deps: RconRouterDeps) {
-  return async (kctx: any, next: () => Promise<void>) => {
+function ipAllowlistMiddleware(deps: RconRouterDeps): KoaMiddleware {
+  return async (kctx: KoaContext, next: KoaNext) => {
     const ip = normalizeIp(kctx.request.ip ?? "");
     const blockList = deps.getBlockList();
     if (!blockList || !ipAllowed(blockList, ip)) {
@@ -80,14 +85,13 @@ function ipAllowlistMiddleware(deps: RconRouterDeps) {
   };
 }
 
-function bearerAuthMiddleware(deps: RconRouterDeps) {
-  return async (kctx: any, next: () => Promise<void>) => {
+function bearerAuthMiddleware(deps: RconRouterDeps): KoaMiddleware {
+  return async (kctx: KoaContext, next: KoaNext) => {
     if (kctx.path === "/healthz") {
       await next();
       return;
     }
-    const headerValue = kctx.request.get("authorization");
-    const authorization = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+    const authorization = kctx.request.get("authorization");
     const key = deps.getSettings()?.key ?? "";
     if (!verifyBearer(authorization, key)) {
       rconAuthFailuresCounter.inc({ channel: "rest", reason: "bad_key" });
@@ -100,8 +104,8 @@ function bearerAuthMiddleware(deps: RconRouterDeps) {
   };
 }
 
-function registerHealthRoute(router: any, deps: RconRouterDeps): void {
-  router.get("/healthz", (kctx: any) => {
+function registerHealthRoute(router: KoaRouter, deps: RconRouterDeps): void {
+  router.get("/healthz", (kctx: KoaContext) => {
     kctx.body = {
       ok: true,
       uptime: process.uptime(),
@@ -110,8 +114,8 @@ function registerHealthRoute(router: any, deps: RconRouterDeps): void {
   });
 }
 
-function registerExecRoute(router: any, deps: RconRouterDeps): void {
-  router.post("/exec", async (kctx: any) => {
+function registerExecRoute(router: KoaRouter, deps: RconRouterDeps): void {
+  router.post("/exec", async (kctx: KoaContext) => {
     const body = (kctx.request.body ?? {}) as Partial<RconExecRequest>;
     const verb = typeof body.verb === "string" ? body.verb : "";
     const args =
