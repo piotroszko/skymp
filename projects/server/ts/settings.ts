@@ -11,6 +11,27 @@ export interface AuthSettings {
   maxCharactersPerAccount?: number;
 }
 
+export interface RconRateLimitSettings {
+  rps?: number;
+  burst?: number;
+  disable?: boolean;
+}
+
+export interface RconSettings {
+  enabled?: boolean;
+  port?: number;
+  listenHost?: string;
+  key?: string;
+  ipAllowlist?: string[];
+  maxBodyBytes?: number;
+  socketQueueMax?: number;
+  pingIntervalMs?: number;
+  pingTimeoutMs?: number;
+  enableCustomPacketTopic?: boolean;
+  rateLimit?: RconRateLimitSettings;
+  auditMaxBytesPerFile?: number;
+}
+
 export class Settings {
   port = 7777;
   maxPlayers = 100;
@@ -29,6 +50,7 @@ export class Settings {
   databaseUri: string | null = null;
   databaseName: string | null = null;
   auth: AuthSettings | null = null;
+  rcon: RconSettings | null = null;
 
   allSettings: Record<string, unknown> | null = null;
 
@@ -64,6 +86,7 @@ export class Settings {
       "databaseUri",
       "databaseName",
       "auth",
+      "rcon",
     ].forEach((prop) => {
       if (settings[prop]) {
         (this as Record<string, unknown>)[prop] = settings[prop];

@@ -1,0 +1,10 @@
+{
+  "rcon": {
+    "enabled": true,
+    "port": 7794,
+    "listenHost": "127.0.0.1",
+    "key": "integration-key-do-not-use-in-prod",
+    "ipAllowlist": ["127.0.0.1/32", "::1/128"],
+    "rateLimit": { "burst": 5 }
+  }
+}

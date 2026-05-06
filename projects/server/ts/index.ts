@@ -28,6 +28,7 @@ import { createScampServer } from "./scampNative";
 import { Settings } from "./settings";
 import { AuthService, defaultAuthOptions } from "./systems/authService";
 import { MetricsSystem, tickDurationHistogram, tickDurationSummary } from "./systems/metricsSystem";
+import { RconService } from "./systems/rcon/RconService";
 import { Spawn } from "./systems/spawn";
 import { System } from "./systems/system";
 
@@ -195,7 +196,12 @@ const main = async () => {
   };
 
   const systems = new Array<System>();
-  systems.push(new MetricsSystem(), new Spawn(log), new AuthService(log, userStore, authOptions));
+  systems.push(
+    new MetricsSystem(),
+    new Spawn(log),
+    new AuthService(log, userStore, authOptions),
+    new RconService(log, settingsObject.rcon, dataDir),
+  );
 
   setupStreams(scampNative.getScampNative());
 
